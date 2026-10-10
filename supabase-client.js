@@ -6,10 +6,10 @@
 (function (window) {
   'use strict';
 
-  // Configured via project credentials
+  // Configured via project credentials with flexible runtime override support
   const SUPABASE_CONFIG = {
-    url: 'https://rrkgrisyaeeuphnvhflu.supabase.co',
-    anonKey: 'sb_publishable_EA2Vt_mY3bfxf9o0Ufgs4Q_WAufCucT'
+    url: (window.__ENV && window.__ENV.SUPABASE_URL) || (window.ENV && window.ENV.SUPABASE_URL) || 'https://rrkgrisyaeeuphnvhflu.supabase.co',
+    anonKey: (window.__ENV && window.__ENV.SUPABASE_ANON_KEY) || (window.ENV && window.ENV.SUPABASE_ANON_KEY) || 'sb_publishable_EA2Vt_mY3bfxf9o0Ufgs4Q_WAufCucT'
   };
 
   let supabaseClient = null;
