@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login | TECHNORITI '26 BCE Bhagalpur</title>
+  <meta name="robots" content="noindex, nofollow">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="admin.css">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+</head>
+<body>
+  <div class="login-container">
+    <div class="login-card">
+      <div class="login-header">
+        <div class="login-badge">
+          <span>⚡</span>
+          <span>RESTRICTED ACCESS</span>
+        </div>
+        <h1 class="login-title">TECHNORITI '26</h1>
+        <p class="login-sub">Festival Operations & Command Center</p>
+      </div>
+
+      <div id="loginError" class="login-error" role="alert"></div>
+
+      <form id="adminLoginForm" class="login-form" autocomplete="on">
+        <div class="form-group">
+          <label for="adminEmail">Administrator Email</label>
+          <input 
+            type="email" 
+            id="adminEmail" 
+            name="email" 
+            required 
+            placeholder="admin@technoriti.in"
+            autocomplete="email"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="adminPassword">Master Password</label>
+          <input 
+            type="password" 
+            id="adminPassword" 
+            name="password" 
+            required 
+            placeholder="••••••••••••"
+            autocomplete="current-password"
+          >
+        </div>
+
+        <button type="submit" id="loginBtn" class="login-btn">
+          <span id="btnText">AUTHENTICATE ACCESS</span>
+        </button>
+      </form>
+
+      <div style="margin-top: 24px; text-align: center;">
+        <a href="../index.html" style="color: var(--text-dim); font-size: 0.8rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: color 0.2s ease;">
+          <span>←</span> Back to Public Portal
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Supabase CDN & Client SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../supabase-client.js"></script>
+
+  <script>
+    (async function initLogin() {
+      // Check if already logged in as admin
+      try {
+        const isAdmin = await TechnoritiDB.checkIsAdmin();
+        if (isAdmin) {
+          window.location.replace('index.html');
+          return;
+        }
+      } catch (err) {
+        console.warn('Initial session check:', err);
+      }
+
+      const form = document.getElementById('adminLoginForm');
+      const emailInput = document.getElementById('adminEmail');
+      const passInput = document.getElementById('adminPassword');
+      const loginBtn = document.getElementById('loginBtn');
+      const btnText = document.getElementById('btnText');
+      const errorBox = document.getElementById('loginError');
+
+      function showError(msg) {
+        errorBox.textContent = msg;
+        errorBox.style.display = 'block';
+      }
+
+      function clearError() {
+        errorBox.textContent = '';
+        errorBox.style.display = 'none';
+      }
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        clearError();
+
+        const email = emailInput.value.trim();
+        const password = passInput.value;
+
+        if (!email || !password) {
+          showError('Please enter both email and password.');
+          return;
+        }
+
+        loginBtn.disabled = true;
+        btnText.textContent = 'VERIFYING CREDENTIALS...';
+
+        try {
+          const res = await TechnoritiDB.signInAdmin(email, password);
+
+          if (!res.success) {
+            showError(res.error || 'Authentication failed. Please verify credentials.');
+            loginBtn.disabled = false;
+            btnText.textContent = 'AUTHENTICATE ACCESS';
+            return;
+          }
+
+          btnText.textContent = 'ACCESS GRANTED. REDIRECTING...';
+          setTimeout(() => {
+            window.location.replace('index.html');
+          }, 350);
+        } catch (err) {
+          showError(err.message || 'An unexpected error occurred. Check internet connectivity.');
+          loginBtn.disabled = false;
+          btnText.textContent = 'AUTHENTICATE ACCESS';
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

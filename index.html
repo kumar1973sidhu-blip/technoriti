@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TECHNORITI '26 | Bhagalpur College of Engineering</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="clean-portal">
+  <!-- Neon Leaf Custom Cursor & Spore Trail -->
+  <div id="neon-leaf-cursor" class="neon-leaf-cursor" aria-hidden="true">
+    <svg width="34" height="34" viewBox="0 0 34 34" fill="none" class="leaf-svg">
+      <defs>
+        <linearGradient id="neonLeafGradient" x1="2" y1="2" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stop-color="#00ffff" />
+          <stop offset="40%" stop-color="#00ff88" />
+          <stop offset="85%" stop-color="#10b981" />
+          <stop offset="100%" stop-color="#00e5ff" />
+        </linearGradient>
+        <filter id="neonLeafGlow" x="-60%" y="-60%" width="220%" height="220%">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="2.5" result="blur1" />
+          <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="blur2" />
+          <feMerge>
+            <feMergeNode in="blur2" />
+            <feMergeNode in="blur1" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+      </defs>
+      <!-- Glowing Outer Neon Aura -->
+      <path d="M 2 2 C 15 4 28 14 28 26 C 28 29 25 30 22 30 C 11 30 4 15 2 2 Z" fill="rgba(0, 255, 170, 0.55)" filter="url(#neonLeafGlow)" />
+      <!-- Main Leaf Blade -->
+      <path d="M 2 2 C 15 4 28 14 28 26 C 28 29 25 30 22 30 C 11 30 4 15 2 2 Z" fill="url(#neonLeafGradient)" stroke="#ffffff" stroke-width="0.8" />
+      <!-- Luminous Center Spine Vein -->
+      <path d="M 2 2 Q 14 14 24 27" stroke="#ffffff" stroke-width="1.4" stroke-linecap="round" />
+      <!-- Organic Secondary Veins -->
+      <path d="M 8 8 Q 14 7 19 10" stroke="#ffffff" stroke-width="0.8" stroke-linecap="round" opacity="0.85" />
+      <path d="M 13 13 Q 19 14 24 18" stroke="#ffffff" stroke-width="0.8" stroke-linecap="round" opacity="0.85" />
+      <path d="M 7 11 Q 8 16 12 21" stroke="#ffffff" stroke-width="0.8" stroke-linecap="round" opacity="0.85" />
+      <!-- Pinpoint Optical Pointer Tip -->
+      <circle cx="2" cy="2" r="1.8" fill="#ffffff" />
+    </svg>
+  </div>
+  <div id="leaf-trail-container" class="leaf-trail-container" aria-hidden="true"></div>
+  <div id="cursor-glow" class="cursor-glow"></div>
+
+  <!-- Loading Screen -->
+  <div id="loader" class="loader-overlay">
+    <div class="loader-content">
+      <div class="loader-badge">
+        <span class="pulse-dot"></span>
+        <span>BCE BHAGALPUR PRESENTS</span>
+      </div>
+      <h1 class="loader-title">TECHNORITI '26</h1>
+      <p class="loader-subtitle">Loading futuristic portal & canvas experience...</p>
+      
+      <div class="progress-container">
+        <div class="progress-bar-bg">
+          <div id="loader-progress" class="progress-bar-fill"></div>
+        </div>
+        <div class="progress-info">
+          <span id="loader-status">Initializing stream...</span>
+          <span id="loader-percent" class="percent-counter">0%</span>
+        </div>
+      </div>
+
+      <button id="start-btn" class="start-btn hidden">
+        <span>Enter Technoriti '26</span>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+          <polyline points="12 5 19 12 12 19"></polyline>
+        </svg>
+      </button>
+    </div>
+    <div class="loader-background-grid"></div>
+  </div>
+
+  <!-- Background Canvas Viewport (170 Frames Smooth Scroll Animation) -->
+  <div class="canvas-viewport" id="canvas-wrapper">
+    <canvas id="animation-canvas"></canvas>
+    <div class="canvas-vignette"></div>
+    <div class="color-grade-overlay"></div>
+  </div>
+
+  <!-- Top Futuristic Navigation Bar (Techfest Style) -->
+  <header class="site-header">
+    <div class="header-inner">
+      <!-- Logo Left -->
+      <a href="javascript:void(0)" onclick="window.closeAllPanels()" class="brand" title="Technoriti '26 Home">
+        <div class="brand-symbol">
+          <svg viewBox="0 0 32 32" width="28" height="28" fill="none">
+            <polygon points="16,2 30,10 30,22 16,30 2,22 2,10" stroke="var(--accent-cyan)" stroke-width="2" fill="rgba(0, 240, 255, 0.08)"/>
+            <path d="M10 16 L16 22 L22 10" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <span class="brand-title">TECHNORITI '26</span>
+          <span class="brand-tag">BCE BHAGALPUR</span>
+        </div>
+      </a>
+
+      <!-- Angular Center Menu Pod -->
+      <nav class="angular-nav-pod">
+        <ul class="nav-links">
+          <li><button class="nav-item" onclick="window.openPanel('about')">ABOUT</button></li>
+          <li><button class="nav-item" onclick="window.openPanel('competitions')">COMPETITIONS</button></li>
+          <li><button class="nav-item" onclick="window.openPanel('accommodation')">ACCOMMODATION</button></li>
+          <li><button class="nav-item" onclick="window.openPanel('sponsors')">SPONSORS</button></li>
+        </ul>
+      </nav>
+
+      <!-- Right Action Buttons -->
+      <div class="header-actions">
+        <!-- Ambient Sound Toggle -->
+        <button id="audio-toggle" class="action-btn" title="Toggle Cosmic Soundscape" aria-label="Toggle Sound">
+          <svg id="audio-icon-off" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <line x1="23" y1="9" x2="17" y2="15"></line>
+            <line x1="17" y1="9" x2="23" y2="15"></line>
+          </svg>
+          <svg id="audio-icon-on" class="hidden soundwave-active" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+          </svg>
+        </button>
+
+        <!-- Admin Portal Link -->
+        <a href="admin/" class="action-btn" title="Festival Admin Console" aria-label="Admin Console" style="text-decoration: none;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+        </a>
+
+        <!-- Register Button -->
+        <button class="cyber-btn-register" onclick="window.openPanel('register')">
+          <span class="btn-text">REGISTER</span>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Left Floating Dock (Reference Style) -->
+  <aside class="floating-dock dock-left">
+    <button class="dock-link active" onclick="window.closeAllPanels()" title="Home">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+      <span class="dock-label">Home</span>
+    </button>
+    <button class="dock-link" onclick="window.openPanel('about')" title="About">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+      <span class="dock-label">About</span>
+    </button>
+    <button class="dock-link" onclick="window.openPanel('competitions')" title="Competitions">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+      <span class="dock-label">Competitions</span>
+    </button>
+    <button class="dock-link" onclick="window.openPanel('accommodation')" title="Accommodation">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9h18v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9z"></path><path d="M3 9V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4"></path><path d="M8 21v-4"></path><path d="M16 21v-4"></path></svg>
+      <span class="dock-label">Accommodation</span>
+    </button>
+    <button class="dock-link" onclick="window.openPanel('sponsors')" title="Sponsors">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+      <span class="dock-label">Sponsors</span>
+    </button>
+    <button class="dock-link" onclick="window.openPanel('register')" title="Register">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
+      <span class="dock-label">Register</span>
+    </button>
+  </aside>
+
+  <!-- Right Floating Social Dock -->
+  <aside class="floating-dock dock-right">
+    <a href="https://instagram.com" target="_blank" rel="noopener" class="social-icon" title="Instagram">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+    </a>
+    <a href="https://linkedin.com" target="_blank" rel="noopener" class="social-icon" title="LinkedIn">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+    </a>
+    <a href="https://t.me" target="_blank" rel="noopener" class="social-icon" title="Telegram">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+    </a>
+    <a href="https://youtube.com" target="_blank" rel="noopener" class="social-icon" title="YouTube">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"></path><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"></polygon></svg>
+    </a>
+    <a href="https://whatsapp.com" target="_blank" rel="noopener" class="social-icon" title="WhatsApp">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+    </a>
+  </aside>
+
+  <!-- ==================== CLEAN HERO STAGE ==================== -->
+  <main class="clean-hero-viewport">
+    <div class="hero-stage-content">
+      <div class="hero-badge">
+        <span class="pulsing-radar"></span>
+        <span>EAST INDIA'S PREMIER TECHNICAL FESTIVAL</span>
+      </div>
+      
+      <h2 class="hero-college-tag">BHAGALPUR COLLEGE OF ENGINEERING</h2>
+      <h1 class="hero-main-title">TECHNORITI '26</h1>
+      <p class="hero-date-cue">COMING DECEMBER 2026</p>
+      <p class="hero-tagline">An Aetherial Confluence of Technology, Robotics & Pure Innovation</p>
+
+      <div class="hero-stats-bar">
+        <div class="stat-cell">
+          <span class="sc-num">DEC 2026</span>
+          <span class="sc-label">EDITION DATES</span>
+        </div>
+        <div class="stat-sep">/</div>
+        <div class="stat-cell">
+          <span class="sc-num">29+</span>
+          <span class="sc-label">TECH COMPETITIONS</span>
+        </div>
+        <div class="stat-sep">/</div>
+        <div class="stat-cell">
+          <span class="sc-num">₹1,00,000+</span>
+          <span class="sc-label">PRIZE POOL</span>
+        </div>
+      </div>
+
+      <div class="hero-cta-buttons">
+        <button class="primary-glow-btn" onclick="window.openPanel('competitions')">
+          <span>EXPLORE COMPETITIONS</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        </button>
+        <button class="secondary-glass-btn" onclick="window.openPanel('register')">
+          <span>REGISTER NOW</span>
+        </button>
+        <button class="tertiary-pill-btn" onclick="window.openPanel('accommodation')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+          <span>HOSTEL & STAY</span>
+        </button>
+      </div>
+
+      <div class="scroll-canvas-cue">
+        <div class="scroll-mouse-icon">
+          <div class="wheel-dot"></div>
+        </div>
+        <span>SCROLL TO EXPLORE 3D ODYSSEY</span>
+      </div>
+    </div>
+  </main>
+
+  <!-- =====================================================================
+       SLIDE-OUT PANELS (CLICK-TO-VIEW CLEAN ARCHITECTURE)
+       ===================================================================== -->
+
+  <!-- 1. ABOUT PANEL -->
+  <div id="about-panel" class="slide-panel-overlay" onclick="window.handleOverlayClick(event, 'about')">
+    <div class="slide-panel-drawer glassmorphism-drawer" onclick="event.stopPropagation()">
+      <div class="drawer-header">
+        <div>
+          <span class="panel-badge">HERITAGE & LEADERSHIP</span>
+          <h2 class="drawer-title">ABOUT TECHNORITI '26</h2>
+        </div>
+        <button class="drawer-close-btn" onclick="window.closeAllPanels()" title="Close (Esc)">✕</button>
+      </div>
+
+      <div class="drawer-body">
+        <!-- New Principal Card -->
+        <div class="principal-spotlight-card">
+          <div class="principal-photo-wrap">
+            <img src="principal-portrait.png" alt="Dr. Bimlesh Kumar, Principal BCE Bhagalpur" class="principal-img">
+            <span class="principal-tag">HEAD OF INSTITUTION</span>
+          </div>
+          <div class="principal-text-content">
+            <h3 class="principal-name">Dr. Bimlesh Kumar</h3>
+            <p class="principal-title">Principal, Bhagalpur College of Engineering</p>
+            <div class="principal-quote-box">
+              <p>
+                "Education prepares a person to meet new challenges, scale fresh heights and lead a successful life. We, therefore, at BCE Bhagalpur, would like to encourage all students to strive for the best and achieve excellence by way of inclusiveness, integrity, innovation and creativity."
+              </p>
+              <p>
+                "Institution is not only for academic brilliance but also for an ambience where our ancient cultural heritage and human skills are enhanced. Our constant endeavour is to create a climate for the dissemination of knowledge and technical skills wherein the products of this Institution compete with the best in the country. I wish my students have a glorious academic career and splendid future as confident and successful technocrats."
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Convenors & Institution Grid -->
+        <div class="drawer-two-col">
+          <div class="drawer-subcard">
+            <h4 class="subcard-title">FEST CONVENORS</h4>
+            <div class="convenor-row">
+              <div class="c-avatar">RM</div>
+              <div>
+                <strong>Prof. Ranjan Kumar Mishra</strong>
+                <span>HOD, Department of Chemistry</span>
+              </div>
+            </div>
+            <div class="convenor-row">
+              <div class="c-avatar">SS</div>
+              <div>
+                <strong>Prof. Shashank Shekhar</strong>
+                <span>HOD, Department of Humanities</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="drawer-subcard">
+            <h4 class="subcard-title">BCE LEGACY (ESTD. 1960)</h4>
+            <p style="color:var(--text-secondary); font-size:0.9rem; line-height:1.6;">
+              Bhagalpur College of Engineering is one of the premier technical colleges in Bihar. Technoriti brings together over 1,500 innovators across robotics, coding, cyber forensics, aerospace design, and core engineering branches.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. COMPETITIONS PANEL -->
+  <div id="competitions-panel" class="slide-panel-overlay" onclick="window.handleOverlayClick(event, 'competitions')">
+    <div class="slide-panel-drawer wide-drawer glassmorphism-drawer" onclick="event.stopPropagation()">
+      <div class="drawer-header">
+        <div>
+          <span class="panel-badge">DECEMBER 2026 ARENAS</span>
+          <h2 class="drawer-title">29 COMPETITIONS & CHALLENGES</h2>
+        </div>
+        <button class="drawer-close-btn" onclick="window.closeAllPanels()" title="Close (Esc)">✕</button>
+      </div>
+
+      <div class="drawer-body">
+        <!-- Filter Tabs -->
+        <div class="filter-tabs" id="event-filters">
+          <button class="filter-btn active" data-filter="all">All Arenas (29)</button>
+          <button class="filter-btn" data-filter="robotics">Robotics & Hardware</button>
+          <button class="filter-btn" data-filter="coding">Coding & Cyber</button>
+          <button class="filter-btn" data-filter="design">Design & Civil</button>
+          <button class="filter-btn" data-filter="gaming">Esports & Gaming</button>
+          <button class="filter-btn" data-filter="quizzes">Quizzes & Literary</button>
+        </div>
+
+        <!-- Competitions Grid -->
+        <div class="competitions-grid" id="competitions-grid">
+          <!-- Populated dynamically via script.js -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. ACCOMMODATION PANEL (INTERACTIVE 3D ROTATING ROOM) -->
+  <div id="accommodation-panel" class="slide-panel-overlay accommodation-3d-overlay" onclick="window.handleOverlayClick(event, 'accommodation')">
+    <div class="room-viewport-container" onclick="event.stopPropagation()">
+      <!-- Top Room Control Header -->
+      <div class="room-top-bar">
+        <div class="room-title-badge">
+          <span class="pulse-dot"></span>
+          <span class="room-tag">3D HOSTEL ROOM EXPERIENCE</span>
+          <span class="room-angle-indicator" id="room-angle-text">WALL 01 // STAY</span>
+        </div>
+
+        <!-- Room Wall Quick Tabs -->
+        <div class="room-nav-pills">
+          <button class="room-pill active" onclick="window.rotateRoomTo(0)">01 Book Stay</button>
+          <button class="room-pill" onclick="window.rotateRoomTo(90)">02 TV Lounge</button>
+          <button class="room-pill" onclick="window.rotateRoomTo(180)">03 General Details</button>
+          <button class="room-pill" onclick="window.rotateRoomTo(270)">04 FAQs</button>
+        </div>
+
+        <button class="drawer-close-btn" onclick="window.closeAllPanels()" title="Close Room View (Esc)">✕</button>
+      </div>
+
+      <!-- 3D Scene Viewport -->
+      <div class="room-3d-stage" id="room-3d-stage">
+        <div class="room-3d-box" id="room-3d-box">
+
+          <!-- ================= WALL 1: FRONT (BOOK YOUR STAY) ================= -->
+          <div class="room-wall wall-front">
+            <div class="wall-vignette"></div>
+            <div class="wall-content-front">
+              <h2 class="room-heading-main">BOOK YOUR STAY</h2>
+              <h3 class="room-heading-sub">Inside BCE Bhagalpur Campus</h3>
+              <p class="room-subtext">Get Free Access to all events & arenas at Technoriti '26</p>
+
+              <!-- Countdown Offer Box (From Page 1) -->
+              <div class="offer-ended-box">
+                <span class="offer-title">DECEMBER 2026 EDITION</span>
+                <div class="timer-digits-row">
+                  <div class="t-digit"><span id="room-timer-days">24</span><small>DAYS</small></div>
+                  <span class="t-colon">:</span>
+                  <div class="t-digit"><span id="room-timer-hours">12</span><small>HRS</small></div>
+                  <span class="t-colon">:</span>
+                  <div class="t-digit"><span id="room-timer-min">45</span><small>MIN</small></div>
+                  <span class="t-colon">:</span>
+                  <div class="t-digit"><span id="room-timer-sec">00</span><small>SEC</small></div>
+                </div>
+              </div>
+
+              <div class="early-bird-badge">EARLY BIRD BOOKING LIVE NOW</div>
+              <button class="room-book-now-btn" onclick="window.closeAllPanels(); window.openPanel('register');">
+                <span>BOOK NOW</span>
+              </button>
+
+              <div class="room-scroll-down-cue">
+                <div class="cue-pill">
+                  <span>SCROLL DOWN TO ROTATE ROOM</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </div>
+              </div>
+            </div>
+
+            <!-- 3D Bed on Left Side (From Page 1) -->
+            <div class="room-bed-3d">
+              <div class="bed-headboard"></div>
+              <div class="bed-frame"></div>
+              <div class="bed-mattress"></div>
+              <div class="bed-quilt-red"></div>
+              <div class="bed-pillow-white"></div>
+            </div>
+
+            <!-- 3D Nightstand & Bedside Lamp on Right Side (From Page 1) -->
+            <div class="room-nightstand-3d">
+              <div class="nightstand-table">
+                <div class="drawer-line d-top">
+                  <span class="drawer-handle"></span>
+                </div>
+                <div class="drawer-line d-bottom">
+                  <span class="drawer-handle"></span>
+                </div>
+              </div>
+              <div class="nightstand-lamp">
+                <div class="lamp-light-beam"></div>
+                <div class="lamp-shade-yellow"></div>
+                <div class="lamp-pole"></div>
+                <div class="lamp-round-base"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ================= WALL 2: RIGHT (TV & SHELVES) ================= -->
+          <div class="room-wall wall-right">
+            <div class="wall-vignette"></div>
+            <div class="wall-content-right">
+              <!-- Wall Mounted TV playing fest video/canvas (From Page 2) -->
+              <div class="tv-unit-mount">
+                <div class="tv-bezel">
+                  <div class="tv-screen">
+                    <canvas id="tv-stream-canvas" width="640" height="360"></canvas>
+                    <div class="tv-overlay-info">
+                      <span class="tv-live-tag">● LIVE STREAM</span>
+                      <span class="tv-fest-tag">TECHNORITI ARENA 2026</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Potted Plants on Floating Wooden Shelves (From Page 2) -->
+              <div class="wall-floating-shelves">
+                <div class="shelf-tier shelf-tier-1">
+                  <div class="wood-shelf"></div>
+                  <div class="potted-plant">
+                    <div class="plant-pot"></div>
+                    <div class="plant-leaves">🌱</div>
+                  </div>
+                </div>
+                <div class="shelf-tier shelf-tier-2">
+                  <div class="wood-shelf"></div>
+                  <div class="potted-plant">
+                    <div class="plant-pot"></div>
+                    <div class="plant-leaves">🌿</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Blue Room Door Frame on Right Corner (From Page 2) -->
+              <div class="room-door-frame">
+                <div class="door-inner">
+                  <div class="door-handle"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ================= WALL 3: BACK (GENERAL DETAILS) ================= -->
+          <div class="room-wall wall-back">
+            <div class="wall-vignette"></div>
+            <div class="wall-content-back">
+              <h2 class="room-section-title">GENERAL DETAILS</h2>
+              <p class="room-section-sub">Official BCE Bhagalpur Campus Logistics & Tariff Information</p>
+
+              <!-- 3 Wall Mounted Cards (From Page 3) -->
+              <div class="wall-cards-trio">
+                <!-- Card 1: Charges -->
+                <div class="wall-detail-card">
+                  <h4 class="wd-card-title">CHARGES</h4>
+                  <div class="wd-card-body">
+                    <p class="wd-main-p">
+                      The Accommodation fee is <strong>Rs. 50 per person per day</strong> (Lodging) and <strong>Rs. 125 per day</strong> (Food) inside BCE Bhagalpur Campus.
+                    </p>
+                    <div class="wd-discount-pill">
+                      *Note: Get flat ₹150 off on group bookings of over 4 people and flat ₹250 off on 12+ members.
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Card 2: Location -->
+                <div class="wall-detail-card">
+                  <h4 class="wd-card-title">LOCATION</h4>
+                  <div class="wd-card-body">
+                    <p class="wd-main-p">
+                      Stay will be provided inside <strong>BCE BHAGALPUR CAMPUS</strong> with separate secure Boys & Girls hostel blocks.
+                    </p>
+                    <div class="wd-discount-pill">
+                      *Note: Booking of rooms is on a First Come First Served basis as there are limited rooms on campus.
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Card 3: Duration -->
+                <div class="wall-detail-card">
+                  <h4 class="wd-card-title">DURATION</h4>
+                  <div class="wd-card-body">
+                    <p class="wd-main-p">
+                      Accommodation will be available from <strong>December 2026, 6:00 AM</strong> until <strong>December 2026, 10:00 PM</strong>.
+                    </p>
+                    <div class="wd-discount-pill">
+                      Early check-in assistance provided by the student hospitality council.
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Logistics Coordinators Direct Contact Strip -->
+              <div class="room-coordinators-strip">
+                <div class="coord-pill-box">
+                  <span class="cp-role">BOYS HOSTEL LOGISTICS</span>
+                  <span class="cp-name">Prof. Kumar Jyotiraditya</span>
+                  <a href="tel:7004618331" class="cp-phone">📞 7004618331</a>
+                </div>
+                <div class="coord-pill-box">
+                  <span class="cp-role">GIRLS HOSTEL LOGISTICS</span>
+                  <span class="cp-name">Prof. Sarika Kushwaha</span>
+                  <a href="tel:7321018753" class="cp-phone">📞 7321018753</a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ================= WALL 4: LEFT (FAQS ACCORDION) ================= -->
+          <div class="room-wall wall-left">
+            <div class="wall-vignette"></div>
+            <div class="wall-content-left">
+              <h2 class="room-section-title">Frequently asked questions</h2>
+              <p class="room-section-sub">Everything you need to know about staying at BCE Bhagalpur</p>
+
+              <!-- FAQs Accordion List (From Page 4) -->
+              <div class="faq-accordion-list" id="room-faq-list">
+                <div class="faq-item" onclick="this.classList.toggle('active')">
+                  <div class="faq-question">
+                    <span>How do I register for accommodation?</span>
+                    <span class="faq-toggle-icon">+</span>
+                  </div>
+                  <div class="faq-answer">
+                    You can book your stay by clicking the "BOOK NOW" button or visiting the Register section on this portal. Check the "Need Campus Accommodation" option and submit your details.
+                  </div>
+                </div>
+
+                <div class="faq-item" onclick="this.classList.toggle('active')">
+                  <div class="faq-question">
+                    <span>Can we book as a group?</span>
+                    <span class="faq-toggle-icon">+</span>
+                  </div>
+                  <div class="faq-answer">
+                    Yes! Teams and college contingents can book together. Groups with over 4 participants receive group tariff discounts.
+                  </div>
+                </div>
+
+                <div class="faq-item" onclick="this.classList.toggle('active')">
+                  <div class="faq-question">
+                    <span>What documents are mandatory for room allotment?</span>
+                    <span class="faq-toggle-icon">+</span>
+                  </div>
+                  <div class="faq-answer">
+                    1) College ID Card (2 photocopies + original), 2) Aadhaar / PAN or Government ID (2 copies), 3) 3 passport size photos, 4) College NOC, and 5) Copy of payment slip.
+                  </div>
+                </div>
+
+                <div class="faq-item" onclick="this.classList.toggle('active')">
+                  <div class="faq-question">
+                    <span>Does the accommodation fee include food?</span>
+                    <span class="faq-toggle-icon">+</span>
+                  </div>
+                  <div class="faq-answer">
+                    Lodging is ₹50 per person per day. Mess dining (hygienic breakfast, lunch, and dinner) is ₹125 per day served in the college dining hall.
+                  </div>
+                </div>
+
+                <div class="faq-item" onclick="this.classList.toggle('active')">
+                  <div class="faq-question">
+                    <span>Will team members be given accommodation together?</span>
+                    <span class="faq-toggle-icon">+</span>
+                  </div>
+                  <div class="faq-answer">
+                    Yes, participants from the same team or institution of the same gender are allotted shared rooms together based on availability.
+                  </div>
+                </div>
+
+                <div class="faq-item" onclick="this.classList.toggle('active')">
+                  <div class="faq-question">
+                    <span>Can we purchase accommodation for parents or faculty mentors?</span>
+                    <span class="faq-toggle-icon">+</span>
+                  </div>
+                  <div class="faq-answer">
+                    Yes, faculty coordinators and accompanying mentors can avail guest accommodation upon prior notification to the hostel logistics desk.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ================= ROOM FLOOR WITH CARPET ================= -->
+          <div class="room-floor">
+            <div class="floor-planks-grid"></div>
+            <!-- Striped Geometric Carpet (From Page 1 & 2) -->
+            <div class="room-carpet">
+              <div class="carpet-inner-stripe"></div>
+            </div>
+          </div>
+
+          <!-- ================= ROOM CEILING WITH LIGHT ================= -->
+          <div class="room-ceiling">
+            <div class="ceiling-ambient-glow"></div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Bottom Drag & Scroll Prompt Hint -->
+      <div class="room-bottom-controls">
+        <span class="drag-hint-pill">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v8M8 12h8"></path></svg>
+          <span>DRAG OR SCROLL TO ROTATE 360° ROOM</span>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. SPONSORS PANEL -->
+  <div id="sponsors-panel" class="slide-panel-overlay" onclick="window.handleOverlayClick(event, 'sponsors')">
+    <div class="slide-panel-drawer glassmorphism-drawer" onclick="event.stopPropagation()">
+      <div class="drawer-header">
+        <div>
+          <span class="panel-badge">COLLABORATION NETWORK</span>
+          <h2 class="drawer-title">SPONSORS & PARTNERS</h2>
+        </div>
+        <button class="drawer-close-btn" onclick="window.closeAllPanels()" title="Close (Esc)">✕</button>
+      </div>
+
+      <div class="drawer-body">
+        <h4 class="subcard-title">TECHNICAL & PATRON PARTNERS</h4>
+        <div class="partners-grid-dr">
+          <div class="partner-cell">
+            <div class="p-emblem">CFET</div>
+            <strong>CFET New Delhi</strong>
+            <p>Centre for Forensic Excellence & Tech</p>
+          </div>
+          <div class="partner-cell">
+            <div class="p-emblem">HHFC</div>
+            <strong>HHFC Patna</strong>
+            <p>Patronized Cyber Security Org</p>
+          </div>
+          <div class="partner-cell">
+            <div class="p-emblem">DST</div>
+            <strong>DST Bihar</strong>
+            <p>Dept of Science & Technology Bihar</p>
+          </div>
+        </div>
+
+        <h4 class="subcard-title" style="margin-top:24px;">STUDENT & MEDIA PARTNERS</h4>
+        <div class="partners-grid-dr">
+          <div class="partner-cell">
+            <div class="p-emblem">DBG</div>
+            <strong>Debuggerzz Club</strong>
+            <p>Coding & Cyber Security Community</p>
+          </div>
+          <div class="partner-cell">
+            <div class="p-emblem">TV</div>
+            <strong>Campus TV & Radio</strong>
+            <p>Media & Broadcasting Crew</p>
+          </div>
+          <div class="partner-cell">
+            <div class="p-emblem">ESROS</div>
+            <strong>ESROS Robotics</strong>
+            <p>Robotics Arena Engineers</p>
+          </div>
+        </div>
+
+        <div class="sponsor-inquiry-box">
+          <h3>Partner with Technoriti '26</h3>
+          <p>Showcase your brand to 1,500+ top engineering participants from premier technical universities across India.</p>
+          <a href="mailto:principal@bcebhagalpur.ac.in?subject=Technoriti%202026%20Sponsorship%20Inquiry" class="primary-glow-btn">
+            <span>BECOME A SPONSOR</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. REGISTER PANEL -->
+  <div id="register-panel" class="slide-panel-overlay" onclick="window.handleOverlayClick(event, 'register')">
+    <div class="slide-panel-drawer glassmorphism-drawer" onclick="event.stopPropagation()">
+      <div class="drawer-header">
+        <div>
+          <span class="panel-badge">SLOT BOOKING</span>
+          <h2 class="drawer-title">EVENT REGISTRATION (DEC 2026)</h2>
+        </div>
+        <button class="drawer-close-btn" onclick="window.closeAllPanels()" title="Close (Esc)">✕</button>
+      </div>
+
+      <div class="drawer-body">
+        <form id="fest-registration-form" onsubmit="event.preventDefault(); window.handleRegistration(this);">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="reg-fullname">Full Name *</label>
+              <input type="text" id="reg-fullname" required placeholder="e.g. Rahul Sharma">
+            </div>
+            <div class="form-group">
+              <label for="reg-email">Email Address *</label>
+              <input type="email" id="reg-email" required placeholder="rahul@example.com">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="reg-phone">WhatsApp / Phone *</label>
+              <input type="tel" id="reg-phone" required placeholder="e.g. 9876543210">
+            </div>
+            <div class="form-group">
+              <label for="reg-college">College / University *</label>
+              <input type="text" id="reg-college" required placeholder="e.g. BCE Bhagalpur / NIT / IIT">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="reg-event">Selected Arena *</label>
+              <select id="reg-event" required onchange="window.updateFeeSummary()">
+                <option value="" disabled selected>Select a Competition</option>
+                <option value="RoboWar" data-fee="50" data-type="member">RoboWar (₹50 / member)</option>
+                <option value="RoboSoccer" data-fee="50" data-type="member">RoboSoccer (₹50 / member)</option>
+                <option value="Dhanush - LFR" data-fee="50" data-type="member">Dhanush - Line Following Robot (₹50 / member)</option>
+                <option value="Matsya - AquaBot" data-fee="200" data-type="team">Matsya - AquaBot (₹200 / team)</option>
+                <option value="36-Hour Hackathon" data-fee="50" data-type="member">36-Hour Hackathon (₹50 / member)</option>
+                <option value="Forensic Hackathon" data-fee="50" data-type="member">Forensic Hackathon (₹50 / member)</option>
+                <option value="Competitive Programming" data-fee="50" data-type="member">Competitive Programming (₹50 / member)</option>
+                <option value="Blind Coding" data-fee="100" data-type="person">Blind Coding (₹100 / person)</option>
+                <option value="Bug Hunting" data-fee="50" data-type="member">Bug Hunting (₹50 / member)</option>
+                <option value="Free-Fire Clash Squad" data-fee="300" data-type="team">Free-Fire Clash Squad (₹300 / squad)</option>
+                <option value="Free-Fire Battle Royale" data-fee="200" data-type="team">Free-Fire Battle Royale (₹200 / squad)</option>
+                <option value="E-Chess Tournament" data-fee="100" data-type="person">E-Chess Tournament (₹100 / person)</option>
+                <option value="Bridge Making" data-fee="50" data-type="member">Bridge Making (₹50 / member)</option>
+                <option value="Survey King" data-fee="50" data-type="person">Survey King (₹50 / head)</option>
+                <option value="AutoCAD Design" data-fee="100" data-type="person">AutoCAD Design (₹100 / person)</option>
+                <option value="SolidWorks Challenge" data-fee="50" data-type="member">SolidWorks Challenge (₹50 / member)</option>
+                <option value="Boat Making" data-fee="50" data-type="member">Boat Making (₹50 / member)</option>
+                <option value="ElectroTechnovation" data-fee="50" data-type="member">ElectroTechnovation (₹50 / member)</option>
+                <option value="Arduino Effect" data-fee="50" data-type="member">Arduino Effect (₹50 / member)</option>
+                <option value="Zero Carbon Debate" data-fee="50" data-type="member">Zero Carbon Debate (₹50 / member)</option>
+                <option value="MeMe Circuit" data-fee="100" data-type="person">MeMe Circuit (₹100 / person)</option>
+                <option value="MATLAB Simulation" data-fee="50" data-type="member">MATLAB Simulation (₹50 / member)</option>
+                <option value="Cinematography" data-fee="50" data-type="member">Cinematography (₹50 / member)</option>
+                <option value="Photography Contest" data-fee="50" data-type="member">Photography Contest (₹50 / member)</option>
+                <option value="ElectroMania Quiz" data-fee="200" data-type="team">ElectroMania Quiz (₹200 / team)</option>
+                <option value="Nukkad (Street Play)" data-fee="200" data-type="team">Nukkad Street Play (₹200 / team)</option>
+                <option value="General Quiz" data-fee="100" data-type="team">General Quiz (₹100 / team)</option>
+                <option value="Electronics Project Exhibition" data-fee="50" data-type="member">Electronics Project Exhibition (₹50 / member)</option>
+                <option value="Project Presentation" data-fee="50" data-type="member">Project Presentation (₹50 / member)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="reg-team-size">Team Members</label>
+              <select id="reg-team-size" onchange="window.updateFeeSummary()">
+                <option value="1">1 (Solo)</option>
+                <option value="2">2 Members</option>
+                <option value="3">3 Members</option>
+                <option value="4" selected>4 Members</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-checkbox-group">
+            <input type="checkbox" id="reg-accom-opt" onchange="window.updateFeeSummary()">
+            <label for="reg-accom-opt">
+              <strong>Need Campus Hostel Accommodation & Mess Food?</strong>
+              <span>Lodging ₹50/day + Food ₹125/day (₹175 per head/day)</span>
+            </label>
+          </div>
+
+          <div class="live-fee-card">
+            <div class="fee-row">
+              <span>Event Entry Fee:</span>
+              <span id="summary-event-fee" class="fee-highlight">₹200</span>
+            </div>
+            <div class="fee-row" id="accom-fee-row" style="display:none;">
+              <span>Accommodation + Food:</span>
+              <span id="summary-accom-fee" class="fee-highlight">₹175</span>
+            </div>
+            <div class="fee-total-row">
+              <span>Total Payable Amount:</span>
+              <span id="summary-total-fee" class="total-highlight">₹200</span>
+            </div>
+          </div>
+
+          <button type="submit" class="submit-register-btn">
+            <span>SUBMIT REGISTRATION</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Competition Details Sub-Modal -->
+  <div id="comp-modal" class="modal-backdrop" onclick="window.closeCompModal(event)">
+    <div class="modal-dialog glassmorphism-card" onclick="event.stopPropagation()">
+      <button class="modal-close-btn" onclick="window.closeCompModal()">✕</button>
+      <div id="modal-content-container">
+        <!-- Injected via script.js -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Registration Success Notification Modal -->
+  <div id="success-modal" class="modal-backdrop" onclick="this.classList.remove('open')">
+    <div class="modal-dialog glassmorphism-card success-dialog" onclick="event.stopPropagation()">
+      <div class="success-icon">✓</div>
+      <h3 class="success-title">Registration Recorded!</h3>
+      <p id="success-msg" class="success-desc">Thank you for registering. Your slot for Technoriti '26 has been submitted.</p>
+      <button class="primary-glow-btn" onclick="document.getElementById('success-modal').classList.remove('open')">GOT IT</button>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-client.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

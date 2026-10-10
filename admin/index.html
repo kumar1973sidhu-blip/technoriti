@@ -1,0 +1,1617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TECHNORITI CMS & Festival Command Center</title>
+  <meta name="robots" content="noindex, nofollow">
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="admin.css">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+</head>
+<body>
+  <div class="admin-layout">
+    <!-- Sidebar Navigation -->
+    <aside class="admin-sidebar" id="adminSidebar">
+      <div class="sidebar-brand">
+        <div class="brand-icon">⚡</div>
+        <div class="brand-name">
+          <span id="sidebarBrandName">TECHNORITI</span>
+          <small id="sidebarBrandTag">BCE BHAGALPUR CMS</small>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <!-- 1. DASHBOARD -->
+        <div class="nav-section-label">Command Center</div>
+        <button class="nav-tab-btn active" data-tab="dashboard">
+          <span>📊</span> Overview & Stats
+        </button>
+
+        <!-- 2. WEBSITE CMS -->
+        <div class="nav-section-label">Website CMS</div>
+        <button class="nav-tab-btn" data-tab="cms-homepage">
+          <span>🏠</span> Hero & Announcements
+        </button>
+        <button class="nav-tab-btn" data-tab="cms-about">
+          <span>🏛️</span> About & Leadership
+        </button>
+        <button class="nav-tab-btn" data-tab="cms-navigation">
+          <span>🧭</span> Navigation Menu
+        </button>
+        <button class="nav-tab-btn" data-tab="cms-sections">
+          <span>📑</span> Section Visibility
+        </button>
+        <button class="nav-tab-btn" data-tab="cms-general">
+          <span>⚙️</span> General & Footer
+        </button>
+        <button class="nav-tab-btn" data-tab="cms-seo">
+          <span>🔍</span> SEO & Metadata
+        </button>
+
+        <!-- 3. COMPETITIONS -->
+        <div class="nav-section-label">Festival Events</div>
+        <button class="nav-tab-btn" data-tab="competitions">
+          <span>🏆</span> All Competitions
+        </button>
+        <button class="nav-tab-btn" data-tab="prizes-rules">
+          <span>🥇</span> Prizes & Rules Desk
+        </button>
+
+        <!-- 4. SPONSORS -->
+        <div class="nav-section-label">Partners</div>
+        <button class="nav-tab-btn" data-tab="sponsors">
+          <span>🤝</span> Sponsors & Partners
+        </button>
+
+        <!-- 5. ACCOMMODATION -->
+        <div class="nav-section-label">Hospitality</div>
+        <button class="nav-tab-btn" data-tab="accommodation-tariffs">
+          <span>🏨</span> Tariffs & Policies
+        </button>
+        <button class="nav-tab-btn" data-tab="accommodations">
+          <span>📋</span> Hostel Bookings
+        </button>
+
+        <!-- 6. REGISTRATIONS & PAYMENTS -->
+        <div class="nav-section-label">Registrations</div>
+        <button class="nav-tab-btn" data-tab="registrations">
+          <span>📝</span> Registrations Desk
+        </button>
+        <button class="nav-tab-btn" data-tab="payments">
+          <span>💳</span> Payments & Receipts
+        </button>
+
+        <!-- 7. MEDIA ASSETS -->
+        <div class="nav-section-label">Media</div>
+        <button class="nav-tab-btn" data-tab="media">
+          <span>🖼️</span> Media Library
+        </button>
+
+        <!-- 8. SECURITY & ROLES -->
+        <div class="nav-section-label">Security</div>
+        <button class="nav-tab-btn" data-tab="users">
+          <span>👥</span> Admin Users & Roles
+        </button>
+        <button class="nav-tab-btn" data-tab="audit">
+          <span>🛡️</span> Security & Audit
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="admin-user-pill">
+          <div class="user-avatar" id="adminAvatar">A</div>
+          <div class="user-info">
+            <span class="user-email" id="adminEmailDisplay">admin@technoriti.in</span>
+            <span class="user-role-badge" id="adminRoleDisplay">SUPER ADMIN</span>
+          </div>
+        </div>
+
+        <button id="adminLogoutBtn" class="logout-btn" title="Sign out of Admin Console">
+          <span>🚪</span> Sign Out
+        </button>
+
+        <a href="../index.html" target="_blank" style="color: var(--text-dim); font-size: 0.75rem; text-align: center; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 4px;">
+          <span>🌐</span> View Live Website <span>↗</span>
+        </a>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="admin-main">
+      <!-- Dynamic Header -->
+      <header class="admin-header">
+        <div style="display: flex; align-items: center; gap: 14px;">
+          <button class="mobile-nav-toggle" id="mobileNavToggle" aria-label="Toggle Navigation">☰</button>
+          <div class="header-title-box">
+            <h1 id="pageHeading">Festival Command Center</h1>
+            <p id="pageSubheading">Real-time festival registration analytics and event management</p>
+          </div>
+        </div>
+
+        <div class="header-actions">
+          <button id="btnGlobalSearch" class="btn-secondary" title="Search all fest data (Ctrl+K)">
+            <span>🔍</span> <span style="display:none; @media(min-width:768px){display:inline;}">Search</span> <kbd style="font-size:0.65rem; background:rgba(255,255,255,0.1); padding:2px 6px; border-radius:4px;">Ctrl K</kbd>
+          </button>
+          <button id="btnLivePreview" class="btn-secondary" title="Open real-time website preview">
+            <span>👁️</span> Preview
+          </button>
+          <button id="btnRefreshData" class="btn-secondary" title="Sync live data from Supabase">
+            <span>🔄</span> Refresh
+          </button>
+          <button id="btnExportCSV" class="btn-primary" title="Export registrations as CSV spreadsheet">
+            <span>📥</span> Export CSV
+          </button>
+        </div>
+      </header>
+
+      <!-- TAB 1: DASHBOARD & LIVE STATS -->
+      <section id="pane-dashboard" class="admin-tab-pane active">
+        <!-- KPI 8-Grid -->
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <span class="kpi-label">TOTAL REGISTRATIONS</span>
+            <span class="kpi-value" id="kpiTotalRegs">0</span>
+            <span class="kpi-sub" id="kpiRegsBreakdown">Verified: 0 | Pending: 0</span>
+          </div>
+          <div class="kpi-card green">
+            <span class="kpi-label">COLLECTION ESTIMATE</span>
+            <span class="kpi-value" id="kpiRevenue">₹0</span>
+            <span class="kpi-sub">From event registration fees</span>
+          </div>
+          <div class="kpi-card yellow">
+            <span class="kpi-label">ACCOMMODATION REQUESTS</span>
+            <span class="kpi-value" id="kpiAccommodations">0</span>
+            <span class="kpi-sub">Hostel stay applications</span>
+          </div>
+          <div class="kpi-card purple">
+            <span class="kpi-label">ACTIVE EVENTS</span>
+            <span class="kpi-value" id="kpiActiveEvents">29</span>
+            <span class="kpi-sub">Across 9 tech categories</span>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-label">VERIFIED PAYMENTS</span>
+            <span class="kpi-value" id="kpiVerifiedCount">0</span>
+            <span class="kpi-sub">Confirmed registrations</span>
+          </div>
+          <div class="kpi-card yellow">
+            <span class="kpi-label">PENDING VERIFICATION</span>
+            <span class="kpi-value" id="kpiPendingCount">0</span>
+            <span class="kpi-sub">Awaiting admin review</span>
+          </div>
+          <div class="kpi-card green">
+            <span class="kpi-label">TOTAL PARTICIPANTS</span>
+            <span class="kpi-value" id="kpiParticipantsCount">0</span>
+            <span class="kpi-sub">Team members & solo entrants</span>
+          </div>
+          <div class="kpi-card purple">
+            <span class="kpi-label">REGISTERED TEAMS</span>
+            <span class="kpi-value" id="kpiTeamsCount">0</span>
+            <span class="kpi-sub">Multi-member contingents</span>
+          </div>
+        </div>
+
+        <!-- Quick Actions Bar -->
+        <div class="cms-card" style="padding: 16px 20px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+            <span style="font-family: var(--font-orbitron); font-size: 0.85rem; font-weight: 700; color: #fff;">
+              ⚡ QUICK ACTIONS
+            </span>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+              <button class="btn-secondary" onclick="openNewCompetitionModal()">
+                <span>➕</span> Add Competition
+              </button>
+              <button class="btn-secondary" onclick="openNewSponsorModal()">
+                <span>🤝</span> Add Sponsor
+              </button>
+              <button class="btn-secondary" onclick="switchTab('cms-homepage')">
+                <span>📢</span> Announcement Ticker
+              </button>
+              <button class="btn-secondary" onclick="switchTab('media')">
+                <span>🖼️</span> Media Library
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Visual Analytics Breakdown -->
+        <div class="cms-grid-2">
+          <div class="cms-card">
+            <div class="cms-card-header">
+              <span class="cms-card-title">📈 Top Competitions by Registration</span>
+            </div>
+            <div class="chart-container" id="chartEventRegs">
+              <div style="font-size: 0.85rem; color: var(--text-dim); text-align: center; padding: 20px;">
+                Loading live event registration breakdown...
+              </div>
+            </div>
+          </div>
+
+          <div class="cms-card">
+            <div class="cms-card-header">
+              <span class="cms-card-title">💳 Payment Status Distribution</span>
+            </div>
+            <div class="chart-container" id="chartPaymentStats">
+              <div style="font-size: 0.85rem; color: var(--text-dim); text-align: center; padding: 20px;">
+                Loading payment verification status...
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Registrations Preview -->
+        <div class="table-panel">
+          <div class="table-toolbar">
+            <div style="font-family: var(--font-orbitron); font-size: 0.95rem; font-weight: 700; color: #fff;">
+              ⚡ RECENT REGISTRATIONS
+            </div>
+            <button class="btn-action-icon" onclick="switchTab('registrations')">
+              View All Records →
+            </button>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Participant</th>
+                  <th>Event</th>
+                  <th>College</th>
+                  <th>Contact</th>
+                  <th>Status</th>
+                  <th>Registered</th>
+                </tr>
+              </thead>
+              <tbody id="overviewRecentTableBody">
+                <tr>
+                  <td colspan="6" class="table-empty-state">
+                    <div class="table-empty-icon">⏳</div>
+                    <div>Loading live registrations...</div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 2: CMS - HOMEPAGE (HERO, ANNOUNCEMENTS, COUNTERS) -->
+      <section id="pane-cms-homepage" class="admin-tab-pane">
+        <!-- Hero Section Form -->
+        <div class="cms-card">
+          <div class="cms-card-header">
+            <div>
+              <h2 class="cms-card-title">⚡ Hero Section & Main Stage</h2>
+              <p class="cms-card-sub">Control the visual identity, edition name, headline, and primary call-to-actions</p>
+            </div>
+            <button class="btn-primary" onclick="saveHeroSectionSettings()">
+              <span>💾</span> Save Hero Settings
+            </button>
+          </div>
+
+          <div class="cms-grid-2">
+            <div class="cms-form-group">
+              <label class="cms-label">Festival Title / Name</label>
+              <input type="text" id="cfgFestName" class="cms-input" placeholder="TECHNORITI '26">
+            </div>
+            <div class="cms-form-group">
+              <label class="cms-label">Edition Year</label>
+              <input type="text" id="cfgEdition" class="cms-input" placeholder="2026">
+            </div>
+          </div>
+
+          <div class="cms-grid-2">
+            <div class="cms-form-group">
+              <label class="cms-label">College Tagline</label>
+              <input type="text" id="cfgCollegeTag" class="cms-input" placeholder="BCE BHAGALPUR">
+            </div>
+            <div class="cms-form-group">
+              <label class="cms-label">Festival Subtitle</label>
+              <input type="text" id="cfgFestSubtitle" class="cms-input" placeholder="Where Innovation Meets Reality">
+            </div>
+          </div>
+
+          <div class="cms-form-group">
+            <label class="cms-label">Hero Description Text</label>
+            <textarea id="cfgHeroDesc" class="cms-textarea" rows="2" placeholder="Experience eastern India's flagship technical festival..."></textarea>
+          </div>
+
+          <div class="cms-grid-2">
+            <div class="cms-form-group">
+              <label class="cms-label">Primary CTA Button Text</label>
+              <input type="text" id="cfgCtaPrimaryText" class="cms-input" placeholder="REGISTER">
+            </div>
+            <div class="cms-form-group">
+              <label class="cms-label">Primary CTA Destination (panel or URL)</label>
+              <input type="text" id="cfgCtaPrimaryLink" class="cms-input" placeholder="register">
+            </div>
+          </div>
+
+          <div class="cms-grid-2">
+            <div class="cms-form-group">
+              <label class="cms-label">Secondary CTA Button Text</label>
+              <input type="text" id="cfgCtaSecondaryText" class="cms-input" placeholder="EXPLORE EVENTS">
+            </div>
+            <div class="cms-form-group">
+              <label class="cms-label">Secondary CTA Destination</label>
+              <input type="text" id="cfgCtaSecondaryLink" class="cms-input" placeholder="competitions">
+            </div>
+          </div>
+
+          <div class="cms-grid-2">
+            <div class="cms-form-group">
+              <label class="cms-label">Countdown Target Date/Time (ISO 8601)</label>
+              <input type="datetime-local" id="cfgCountdownTarget" class="cms-input">
+            </div>
+            <div class="cms-form-group">
+              <label class="cms-label">Registration Status Badge</label>
+              <select id="cfgRegStatusBadge" class="cms-select">
+                <option value="open">REGISTRATIONS OPEN</option>
+                <option value="closing_soon">CLOSING SOON</option>
+                <option value="closed">REGISTRATIONS CLOSED</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <span class="toggle-title">Show "REGISTER" Button in Navigation Header</span>
+              <span class="toggle-desc">Toggle the glowing cyber registration button on the top nav</span>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="cfgRegBtnVisible" checked>
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Live Announcement Banner -->
+        <div class="cms-card">
+          <div class="cms-card-header">
+            <div>
+              <h2 class="cms-card-title">📢 Urgent Announcement / Broadcast Ticker</h2>
+              <p class="cms-card-sub">Display a high-visibility alert banner across the top of the portal</p>
+            </div>
+            <button class="btn-primary" onclick="saveAnnouncementSettings()">
+              <span>💾</span> Save Announcement
+            </button>
+          </div>
+
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <span class="toggle-title">Enable Announcement Banner</span>
+              <span class="toggle-desc">Make the announcement strip visible to all visitors</span>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="cfgAnnounceEnabled">
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <div class="cms-form-group">
+            <label class="cms-label">Announcement Text / Notice</label>
+            <input type="text" id="cfgAnnounceText" class="cms-input" placeholder="🔥 Early bird registrations open for Hackathon & Robowar! Free hostel lodging for first 100 entries.">
+          </div>
+
+          <div class="cms-grid-2">
+            <div class="cms-form-group">
+              <label class="cms-label">Action Link URL (optional)</label>
+              <input type="text" id="cfgAnnounceUrl" class="cms-input" placeholder="https://... or panel name">
+            </div>
+            <div class="cms-form-group">
+              <label class="cms-label">Priority Level</label>
+              <select id="cfgAnnouncePriority" class="cms-select">
+                <option value="normal">Normal (Cyan Accent)</option>
+                <option value="high">High Priority (Gold Accent)</option>
+                <option value="urgent">Urgent Alert (Neon Red)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Festival Stats Counters -->
+        <div class="cms-card">
+          <div class="cms-card-header">
+            <div>
+              <h2 class="cms-card-title">🔢 Live Impact Counters</h2>
+              <p class="cms-card-sub">Edit the numbers displayed in the festival statistics row</p>
+            </div>
+            <button class="btn-primary" onclick="saveStatsCountersSettings()">
+              <span>💾</span> Save Counters
+            </button>
+          </div>
+
+          <div class="cms-grid-2">
+            <div class="cms-form-group">
+              <label class="cms-label">Total Competitions Display</label>
+              <input type="text" id="cfgStatCompetitions" class="cms-input" placeholder="29+">
+            </div>
+            <div class="cms-form-group">
+              <label class="cms-label">Total Cash Prize Pool Display</label>
+              <input type="text" id="cfgStatPrizePool" class="cms-input" placeholder="₹1,00,000+">
+            </div>
+            <div class="cms-form-group">
+              <label class="cms-label">Expected Participants Display</label>
+              <input type="text" id="cfgStatParticipants" class="cms-input" placeholder="1,500+">
+            </div>
+            <div class="cms-form-group">
+              <label class="cms-label">Colleges & Universities Display</label>
+              <input type="text" id="cfgStatColleges" class="cms-input" placeholder="50+">
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 3: CMS - ABOUT BCE & LEADERSHIP -->
+      <section id="pane-cms-about" class="admin-tab-pane">
+        <!-- Principal Message -->
+        <div class="cms-card">
+          <div class="cms-card-header">
+            <div>
+              <h2 class="cms-card-title">🎓 Principal's Address & Spotlight</h2>
+              <p class="cms-card-sub">Manage the message from the Head of Institution (Dr. Bimlesh Kumar)</p>
+            </div>
+            <button class="btn-primary" onclick="savePrincipalSection()">
+              <span>💾</span> Save Principal Section
+            </button>
+          </div>
+
+          <div class="cms-grid-2">
+            <div class="cms-form-group">
+              <label class="cms-label">Principal Full Name</label>
+              <input type="text" id="cfgPrincipalName" class="cms-input" placeholder="Dr. Bimlesh Kumar">
+            </div>
+            <div class="cms-form-group">
+              <label class="cms-label">Designation / Subtitle</label>
+              <input type="text" id="cfgPrincipalSubtitle" class="cms-input" placeholder="Principal, Bhagalpur College of Engineering">
+            </div>
+          </div>
+
+          <div class="cms-form-group">
+            <label class="cms-label">Message / Address Quotation</label>
+            <textarea id="cfgPrincipalQuote" class="cms-textarea" rows="4" placeholder="Education prepares a person to meet new challenges..."></textarea>
+          </div>
+
+          <div class="cms-form-group">
+            <label class="cms-label">
+              <span>Portrait Image URL</span>
+              <button type="button" class="btn-action-icon" onclick="openMediaPickerFor('cfgPrincipalPortrait')">🖼️ Choose from Media Library</button>
+            </label>
+            <div class="cms-input-with-btn">
+              <input type="text" id="cfgPrincipalPortrait" class="cms-input" placeholder="principal-portrait.png or Supabase Storage URL">
+            </div>
+          </div>
+        </div>
+
+        <!-- Fest Convenors & Legacy -->
+        <div class="cms-card">
+          <div class="cms-card-header">
+            <div>
+              <h2 class="cms-card-title">🏛️ Fest Convenors & BCE Legacy</h2>
+              <p class="cms-card-sub">Department leadership and historical background of BCE Bhagalpur</p>
+            </div>
+            <button class="btn-primary" onclick="saveConvenorsAndLegacy()">
+              <span>💾</span> Save Leadership & Legacy
+            </button>
+          </div>
+
+          <div class="cms-form-group">
+            <label class="cms-label">Fest Convenors Copy</label>
+            <textarea id="cfgConvenorsText" class="cms-textarea" rows="2" placeholder="Prof. Ranjan Kumar Mishra (HOD, Chemistry) & Prof. Shashank Shekhar (HOD, Humanities)"></textarea>
+          </div>
+
+          <div class="cms-form-group">
+            <label class="cms-label">BCE Legacy / Historical Heritage</label>
+            <textarea id="cfgLegacyText" class="cms-textarea" rows="3" placeholder="Bhagalpur College of Engineering is one of the premier technical colleges in Bihar, established in 1960..."></textarea>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 4: CMS - NAVIGATION MENU MANAGER -->
+      <section id="pane-cms-navigation" class="admin-tab-pane">
+        <div class="table-panel">
+          <div class="table-toolbar">
+            <div>
+              <div style="font-family: var(--font-orbitron); font-size: 0.95rem; font-weight: 700; color: #fff;">
+                🧭 NAVIGATION MENU MANAGER
+              </div>
+              <div style="font-size: 0.8rem; color: var(--text-dim); margin-top: 2px;">
+                Add, reorder, edit, and link external URLs (Instagram, YouTube, Google Maps, Forms) without touching code
+              </div>
+            </div>
+            <button class="btn-primary" onclick="openNewNavItemModal()">
+              <span>➕</span> Add Menu Item
+            </button>
+          </div>
+
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th style="width: 70px;">Order</th>
+                  <th>Label</th>
+                  <th>Destination (URL or Panel)</th>
+                  <th>Type</th>
+                  <th>New Tab?</th>
+                  <th>Visibility</th>
+                  <th style="text-align: right;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="navItemsTableBody">
+                <tr>
+                  <td colspan="7" class="table-empty-state">
+                    <div class="table-empty-icon">🧭</div>
+                    <div>Loading navigation menu items...</div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 5: CMS - SECTION VISIBILITY & ORDER -->
+      <section id="pane-cms-sections" class="admin-tab-pane">
+        <div class="cms-card">
+          <div class="cms-card-header">
+            <div>
+              <h2 class="cms-card-title">📑 Page Section Visibility & Ordering</h2>
+              <p class="cms-card-sub">Enable, disable, rename, or reorder any section on the public portal without deleting its data</p>
+            </div>
+            <button class="btn-primary" onclick="saveSectionVisibilitySettings()">
+              <span>💾</span> Save Section Settings
+            </button>
+          </div>
+
+          <div id="sectionVisibilityContainer" style="display: flex; flex-direction: column; gap: 14px;">
+            <!-- Dynamically populated by admin.js -->
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 6: CMS - GENERAL SETTINGS & FOOTER -->
+      <section id="pane-cms-general" class="admin-tab-pane">
+        <div class="cms-card">
+          <div class="cms-card-header">
+            <div>
+              <h2 class="cms-card-title">⚙️ General Settings & Footer Details</h2>
+              <p class="cms-card-sub">Campus contact coordinates, social media handles, and footer legal text</p>
+            </div>
+            <button class="btn-primary" onclick="saveGeneralFooterSettings()">
+              <span>💾</span> Save General Settings
+            </button>
+          </div>
+
+          <div class="cms-grid-2">
+            <div class="cms-form-group">
+              <label class="cms-label">Institution Name</label>
+              <input type="text" id="cfgCollegeName" class="cms-input" placeholder="Bhagalpur College of Engineering">
+            </div>
+            <div class="cms-form-group">
+              <label class="cms-label">Official Contact Email</label>
+              <input type="email" id="cfgContactEmail" class="cms-input" placeholder="technoriti@bcebhagalpur.ac.in">
+            </div>
+          </div>
+
+          <div class="cms-form-group">
+            <label class="cms-label">Campus Physical Address</label>
+            <input type="text" id="cfgCampusAddress" class="cms-input" placeholder="BCE Campus, Post - Sabour, Bhagalpur, Bihar - 813210">
+          </div>
+
+          <div class="cms-grid-2">
+            <div class="cms-form-group">
+              <label class="cms-label">Instagram Profile URL</label>
+              <input type="url" id="cfgSocialInstagram" class="cms-input" placeholder="https://instagram.com/bcebhagalpur">
+            </div>
+            <div class="cms-form-group">
+              <label class="cms-label">YouTube Channel URL</label>
+              <input type="url" id="cfgSocialYouTube" class="cms-input" placeholder="https://youtube.com/@bcebhagalpur">
+            </div>
+            <div class="cms-form-group">
+              <label class="cms-label">LinkedIn Page URL</label>
+              <input type="url" id="cfgSocialLinkedIn" class="cms-input" placeholder="https://linkedin.com/school/bcebhagalpur">
+            </div>
+            <div class="cms-form-group">
+              <label class="cms-label">Twitter / X URL</label>
+              <input type="url" id="cfgSocialTwitter" class="cms-input" placeholder="https://twitter.com/bcebhagalpur">
+            </div>
+          </div>
+
+          <div class="cms-form-group">
+            <label class="cms-label">Footer Copyright Notice</label>
+            <input type="text" id="cfgCopyrightText" class="cms-input" placeholder="© 2026 TECHNORITI, BCE Bhagalpur. All Rights Reserved.">
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 7: CMS - SEO & METADATA -->
+      <section id="pane-cms-seo" class="admin-tab-pane">
+        <div class="cms-card">
+          <div class="cms-card-header">
+            <div>
+              <h2 class="cms-card-title">🔍 Search Engine Optimization (SEO) & Social Previews</h2>
+              <p class="cms-card-sub">Fine-tune Google search rankings, meta descriptions, and OpenGraph link previews</p>
+            </div>
+            <button class="btn-primary" onclick="saveSeoSettings()">
+              <span>💾</span> Save SEO Settings
+            </button>
+          </div>
+
+          <div class="cms-form-group">
+            <label class="cms-label">Portal Meta Title</label>
+            <input type="text" id="cfgSeoTitle" class="cms-input" placeholder="TECHNORITI '26 | Bhagalpur College of Engineering Annual Techfest">
+          </div>
+
+          <div class="cms-form-group">
+            <label class="cms-label">Meta Description</label>
+            <textarea id="cfgSeoDesc" class="cms-textarea" rows="2" placeholder="Official portal for TECHNORITI '26, annual technical festival of BCE Bhagalpur..."></textarea>
+          </div>
+
+          <div class="cms-form-group">
+            <label class="cms-label">Meta Keywords (comma-separated)</label>
+            <input type="text" id="cfgSeoKeywords" class="cms-input" placeholder="Technoriti 2026, BCE Bhagalpur, Techfest Bihar, Robowar, Hackathon">
+          </div>
+
+          <div class="cms-grid-2">
+            <div class="cms-form-group">
+              <label class="cms-label">
+                <span>OpenGraph Preview Image URL</span>
+                <button type="button" class="btn-action-icon" onclick="openMediaPickerFor('cfgSeoOgImage')">🖼️ Library</button>
+              </label>
+              <input type="text" id="cfgSeoOgImage" class="cms-input" placeholder="https://.../og-banner.jpg">
+            </div>
+            <div class="cms-form-group">
+              <label class="cms-label">Favicon URL or SVG</label>
+              <input type="text" id="cfgSeoFavicon" class="cms-input" placeholder="favicon.ico or SVG Data URI">
+            </div>
+          </div>
+
+          <!-- Google SERP Snippet Preview -->
+          <div style="margin-top: 20px; padding: 18px; background: rgba(0,0,0,0.4); border: 1px solid var(--admin-border); border-radius: 10px;">
+            <div style="font-size: 0.72rem; color: var(--text-dim); text-transform: uppercase; font-family: var(--font-orbitron); margin-bottom: 8px;">
+              GOOGLE SEARCH PREVIEW
+            </div>
+            <div style="font-family: Arial, sans-serif;">
+              <div id="serpTitlePreview" style="color: #8ab4f8; font-size: 1.1rem; text-decoration: underline; margin-bottom: 2px;">
+                TECHNORITI '26 | Bhagalpur College of Engineering
+              </div>
+              <div style="color: #bdc1c6; font-size: 0.8rem; margin-bottom: 4px;">
+                https://technoriti26.vercel.app
+              </div>
+              <div id="serpDescPreview" style="color: #9aa0a6; font-size: 0.85rem; line-height: 1.4;">
+                Official portal for TECHNORITI '26...
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 8: ALL COMPETITIONS (FULL CRUD) -->
+      <section id="pane-competitions" class="admin-tab-pane">
+        <div class="table-panel">
+          <div class="table-toolbar">
+            <div class="table-search">
+              <span class="table-search-icon">🔍</span>
+              <input type="text" id="compSearchInput" placeholder="Search competition name, coordinator, or venue...">
+            </div>
+
+            <div class="table-filters">
+              <select id="compCategoryFilter" class="filter-select">
+                <option value="">All Categories (9)</option>
+                <option value="Coding & Development">Coding & Development</option>
+                <option value="Robotics & Hardware">Robotics & Hardware</option>
+                <option value="Gaming & Esports">Gaming & Esports</option>
+                <option value="Design & Media">Design & Media</option>
+                <option value="Electrical & Core">Electrical & Core</option>
+                <option value="Civil & Structure">Civil & Structure</option>
+                <option value="Mechanical & CAD">Mechanical & CAD</option>
+                <option value="Management & Business">Management & Business</option>
+                <option value="Quizzing & Literary">Quizzing & Literary</option>
+              </select>
+
+              <button class="btn-primary" onclick="openNewCompetitionModal()">
+                <span>➕</span> Add Competition
+              </button>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Event Title</th>
+                  <th>Category</th>
+                  <th>Team Size</th>
+                  <th>Fee</th>
+                  <th>Prize Pool</th>
+                  <th>Status</th>
+                  <th>Published</th>
+                  <th style="text-align: right;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="competitionsTableBody">
+                <tr>
+                  <td colspan="8" class="table-empty-state">
+                    <div class="table-empty-icon">⏳</div>
+                    <div>Loading festival competitions...</div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 9: PRIZES & RULES SUB-DESK -->
+      <section id="pane-prizes-rules" class="admin-tab-pane">
+        <div class="cms-card">
+          <div class="cms-card-header">
+            <div>
+              <h2 class="cms-card-title">🥇 Event Prizes & Rule Clauses Desk</h2>
+              <p class="cms-card-sub">Select an event to view, add, reorder, or edit its normalized prizes and rules</p>
+            </div>
+            <div style="min-width: 280px;">
+              <select id="prizesEventSelector" class="cms-select" onchange="loadPrizesAndRulesForSelectedEvent()">
+                <option value="">Select a competition to edit...</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="cms-grid-2">
+            <!-- Event Prizes Sub-Table -->
+            <div>
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                <span style="font-family: var(--font-orbitron); font-size: 0.9rem; font-weight: 700; color: var(--accent-yellow);">
+                  🏆 POSITION PRIZES
+                </span>
+                <button class="btn-secondary" onclick="openAddPrizeModal()" style="padding: 6px 12px; font-size: 0.78rem;">
+                  ➕ Add Prize
+                </button>
+              </div>
+              <div class="table-responsive">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th style="width: 50px;">Pos</th>
+                      <th>Title</th>
+                      <th>Amount</th>
+                      <th style="text-align: right;">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="eventPrizesTableBody">
+                    <tr><td colspan="4" class="table-empty-state">Select an event to load prizes</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Event Rules Sub-Table -->
+            <div>
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                <span style="font-family: var(--font-orbitron); font-size: 0.9rem; font-weight: 700; color: var(--accent-cyan);">
+                  📜 RULE CLAUSES
+                </span>
+                <button class="btn-secondary" onclick="openAddRuleModal()" style="padding: 6px 12px; font-size: 0.78rem;">
+                  ➕ Add Rule
+                </button>
+              </div>
+              <div class="table-responsive">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th style="width: 50px;">#</th>
+                      <th>Rule Description</th>
+                      <th style="text-align: right;">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="eventRulesTableBody">
+                    <tr><td colspan="3" class="table-empty-state">Select an event to load rules</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 10: SPONSORS (FULL CRUD) -->
+      <section id="pane-sponsors" class="admin-tab-pane">
+        <div class="table-panel">
+          <div class="table-toolbar">
+            <div style="font-family: var(--font-orbitron); font-size: 0.95rem; font-weight: 700; color: #fff;">
+              🤝 SPONSORS & INDUSTRIAL PARTNERS
+            </div>
+
+            <div class="table-filters">
+              <select id="sponsorTierFilter" class="filter-select" onchange="renderSponsorsTable()">
+                <option value="">All Tiers</option>
+                <option value="title">Title Sponsor</option>
+                <option value="patron">Government & Patron</option>
+                <option value="technical">Technical Partner</option>
+                <option value="student_media">Student & Media</option>
+                <option value="associate">Associate Partner</option>
+              </select>
+
+              <button class="btn-primary" onclick="openNewSponsorModal()">
+                <span>➕</span> Add Sponsor
+              </button>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th style="width: 60px;">Emblem</th>
+                  <th>Partner Name</th>
+                  <th>Tier</th>
+                  <th>Website URL</th>
+                  <th>Status</th>
+                  <th>Order</th>
+                  <th style="text-align: right;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="sponsorsTableBody">
+                <tr>
+                  <td colspan="7" class="table-empty-state">
+                    <div class="table-empty-icon">⏳</div>
+                    <div>Loading festival sponsors...</div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 11: ACCOMMODATION TARIFFS & POLICIES -->
+      <section id="pane-accommodation-tariffs" class="admin-tab-pane">
+        <div class="cms-card">
+          <div class="cms-card-header">
+            <div>
+              <h2 class="cms-card-title">🏨 Hostel Tariffs, Capacity & Coordinators</h2>
+              <p class="cms-card-sub">Configure daily lodging and mess meal fees, group discounts, and logistics contacts</p>
+            </div>
+            <button class="btn-primary" onclick="saveAccommodationTariffs()">
+              <span>💾</span> Save Tariffs
+            </button>
+          </div>
+
+          <div class="cms-grid-3">
+            <div class="cms-form-group">
+              <label class="cms-label">Daily Lodging Fee (₹)</label>
+              <input type="number" id="cfgAccomLodgingFee" class="cms-input" value="50" oninput="updateTotalDailyFeeDisplay()">
+            </div>
+            <div class="cms-form-group">
+              <label class="cms-label">Daily Food / Mess Fee (₹)</label>
+              <input type="number" id="cfgAccomFoodFee" class="cms-input" value="125" oninput="updateTotalDailyFeeDisplay()">
+            </div>
+            <div class="cms-form-group">
+              <label class="cms-label">Computed Total Daily Rate</label>
+              <input type="text" id="cfgAccomTotalFee" class="cms-input" value="₹175 / day" readonly style="background: rgba(0,240,255,0.06); color: var(--accent-cyan); font-weight:700;">
+            </div>
+          </div>
+
+          <div class="cms-grid-3">
+            <div class="cms-form-group">
+              <label class="cms-label">Available Hostel Beds</label>
+              <input type="number" id="cfgAccomAvailableBeds" class="cms-input" value="200">
+            </div>
+            <div class="cms-form-group">
+              <label class="cms-label">Group Discount Threshold</label>
+              <input type="number" id="cfgAccomDiscountThreshold" class="cms-input" value="4">
+            </div>
+            <div class="cms-form-group">
+              <label class="cms-label">Group Discount Amount (₹)</label>
+              <input type="number" id="cfgAccomDiscountAmount" class="cms-input" value="150">
+            </div>
+          </div>
+
+          <div class="cms-grid-2">
+            <div class="cms-form-group">
+              <label class="cms-label">Boys Hostel Logistics Coordinator</label>
+              <input type="text" id="cfgAccomBoysCoord" class="cms-input" placeholder="Prof. Kumar Jyotiraditya (7004618331)">
+            </div>
+            <div class="cms-form-group">
+              <label class="cms-label">Girls Hostel Logistics Coordinator</label>
+              <input type="text" id="cfgAccomGirlsCoord" class="cms-input" placeholder="Prof. Sarika Kushwaha (7321018753)">
+            </div>
+          </div>
+
+          <div class="cms-grid-2">
+            <div class="cms-form-group">
+              <label class="cms-label">Check-in Availability Date/Time</label>
+              <input type="text" id="cfgAccomCheckIn" class="cms-input" placeholder="December 2026, 6:00 AM">
+            </div>
+            <div class="cms-form-group">
+              <label class="cms-label">Check-out Deadline Date/Time</label>
+              <input type="text" id="cfgAccomCheckOut" class="cms-input" placeholder="December 2026, 10:00 PM">
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 12: ACCOMMODATION BOOKINGS DESK -->
+      <section id="pane-accommodations" class="admin-tab-pane">
+        <div class="table-panel">
+          <div class="table-toolbar">
+            <div class="table-search">
+              <span class="table-search-icon">🔍</span>
+              <input type="text" id="accSearchInput" placeholder="Search applicant name, college, or room...">
+            </div>
+
+            <div class="table-filters">
+              <select id="accBlockFilter" class="filter-select">
+                <option value="">All Blocks</option>
+                <option value="Boys Hostel Block">Boys Hostel Block</option>
+                <option value="Girls Hostel Block">Girls Hostel Block</option>
+                <option value="Guest House">Guest House</option>
+              </select>
+              <select id="accStatusFilter" class="filter-select">
+                <option value="">All Statuses</option>
+                <option value="requested">Requested</option>
+                <option value="allotted">Allotted</option>
+                <option value="checked_in">Checked In</option>
+                <option value="checked_out">Checked Out</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Booking #</th>
+                  <th>Participant</th>
+                  <th>College</th>
+                  <th>Gender / Block</th>
+                  <th>Stay Dates</th>
+                  <th>Contact</th>
+                  <th>Room Allotted</th>
+                  <th>Status</th>
+                  <th style="text-align: right;">Action</th>
+                </tr>
+              </thead>
+              <tbody id="accommodationsTableBody">
+                <tr>
+                  <td colspan="9" class="table-empty-state">
+                    <div class="table-empty-icon">🏨</div>
+                    <div>No accommodation bookings found yet.</div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 13: REGISTRATIONS DESK -->
+      <section id="pane-registrations" class="admin-tab-pane">
+        <div class="table-panel">
+          <div class="table-toolbar">
+            <div class="table-search">
+              <span class="table-search-icon">🔍</span>
+              <input type="text" id="regSearchInput" placeholder="Search by name, email, phone, college, or event...">
+            </div>
+
+            <div class="table-filters">
+              <select id="regEventFilter" class="filter-select">
+                <option value="">All Events (29)</option>
+              </select>
+
+              <select id="regStatusFilter" class="filter-select">
+                <option value="">All Statuses</option>
+                <option value="confirmed">Confirmed / Verified</option>
+                <option value="pending">Pending Verification</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+
+              <select id="regPaymentFilter" class="filter-select">
+                <option value="">Payment: All</option>
+                <option value="completed">Paid / Verified</option>
+                <option value="pending">Payment Pending</option>
+                <option value="free">Free / None</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Reg #</th>
+                  <th>Participant / Leader</th>
+                  <th>Event</th>
+                  <th>College</th>
+                  <th>Contact</th>
+                  <th>Team</th>
+                  <th>Payment</th>
+                  <th>Status</th>
+                  <th style="text-align: right;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="registrationsTableBody">
+                <tr>
+                  <td colspan="9" class="table-empty-state">
+                    <div class="table-empty-icon">⏳</div>
+                    <div>Connecting to Supabase...</div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 14: PAYMENTS & RECEIPTS -->
+      <section id="pane-payments" class="admin-tab-pane">
+        <div class="table-panel">
+          <div class="table-toolbar">
+            <div style="font-family: var(--font-orbitron); font-size: 0.95rem; font-weight: 700; color: #fff;">
+              💳 FINANCIAL TRANSACTIONS & RECEIPTS
+            </div>
+
+            <div class="table-filters">
+              <select id="paymentStatusFilter" class="filter-select" onchange="renderPaymentsTable()">
+                <option value="">All Payments</option>
+                <option value="pending">Pending Verification</option>
+                <option value="verified">Verified & Confirmed</option>
+                <option value="failed">Failed / Invalid</option>
+                <option value="refunded">Refunded</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Trans #</th>
+                  <th>Participant</th>
+                  <th>Event</th>
+                  <th>Amount</th>
+                  <th>Method</th>
+                  <th>UTR / Reference</th>
+                  <th>Status</th>
+                  <th style="text-align: right;">Action</th>
+                </tr>
+              </thead>
+              <tbody id="paymentsTableBody">
+                <tr>
+                  <td colspan="8" class="table-empty-state">
+                    <div class="table-empty-icon">💳</div>
+                    <div>No payment records found.</div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 15: MEDIA LIBRARY & ASSETS -->
+      <section id="pane-media" class="admin-tab-pane">
+        <div class="cms-card">
+          <div class="cms-card-header">
+            <div>
+              <h2 class="cms-card-title">🖼️ Media Library & Asset Manager</h2>
+              <p class="cms-card-sub">Upload, preview, and manage logos, hero graphics, event covers, and documents</p>
+            </div>
+          </div>
+
+          <!-- Upload Dropzone -->
+          <div class="media-dropzone" onclick="document.getElementById('mediaFileInput').click()">
+            <input type="file" id="mediaFileInput" style="display: none;" accept="image/*,.pdf,.doc,.docx" onchange="handleMediaFileUpload(this.files)">
+            <div style="font-size: 2.5rem; margin-bottom: 8px;">☁️</div>
+            <div style="font-family: var(--font-orbitron); font-size: 1rem; color: #fff; margin-bottom: 4px;">
+              DRAG & DROP OR CLICK TO UPLOAD
+            </div>
+            <div style="font-size: 0.8rem; color: var(--text-dim);">
+              Supports PNG, JPG, WEBP, SVG, and PDF documents. Instant cloud storage integration.
+            </div>
+          </div>
+
+          <!-- Media Filter & Cards Grid -->
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <span style="font-size: 0.85rem; color: var(--text-dim);"><span id="mediaCountDisplay">0</span> assets in library</span>
+            <select id="mediaTypeFilter" class="filter-select" onchange="renderMediaGrid()">
+              <option value="">All Types</option>
+              <option value="image">Images</option>
+              <option value="sponsor_logo">Sponsor Logos</option>
+              <option value="portrait">Portraits</option>
+              <option value="document">Documents</option>
+            </select>
+          </div>
+
+          <div class="media-grid" id="mediaGridContainer">
+            <!-- Dynamically populated by admin.js -->
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 16: ADMIN USERS & ROLES (RBAC) -->
+      <section id="pane-users" class="admin-tab-pane">
+        <div class="table-panel">
+          <div class="table-toolbar">
+            <div>
+              <div style="font-family: var(--font-orbitron); font-size: 0.95rem; font-weight: 700; color: #fff;">
+                👥 ACCESS CONTROL & ROLE-BASED PERMISSIONS
+              </div>
+              <div style="font-size: 0.8rem; color: var(--text-dim); margin-top: 2px;">
+                Strict PostgreSQL RLS enforced. Only Super Admins, Admins, and Coordinators have portal access.
+              </div>
+            </div>
+            <button class="btn-primary" onclick="openAddAdminUserModal()">
+              <span>➕</span> Assign Admin Role
+            </button>
+          </div>
+
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>User / Email</th>
+                  <th>Assigned Role</th>
+                  <th>Granted At</th>
+                  <th style="text-align: right;">Modify Role</th>
+                </tr>
+              </thead>
+              <tbody id="adminUsersTableBody">
+                <tr>
+                  <td colspan="4" class="table-empty-state">
+                    <div class="table-empty-icon">⏳</div>
+                    <div>Loading authorized administrators...</div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 17: SECURITY & AUDIT TRAIL -->
+      <section id="pane-audit" class="admin-tab-pane">
+        <div class="table-panel" style="margin-bottom: 24px;">
+          <div class="table-toolbar">
+            <div style="font-family: var(--font-orbitron); font-size: 0.95rem; font-weight: 700; color: #fff;">
+              🛡️ SECURITY POLICIES & RLS ENFORCEMENT
+            </div>
+          </div>
+          <div style="padding: 24px; color: var(--text-dim); font-size: 0.88rem; line-height: 1.6;">
+            <p style="margin-bottom: 12px;">
+              <strong style="color: var(--accent-cyan);">Database Row-Level Security:</strong> 
+              All 18 Supabase tables are actively governed by strict PostgreSQL RLS policies. 
+              Only authenticated users with verified entries in <code>public.user_roles</code> (checked via <code>public.is_admin()</code>) are permitted to perform write, update, or deletion operations.
+            </p>
+            <p>
+              <strong style="color: var(--accent-green);">Student Isolation:</strong> 
+              Public visitors and student registrations are restricted to unprivileged read-only access for published events, and direct inserts into <code>registrations</code> and <code>accommodation_bookings</code>.
+            </p>
+          </div>
+        </div>
+
+        <div class="table-panel">
+          <div class="table-toolbar">
+            <div style="font-family: var(--font-orbitron); font-size: 0.95rem; font-weight: 700; color: #fff;">
+              📜 AUDIT LOG TRAILS
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Timestamp</th>
+                  <th>Action</th>
+                  <th>Target Table</th>
+                  <th>Performed By</th>
+                  <th>Details</th>
+                </tr>
+              </thead>
+              <tbody id="auditTableBody">
+                <tr>
+                  <td colspan="5" class="table-empty-state">
+                    <div class="table-empty-icon">📜</div>
+                    <div>System audit trail initialized. Changes logged automatically.</div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- =====================================================================
+       MODALS & DIALOGS
+       ===================================================================== -->
+  <!-- 1. COMPETITION EDITOR MODAL -->
+  <div id="competitionModal" class="modal-overlay">
+    <div class="modal-box" style="max-width: 760px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="competitionModalTitle">Add New Competition</h3>
+        <button class="modal-close" onclick="closeModal('competitionModal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <form id="competitionForm" onsubmit="handleSaveCompetition(event)">
+          <input type="hidden" id="compFormId">
+
+          <div class="cms-grid-2">
+            <div class="cms-form-group">
+              <label class="cms-label">Competition Name *</label>
+              <input type="text" id="compFormTitle" class="cms-input" required placeholder="e.g. RoboWar 2026">
+            </div>
+            <div class="cms-form-group">
+              <label class="cms-label">URL Slug *</label>
+              <input type="text" id="compFormSlug" class="cms-input" required placeholder="e.g. robowar-2026">
+            </div>
+          </div>
+
+          <div class="cms-grid-2">
+            <div class="cms-form-group">
+              <label class="cms-label">Category *</label>
+              <select id="compFormCategory" class="cms-select" required>
+                <option value="coding">Coding & Development</option>
+                <option value="robotics">Robotics & Hardware</option>
+                <option value="gaming">Gaming & Esports</option>
+                <option value="design">Design & Media</option>
+                <option value="quizzes">Quizzing & Literary</option>
+                <option value="core">Core Engineering</option>
+              </select>
+            </div>
+            <div class="cms-form-group">
+              <label class="cms-label">Fee Type</label>
+              <select id="compFormFeeType" class="cms-select">
+                <option value="member">Per Member</option>
+                <option value="team">Per Team</option>
+                <option value="person">Per Person</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="cms-grid-3">
+            <div class="cms-form-group">
+              <label class="cms-label">Entry Fee (₹)</label>
+              <input type="number" id="compFormFee" class="cms-input" value="100">
+            </div>
+            <div class="cms-form-group">
+              <label class="cms-label">Min Team Size</label>
+              <input type="number" id="compFormMinTeam" class="cms-input" value="1">
+            </div>
+            <div class="cms-form-group">
+              <label class="cms-label">Max Team Size</label>
+              <input type="number" id="compFormMaxTeam" class="cms-input" value="4">
+            </div>
+          </div>
+
+          <div class="cms-grid-2">
+            <div class="cms-form-group">
+              <label class="cms-label">Total Prize Pool Display</label>
+              <input type="text" id="compFormPrizePool" class="cms-input" placeholder="₹15,000">
+            </div>
+            <div class="cms-form-group">
+              <label class="cms-label">First Prize Amount</label>
+              <input type="text" id="compFormFirstPrize" class="cms-input" placeholder="₹8,000 + Trophy">
+            </div>
+          </div>
+
+          <div class="cms-form-group">
+            <label class="cms-label">Short Tagline / Summary</label>
+            <input type="text" id="compFormShortDesc" class="cms-input" placeholder="Build and battle combat robots in the arena">
+          </div>
+
+          <div class="cms-form-group">
+            <label class="cms-label">Full Description & Details</label>
+            <textarea id="compFormFullDesc" class="cms-textarea" rows="3" placeholder="Full rules, tournament brackets, and specifications..."></textarea>
+          </div>
+
+          <div class="cms-grid-2">
+            <div class="cms-form-group">
+              <label class="cms-label">Event Date</label>
+              <input type="text" id="compFormDate" class="cms-input" placeholder="December 18, 2026">
+            </div>
+            <div class="cms-form-group">
+              <label class="cms-label">Venue</label>
+              <input type="text" id="compFormVenue" class="cms-input" placeholder="Main Auditorium / Open Air Theatre">
+            </div>
+          </div>
+
+          <div class="cms-grid-2">
+            <div class="cms-form-group">
+              <label class="cms-label">Student Coordinator Name</label>
+              <input type="text" id="compFormCoordName" class="cms-input" placeholder="Rahul Kumar">
+            </div>
+            <div class="cms-form-group">
+              <label class="cms-label">Coordinator Phone Number</label>
+              <input type="text" id="compFormCoordPhone" class="cms-input" placeholder="9876543210">
+            </div>
+          </div>
+
+          <div class="cms-grid-2">
+            <div class="cms-form-group">
+              <label class="cms-label">Registration Status</label>
+              <select id="compFormRegStatus" class="cms-select">
+                <option value="open">Open</option>
+                <option value="closing_soon">Closing Soon</option>
+                <option value="closed">Closed</option>
+              </select>
+            </div>
+            <div class="cms-form-group">
+              <label class="cms-label">Published Status</label>
+              <select id="compFormPublished" class="cms-select">
+                <option value="true">Published (Visible on site)</option>
+                <option value="false">Draft (Hidden)</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+            <button type="button" class="btn-secondary" onclick="closeModal('competitionModal')">Cancel</button>
+            <button type="submit" class="btn-primary">Save Competition</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. SPONSOR EDITOR MODAL -->
+  <div id="sponsorModal" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title" id="sponsorModalTitle">Add Sponsor / Partner</h3>
+        <button class="modal-close" onclick="closeModal('sponsorModal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <form id="sponsorForm" onsubmit="handleSaveSponsor(event)">
+          <input type="hidden" id="sponsorFormId">
+
+          <div class="cms-form-group">
+            <label class="cms-label">Sponsor Organization Name *</label>
+            <input type="text" id="sponsorFormName" class="cms-input" required placeholder="e.g. DST Bihar">
+          </div>
+
+          <div class="cms-grid-2">
+            <div class="cms-form-group">
+              <label class="cms-label">Sponsorship Tier *</label>
+              <select id="sponsorFormTier" class="cms-select" required>
+                <option value="title">Title Sponsor</option>
+                <option value="patron">Government & Patron</option>
+                <option value="technical">Technical Partner</option>
+                <option value="student_media">Student & Media</option>
+                <option value="associate">Associate Partner</option>
+              </select>
+            </div>
+            <div class="cms-form-group">
+              <label class="cms-label">Emblem / Symbol</label>
+              <input type="text" id="sponsorFormEmblem" class="cms-input" placeholder="e.g. 🏛️ or ⚡">
+            </div>
+          </div>
+
+          <div class="cms-form-group">
+            <label class="cms-label">Subtitle / Designation</label>
+            <input type="text" id="sponsorFormSubtitle" class="cms-input" placeholder="Official Innovation Partner">
+          </div>
+
+          <div class="cms-form-group">
+            <label class="cms-label">Official Website URL (Click-through)</label>
+            <input type="url" id="sponsorFormUrl" class="cms-input" placeholder="https://example.org">
+          </div>
+
+          <div class="cms-form-group">
+            <label class="cms-label">
+              <span>Logo Image URL</span>
+              <button type="button" class="btn-action-icon" onclick="openMediaPickerFor('sponsorFormLogo')">🖼️ Library</button>
+            </label>
+            <input type="text" id="sponsorFormLogo" class="cms-input" placeholder="https://.../logo.png">
+          </div>
+
+          <div class="cms-grid-2">
+            <div class="cms-form-group">
+              <label class="cms-label">Display Sort Order</label>
+              <input type="number" id="sponsorFormOrder" class="cms-input" value="1">
+            </div>
+            <div class="cms-form-group">
+              <label class="cms-label">Status</label>
+              <select id="sponsorFormActive" class="cms-select">
+                <option value="true">Active (Visible)</option>
+                <option value="false">Inactive (Hidden)</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+            <button type="button" class="btn-secondary" onclick="closeModal('sponsorModal')">Cancel</button>
+            <button type="submit" class="btn-primary">Save Partner</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. NAVIGATION ITEM MODAL -->
+  <div id="navItemModal" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title" id="navItemModalTitle">Add Menu Link</h3>
+        <button class="modal-close" onclick="closeModal('navItemModal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <form id="navItemForm" onsubmit="handleSaveNavItem(event)">
+          <input type="hidden" id="navFormId">
+
+          <div class="cms-form-group">
+            <label class="cms-label">Menu Item Label *</label>
+            <input type="text" id="navFormLabel" class="cms-input" required placeholder="e.g. WORKSHOPS">
+          </div>
+
+          <div class="cms-form-group">
+            <label class="cms-label">Destination (Panel name or External URL) *</label>
+            <input type="text" id="navFormUrl" class="cms-input" required placeholder="e.g. workshops or https://instagram.com/...">
+          </div>
+
+          <div class="cms-grid-2">
+            <div class="cms-form-group">
+              <label class="cms-label">Link Type</label>
+              <select id="navFormExternal" class="cms-select">
+                <option value="false">Internal Portal Panel</option>
+                <option value="true">External Web Link</option>
+              </select>
+            </div>
+            <div class="cms-form-group">
+              <label class="cms-label">Open in New Tab?</label>
+              <select id="navFormNewTab" class="cms-select">
+                <option value="false">Same Window</option>
+                <option value="true">New Tab (_blank)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="cms-grid-2">
+            <div class="cms-form-group">
+              <label class="cms-label">Display Order</label>
+              <input type="number" id="navFormOrder" class="cms-input" value="1">
+            </div>
+            <div class="cms-form-group">
+              <label class="cms-label">Visibility</label>
+              <select id="navFormVisible" class="cms-select">
+                <option value="true">Visible</option>
+                <option value="false">Hidden</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+            <button type="button" class="btn-secondary" onclick="closeModal('navItemModal')">Cancel</button>
+            <button type="submit" class="btn-primary">Save Menu Item</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. ROOM ALLOTMENT MODAL -->
+  <div id="allotRoomModal" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title">Allot Hostel Room</h3>
+        <button class="modal-close" onclick="closeModal('allotRoomModal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <form onsubmit="handleSaveRoomAllotment(event)">
+          <input type="hidden" id="allotBookingId">
+
+          <div class="cms-form-group">
+            <label class="cms-label">Participant / Guest</label>
+            <input type="text" id="allotGuestName" class="cms-input" readonly>
+          </div>
+
+          <div class="cms-grid-2">
+            <div class="cms-form-group">
+              <label class="cms-label">Hostel Block *</label>
+              <select id="allotHostelBlock" class="cms-select" required>
+                <option value="Boys Hostel Block">Boys Hostel Block (Campus)</option>
+                <option value="Girls Hostel Block">Girls Hostel Block (Campus)</option>
+                <option value="Guest House">Faculty Guest House</option>
+              </select>
+            </div>
+            <div class="cms-form-group">
+              <label class="cms-label">Room Number *</label>
+              <input type="text" id="allotRoomNumber" class="cms-input" required placeholder="e.g. B-204">
+            </div>
+          </div>
+
+          <div class="cms-form-group">
+            <label class="cms-label">Booking Status</label>
+            <select id="allotStatus" class="cms-select">
+              <option value="allotted">Allotted (Reserved)</option>
+              <option value="checked_in">Checked In</option>
+              <option value="requested">Pending Request</option>
+            </select>
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+            <button type="button" class="btn-secondary" onclick="closeModal('allotRoomModal')">Cancel</button>
+            <button type="submit" class="btn-primary">Confirm Allotment</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. REGISTRATION DETAILS & PRINT SLIP MODAL -->
+  <div id="regDetailModal" class="modal-overlay">
+    <div class="modal-box" style="max-width: 680px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modalRegTitle">Registration Details</h3>
+        <button class="modal-close" onclick="closeModal('regDetailModal')">✕</button>
+      </div>
+      <div class="modal-body" id="modalRegBody">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. MEDIA SELECTOR / PICKER MODAL -->
+  <div id="mediaPickerModal" class="modal-overlay">
+    <div class="modal-box" style="max-width: 800px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Select Media from Library</h3>
+        <button class="modal-close" onclick="closeModal('mediaPickerModal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <div style="margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 0.85rem; color: var(--text-dim);">Click on any image to insert its URL directly:</span>
+          <button class="btn-secondary" onclick="document.getElementById('mediaFileInput').click()">Upload New</button>
+        </div>
+        <div class="media-grid" id="mediaPickerGrid" style="max-height: 440px; overflow-y: auto;">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. GLOBAL SEARCH MODAL (Ctrl + K) -->
+  <div id="globalSearchModal" class="modal-overlay">
+    <div class="search-modal-box">
+      <div class="search-modal-input-box">
+        <span style="color: var(--accent-cyan); font-size: 1.2rem;">🔍</span>
+        <input type="text" id="globalSearchInput" class="search-modal-input" placeholder="Search competitions, participants, sponsors, or pages..." oninput="handleGlobalSearch(this.value)">
+        <button class="modal-close" onclick="closeModal('globalSearchModal')">✕</button>
+      </div>
+      <div class="search-results-list" id="globalSearchResults">
+        <div style="padding: 20px; text-align: center; color: var(--text-dim); font-size: 0.85rem;">
+          Type anything to search across the entire festival database
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8. LIVE WEBSITE PREVIEW MODAL -->
+  <div id="previewModal" class="modal-overlay">
+    <div class="modal-box" style="max-width: 95vw; height: 90vh; display: flex; flex-direction: column;">
+      <div class="modal-header">
+        <h3 class="modal-title">🌐 Live Website Preview</h3>
+        <div style="display: flex; gap: 10px;">
+          <a href="../index.html" target="_blank" class="btn-secondary" style="text-decoration: none; padding: 6px 12px; font-size: 0.78rem;">Open in New Tab ↗</a>
+          <button class="modal-close" onclick="closeModal('previewModal')">✕</button>
+        </div>
+      </div>
+      <div style="flex: 1; padding: 0; background: #000; overflow: hidden;">
+        <iframe id="previewIframe" src="../index.html" style="width: 100%; height: 100%; border: none;"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- Supabase CDN & Client SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../supabase-client.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>

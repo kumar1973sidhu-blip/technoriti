@@ -1,0 +1,21 @@
+{
+  "name": "technoriti-26",
+  "version": "1.0.0",
+  "description": "TECHNORITI '26 - Bhagalpur College of Engineering Annual Technical Festival",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.49.1"
+  },
+  "keywords": [
+    "technoriti",
+    "techfest",
+    "bce-bhagalpur",
+    "supabase"
+  ],
+  "author": "BCE Bhagalpur",
+  "license": "ISC"
+}
