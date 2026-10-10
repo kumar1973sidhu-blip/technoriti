@@ -4,7 +4,7 @@
   "description": "TECHNORITI '26 - Bhagalpur College of Engineering Annual Technical Festival",
   "main": "server.js",
   "scripts": {
-    "build": "node -e \"console.log('TECHNORITI 26 static build ready')\"",
+    "build": "node build.js",
     "start": "node server.js",
     "dev": "node server.js"
   },

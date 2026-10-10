@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
   <!-- Stylesheet -->
-  <link rel="stylesheet" href="admin.css">
+  <link rel="stylesheet" href="/admin/admin.css">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
 </head>
 <body>
@@ -1596,12 +1596,12 @@
       <div class="modal-header">
         <h3 class="modal-title">🌐 Live Website Preview</h3>
         <div style="display: flex; gap: 10px;">
-          <a href="../index.html" target="_blank" class="btn-secondary" style="text-decoration: none; padding: 6px 12px; font-size: 0.78rem;">Open in New Tab ↗</a>
+          <a href="/" target="_blank" class="btn-secondary" style="text-decoration: none; padding: 6px 12px; font-size: 0.78rem;">Open in New Tab ↗</a>
           <button class="modal-close" onclick="closeModal('previewModal')">✕</button>
         </div>
       </div>
       <div style="flex: 1; padding: 0; background: #000; overflow: hidden;">
-        <iframe id="previewIframe" src="../index.html" style="width: 100%; height: 100%; border: none;"></iframe>
+        <iframe id="previewIframe" src="/" style="width: 100%; height: 100%; border: none;"></iframe>
       </div>
     </div>
   </div>
@@ -1609,9 +1609,10 @@
   <!-- TOAST NOTIFICATION CONTAINER -->
   <div id="toastContainer" class="toast-container"></div>
 
-  <!-- Supabase CDN & Client SDK -->
+  <!-- Supabase CDN, Runtime Config & Client SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="../supabase-client.js"></script>
-  <script src="admin.js"></script>
+  <script src="/env-config.js"></script>
+  <script src="/supabase-client.js"></script>
+  <script src="/admin/admin.js"></script>
 </body>
 </html>

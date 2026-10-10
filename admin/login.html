@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
   <!-- Stylesheet -->
-  <link rel="stylesheet" href="admin.css">
+  <link rel="stylesheet" href="/admin/admin.css">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
 </head>
 <body>
@@ -58,16 +58,17 @@
       </form>
 
       <div style="margin-top: 24px; text-align: center;">
-        <a href="../index.html" style="color: var(--text-dim); font-size: 0.8rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: color 0.2s ease;">
+        <a href="/" style="color: var(--text-dim); font-size: 0.8rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: color 0.2s ease;">
           <span>←</span> Back to Public Portal
         </a>
       </div>
     </div>
   </div>
 
-  <!-- Supabase CDN & Client SDK -->
+  <!-- Supabase CDN, Runtime Config & Client SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="../supabase-client.js"></script>
+  <script src="/env-config.js"></script>
+  <script src="/supabase-client.js"></script>
 
   <script>
     (async function initLogin() {
@@ -75,7 +76,7 @@
       try {
         const isAdmin = await TechnoritiDB.checkIsAdmin();
         if (isAdmin) {
-          window.location.replace('index.html');
+          window.location.replace('/admin');
           return;
         }
       } catch (err) {
@@ -126,7 +127,7 @@
 
           btnText.textContent = 'ACCESS GRANTED. REDIRECTING...';
           setTimeout(() => {
-            window.location.replace('index.html');
+            window.location.replace('/admin');
           }, 350);
         } catch (err) {
           showError(err.message || 'An unexpected error occurred. Check internet connectivity.');

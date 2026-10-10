@@ -29,6 +29,8 @@ const server = http.createServer((req, res) => {
     reqPath = '/index.html';
   } else if (reqPath === '/admin' || reqPath === '/admin/') {
     reqPath = '/admin/index.html';
+  } else if (reqPath === '/admin/login' || reqPath === '/admin/login/') {
+    reqPath = '/admin/login.html';
   }
 
   let filePath = path.normalize(path.join(BASE_DIR, reqPath));

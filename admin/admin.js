@@ -126,13 +126,13 @@
     try {
       const client = TechnoritiDB.getClient();
       if (!client) {
-        window.location.replace('login.html');
+        window.location.replace('/admin/login.html');
         return false;
       }
 
       const { data: { session } } = await client.auth.getSession();
       if (!session || !session.user) {
-        window.location.replace('login.html');
+        window.location.replace('/admin/login.html');
         return false;
       }
 
@@ -140,7 +140,7 @@
       const isAdmin = await TechnoritiDB.checkIsAdmin(session.user.id);
       if (!isAdmin) {
         await TechnoritiDB.signOut();
-        window.location.replace('login.html');
+        window.location.replace('/admin/login.html');
         return false;
       }
 
@@ -168,7 +168,7 @@
       return true;
     } catch (err) {
       console.error('Security guard error:', err);
-      window.location.replace('login.html');
+      window.location.replace('/admin/login.html');
       return false;
     }
   }
@@ -2129,7 +2129,7 @@
     // Live Preview trigger
     document.getElementById('btnLivePreview')?.addEventListener('click', () => {
       const iframe = document.getElementById('previewIframe');
-      if (iframe) iframe.src = '../index.html?t=' + Date.now();
+      if (iframe) iframe.src = '/?t=' + Date.now();
       openModal('previewModal');
     });
 
@@ -2142,7 +2142,7 @@
     // Logout button
     document.getElementById('adminLogoutBtn')?.addEventListener('click', async () => {
       await TechnoritiDB.signOut();
-      window.location.replace('login.html');
+      window.location.replace('/admin/login.html');
     });
 
     // Filter Listeners

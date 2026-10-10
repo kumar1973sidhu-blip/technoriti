@@ -585,7 +585,7 @@
 
   function getFrameSrc(index) {
     const numStr = String(index + 1).padStart(3, '0');
-    return `ezgif-frame-${numStr}.jpg`;
+    return `/ezgif-frame-${numStr}.jpg`;
   }
 
   function resizeCanvas() {

@@ -101,11 +101,14 @@ The client is configured with Supabase publishable credentials in `supabase-clie
 │   ├── login.html           # Secure Supabase Auth login
 │   ├── admin.js             # CMS State & CRUD operations
 │   └── admin.css            # Responsive cyber-glassmorphism styles
-├── frames/                  # 170 Canvas animation frames
+├── ezgif-frame-001.jpg...   # 170 Canvas animation frames (root)
+├── principal-portrait.png   # Leadership imagery
 ├── index.html               # Main public festival website
 ├── script.js                # Canvas scrubbing, GSAP animations & dynamic CMS hydration
 ├── styles.css               # Main visual design system
 ├── supabase-client.js       # Central Supabase API & data layer
+├── build.js                 # Vercel production build script
+├── env-config.js            # Client runtime environment configuration
 ├── server.js                # Local development HTTP server
 ├── vercel.json              # Vercel routing, caching & security headers
 ├── package.json             # Scripts & dependencies
