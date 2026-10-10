@@ -804,10 +804,12 @@
   }
 
   // =====================================================================
-  // 3. SLIDE-OUT DRAWER PANELS & 3D ROTATING ROOM ENGINE
+  // 3. SLIDE-OUT DRAWER PANELS & 3D PERSPECTIVE ROOM ENGINE
   // =====================================================================
-  let currentRoomAngle = 0;
-  let targetRoomAngle = 0;
+  let currentRoomAngle = -20;
+  let targetRoomAngle = -20;
+  const roomAngles = [-20, 70, 160, 250];
+  const wallLabels = ['VIEW 01 // STAY & TARIFF', 'VIEW 02 // TV LOUNGE', 'VIEW 03 // FACILITIES & TARIFFS', 'VIEW 04 // FAQS'];
   const roomBox = document.getElementById('room-3d-box');
   const roomAngleText = document.getElementById('room-angle-text');
   const roomPills = document.querySelectorAll('.room-pill');
@@ -819,15 +821,25 @@
       roomBox.style.setProperty('--room-rotate', `${deg}deg`);
     }
 
-    // Determine normalized wall index (0: Stay, 1: TV Lounge, 2: Details, 3: FAQs)
-    const normalized = (Math.round(deg / 90) % 4 + 4) % 4;
-    const wallLabels = ['WALL 01 // STAY', 'WALL 02 // TV LOUNGE', 'WALL 03 // DETAILS', 'WALL 04 // FAQS'];
+    // Determine closest index of [-20, 70, 160, 250]
+    let closestIdx = 0;
+    let minDiff = 9999;
+    const normDeg = ((deg % 360) + 360) % 360;
+    roomAngles.forEach((a, i) => {
+      const normA = ((a % 360) + 360) % 360;
+      const diff = Math.min(Math.abs(normDeg - normA), 360 - Math.abs(normDeg - normA));
+      if (diff < minDiff) {
+        minDiff = diff;
+        closestIdx = i;
+      }
+    });
+
     if (roomAngleText) {
-      roomAngleText.textContent = wallLabels[normalized] || 'WALL 01 // STAY';
+      roomAngleText.textContent = wallLabels[closestIdx] || 'VIEW 01 // STAY & TARIFF';
     }
 
     roomPills.forEach((pill, idx) => {
-      pill.classList.toggle('active', idx === normalized);
+      pill.classList.toggle('active', idx === closestIdx);
     });
 
     const roomWalls = [
@@ -837,7 +849,7 @@
       document.querySelector('.wall-left')
     ];
     roomWalls.forEach((w, idx) => {
-      if (w) w.classList.toggle('active-wall', idx === normalized);
+      if (w) w.classList.toggle('active-wall', idx === closestIdx);
     });
   };
 
@@ -846,7 +858,7 @@
     const stage = document.getElementById('room-3d-stage');
     if (!accomOverlay || !stage) return;
 
-    // Scroll down inside accommodation rotates room (clockwise to next wall)
+    // Scroll down inside accommodation rotates room (to next viewpoint)
     let wheelDebounce = 0;
     accomOverlay.addEventListener('wheel', (e) => {
       if (!accomOverlay.classList.contains('open')) return;
@@ -859,14 +871,24 @@
       if (now - wheelDebounce < 350) return; // Smooth pacing between walls
       wheelDebounce = now;
 
+      let curIdx = 0;
+      let minDiff = 9999;
+      const normCur = ((targetRoomAngle % 360) + 360) % 360;
+      roomAngles.forEach((a, i) => {
+        const normA = ((a % 360) + 360) % 360;
+        const diff = Math.min(Math.abs(normCur - normA), 360 - Math.abs(normCur - normA));
+        if (diff < minDiff) {
+          minDiff = diff;
+          curIdx = i;
+        }
+      });
+
       if (e.deltaY > 0) {
-        // Scroll down -> next wall (0 -> 90 -> 180 -> 270 -> 0)
-        targetRoomAngle = targetRoomAngle >= 270 ? 0 : targetRoomAngle + 90;
+        curIdx = (curIdx + 1) % roomAngles.length;
       } else {
-        // Scroll up -> previous wall
-        targetRoomAngle = targetRoomAngle <= 0 ? 270 : targetRoomAngle - 90;
+        curIdx = (curIdx - 1 + roomAngles.length) % roomAngles.length;
       }
-      window.rotateRoomTo(targetRoomAngle);
+      window.rotateRoomTo(roomAngles[curIdx]);
     }, { passive: false });
 
     // Click and drag to orbit room
@@ -893,15 +915,18 @@
       if (!isDragging) return;
       isDragging = false;
       const dx = e.clientX - dragStartX;
-      if (Math.abs(dx) > 40) {
-        if (dx < 0) {
-          targetRoomAngle = Math.ceil((initialAngle - dx * 0.35) / 90) * 90;
-        } else {
-          targetRoomAngle = Math.floor((initialAngle - dx * 0.35) / 90) * 90;
+      let curIdx = 0;
+      let minDiff = 9999;
+      const normCur = (((initialAngle - dx * 0.35) % 360) + 360) % 360;
+      roomAngles.forEach((a, i) => {
+        const normA = ((a % 360) + 360) % 360;
+        const diff = Math.min(Math.abs(normCur - normA), 360 - Math.abs(normCur - normA));
+        if (diff < minDiff) {
+          minDiff = diff;
+          curIdx = i;
         }
-      }
-      targetRoomAngle = ((targetRoomAngle % 360) + 360) % 360;
-      window.rotateRoomTo(targetRoomAngle);
+      });
+      window.rotateRoomTo(roomAngles[curIdx]);
     });
 
     // Mobile touch swipe to rotate
@@ -914,12 +939,23 @@
       const touchEndY = e.changedTouches[0].clientY;
       const dy = touchStartY - touchEndY;
       if (Math.abs(dy) > 45) {
+        let curIdx = 0;
+        let minDiff = 9999;
+        const normCur = ((targetRoomAngle % 360) + 360) % 360;
+        roomAngles.forEach((a, i) => {
+          const normA = ((a % 360) + 360) % 360;
+          const diff = Math.min(Math.abs(normCur - normA), 360 - Math.abs(normCur - normA));
+          if (diff < minDiff) {
+            minDiff = diff;
+            curIdx = i;
+          }
+        });
         if (dy > 0) {
-          targetRoomAngle = targetRoomAngle >= 270 ? 0 : targetRoomAngle + 90;
+          curIdx = (curIdx + 1) % roomAngles.length;
         } else {
-          targetRoomAngle = targetRoomAngle <= 0 ? 270 : targetRoomAngle - 90;
+          curIdx = (curIdx - 1 + roomAngles.length) % roomAngles.length;
         }
-        window.rotateRoomTo(targetRoomAngle);
+        window.rotateRoomTo(roomAngles[curIdx]);
       }
     }, { passive: true });
   }
@@ -975,7 +1011,7 @@
     if (target) {
       target.classList.add('open');
       if (panelName === 'accommodation') {
-        window.rotateRoomTo(0);
+        window.rotateRoomTo(-20);
       }
     }
 
@@ -1009,43 +1045,99 @@
   // =====================================================================
   // 4. COMPETITIONS RENDERING & DETAILS MODAL
   // =====================================================================
+  function getThemedCategoryFallback(category, title) {
+    const cat = (category || '').toLowerCase();
+    let themeColor = '#00f0ff';
+    let iconSvg = '';
+    const label = (title || 'ARENA').toUpperCase();
+
+    if (cat.includes('robot')) {
+      themeColor = '#00f0ff';
+      iconSvg = `<polygon points="200,60 255,92 255,158 200,190 145,158 145,92" fill="none" stroke="#00f0ff" stroke-width="3.5"/><circle cx="180" cy="115" r="7" fill="#00ff88"/><circle cx="220" cy="115" r="7" fill="#00ff88"/><line x1="175" y1="145" x2="225" y2="145" stroke="#00f0ff" stroke-width="3"/><line x1="200" y1="35" x2="200" y2="60" stroke="#00f0ff" stroke-width="3"/><circle cx="200" cy="30" r="5" fill="#00ffff"/>`;
+    } else if (cat.includes('cod') || cat.includes('cyber') || cat.includes('hack')) {
+      themeColor = '#00ff88';
+      iconSvg = `<rect x="125" y="65" width="150" height="95" rx="8" fill="#070c18" stroke="#00ff88" stroke-width="3"/><polyline points="150,102 168,112 150,122" fill="none" stroke="#00ff88" stroke-width="3.5"/><line x1="178" y1="122" x2="205" y2="122" stroke="#00ffff" stroke-width="3.5"/><line x1="135" y1="78" x2="265" y2="78" stroke="rgba(0,255,136,0.25)" stroke-width="2"/>`;
+    } else if (cat.includes('gam') || cat.includes('esport')) {
+      themeColor = '#ec4899';
+      iconSvg = `<rect x="135" y="75" width="130" height="75" rx="24" fill="#0b0f19" stroke="#ec4899" stroke-width="3.5"/><circle cx="165" cy="110" r="10" fill="none" stroke="#00f0ff" stroke-width="2.5"/><path d="M160,110 L170,110 M165,105 L165,115" stroke="#00f0ff" stroke-width="2.5"/><circle cx="215" cy="104" r="5" fill="#f43f5e"/><circle cx="230" cy="116" r="5" fill="#38bdf8"/>`;
+    } else if (cat.includes('design') || cat.includes('civil') || cat.includes('cad')) {
+      themeColor = '#38bdf8';
+      iconSvg = `<polygon points="200,65 265,102 200,140 135,102" fill="none" stroke="#38bdf8" stroke-width="3"/><polygon points="135,102 200,140 200,180 135,142" fill="none" stroke="#0284c7" stroke-width="3"/><polygon points="265,102 200,140 200,180 265,142" fill="none" stroke="#38bdf8" stroke-width="3"/>`;
+    } else {
+      themeColor = '#fbbf24';
+      iconSvg = `<circle cx="200" cy="112" r="42" fill="none" stroke="#fbbf24" stroke-width="3"/><polygon points="200,82 205,102 225,102 210,114 215,134 200,122 185,134 190,114 175,102 195,102" fill="#fbbf24"/>`;
+    }
+
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" width="400" height="225">
+      <defs>
+        <radialGradient id="bgG" cx="50%" cy="50%" r="70%">
+          <stop offset="0%" stop-color="#0f172a"/>
+          <stop offset="100%" stop-color="#030712"/>
+        </radialGradient>
+        <linearGradient id="gridG" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="${themeColor}" stop-opacity="0.2"/>
+          <stop offset="100%" stop-color="transparent"/>
+        </linearGradient>
+      </defs>
+      <rect width="400" height="225" fill="url(#bgG)"/>
+      <path d="M0,0 L400,225 M400,0 L0,225" stroke="url(#gridG)" stroke-width="1"/>
+      <circle cx="200" cy="115" r="70" fill="none" stroke="${themeColor}" stroke-opacity="0.2" stroke-dasharray="4 6"/>
+      ${iconSvg}
+      <text x="200" y="195" font-family="monospace, sans-serif" font-size="11" font-weight="bold" fill="${themeColor}" text-anchor="middle" letter-spacing="2.5">TECHNORITI // ${escapeHtml(label.slice(0, 22))}</text>
+    </svg>`;
+
+    return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+  }
+
   function renderEventCards(grid, items) {
-    grid.innerHTML = items.map(item => `
-      <div class="event-card" data-id="${item.id}">
-        <div class="event-card-top">
-          <span class="event-category-badge">${item.categoryLabel}</span>
-          <span class="event-prize-tag">${item.prizes.split('•')[0]}</span>
-        </div>
-        <h3 class="event-name">${item.title}</h3>
-        <p class="event-desc">${item.shortDesc}</p>
-        <div class="event-meta-specs">
-          <div class="spec-cell">
-            <span class="spec-key">DATE</span>
-            <span class="spec-val">${item.date}</span>
-          </div>
-          <div class="spec-cell">
-            <span class="spec-key">ENTRY FEE</span>
-            <span class="spec-val">${item.fee}</span>
-          </div>
-          <div class="spec-cell">
-            <span class="spec-key">TEAM FORMAT</span>
-            <span class="spec-val">${item.teamSize}</span>
-          </div>
-          <div class="spec-cell">
-            <span class="spec-key">PRIZE POOL</span>
-            <span class="spec-val">${item.prizes}</span>
+    grid.innerHTML = items.map(item => {
+      const fallbackUrl = getThemedCategoryFallback(item.category, item.title);
+      const coverUrl = item.coverImage || fallbackUrl;
+      const prizeShort = (item.prizes || '').split('•')[0] || 'Trophy & Prize';
+
+      return `
+      <div class="event-card" data-id="${item.id}" onclick="this.classList.toggle('expanded')">
+        <div class="event-card-media">
+          <img class="event-cover-img" src="${coverUrl}" alt="${escapeHtml(item.title)}" loading="lazy" onerror="this.onerror=null; this.src='${fallbackUrl}';">
+          <div class="event-media-overlay"></div>
+          <div class="event-card-top-floater">
+            <span class="event-category-badge">${escapeHtml(item.categoryLabel || item.category)}</span>
+            <span class="event-prize-tag">${escapeHtml(prizeShort)}</span>
           </div>
         </div>
-        <div class="event-actions">
-          <button class="view-rules-btn" onclick="window.openCompModal('${item.id}')">
-            RULES & DETAILS
-          </button>
-          <button class="quick-reg-btn" onclick="window.quickRegisterForEvent('${item.title}')">
-            REGISTER
-          </button>
+        <div class="event-card-body">
+          <h3 class="event-name">${escapeHtml(item.title)}</h3>
+          <p class="event-desc">${escapeHtml(item.shortDesc)}</p>
+          <div class="event-meta-specs">
+            <div class="spec-cell">
+              <span class="spec-key">DATE</span>
+              <span class="spec-val">${escapeHtml(item.date)}</span>
+            </div>
+            <div class="spec-cell">
+              <span class="spec-key">ENTRY FEE</span>
+              <span class="spec-val">${escapeHtml(item.fee)}</span>
+            </div>
+            <div class="spec-cell">
+              <span class="spec-key">TEAM FORMAT</span>
+              <span class="spec-val">${escapeHtml(item.teamSize)}</span>
+            </div>
+            <div class="spec-cell">
+              <span class="spec-key">PRIZE POOL</span>
+              <span class="spec-val">${escapeHtml(item.prizes)}</span>
+            </div>
+          </div>
+          <div class="event-actions">
+            <button class="view-rules-btn" onclick="event.stopPropagation(); window.openCompModal('${item.id}')">
+              RULES & DETAILS
+            </button>
+            <button class="quick-reg-btn" onclick="event.stopPropagation(); window.quickRegisterForEvent('${escapeHtml(item.title)}')">
+              REGISTER
+            </button>
+          </div>
         </div>
       </div>
-    `).join('');
+    `;
+    }).join('');
   }
 
   async function renderCompetitions(filter = 'all') {
@@ -1069,6 +1161,7 @@
             title: e.title,
             category: e.category_id,
             categoryLabel: e.category?.name || 'Competition Arena',
+            coverImage: e.cover_image || null,
             date: e.event_date || 'December 2026',
             fee: e.fee_type === 'team' ? `Rs. ${e.registration_fee} / team` : (e.fee_type === 'person' ? `Rs. ${e.registration_fee} / person` : `Rs. ${e.registration_fee} / member`),
             feeNum: e.registration_fee,
@@ -1282,6 +1375,173 @@
   };
 
   // =====================================================================
+  // 5B. DEDICATED ACCOMMODATION BOOKING ENGINE
+  // =====================================================================
+  window.openAccomBookingModal = function () {
+    const modal = document.getElementById('accom-booking-modal');
+    if (modal) {
+      modal.classList.add('open');
+      window.updateAccomFeeSummary();
+    }
+  };
+
+  window.closeAccomBookingModal = function (e) {
+    if (e && e.target && e.target.classList.contains('modal-dialog')) return;
+    const modal = document.getElementById('accom-booking-modal');
+    if (modal) modal.classList.remove('open');
+  };
+
+  window.updateAccomHostelBlock = function () {
+    const genderSel = document.getElementById('accom-gender');
+    const hostelSel = document.getElementById('accom-hostel');
+    if (!genderSel || !hostelSel) return;
+    if (genderSel.value === 'female') {
+      hostelSel.value = 'Girls Hostel Block';
+    } else {
+      hostelSel.value = 'Boys Hostel Block';
+    }
+  };
+
+  window.updateAccomFeeSummary = function () {
+    const daysSel = document.getElementById('accom-days');
+    const membersSel = document.getElementById('accom-members');
+    const foodCheckbox = document.getElementById('accom-include-food');
+
+    const days = parseInt(daysSel?.value, 10) || 2;
+    const members = parseInt(membersSel?.value, 10) || 1;
+    const includeFood = foodCheckbox ? foodCheckbox.checked : true;
+
+    const lodgingTotal = 50 * days * members;
+    const foodTotal = includeFood ? (125 * days * members) : 0;
+    const subtotal = lodgingTotal + foodTotal;
+
+    // Group discounts: flat Rs 150 off on 4+ members; flat Rs 250 off on 12+ members
+    let discount = 0;
+    if (members >= 12) {
+      discount = 250;
+    } else if (members >= 4) {
+      discount = 150;
+    }
+
+    const grandTotal = Math.max(0, subtotal - discount);
+
+    // Update DOM elements
+    const calcDays = document.getElementById('af-calc-days');
+    const calcMembers = document.getElementById('af-calc-members');
+    const lodgingTotalEl = document.getElementById('af-lodging-total');
+    const foodRow = document.getElementById('af-food-row');
+    const foodDays = document.getElementById('af-food-days');
+    const foodMembers = document.getElementById('af-food-members');
+    const foodTotalEl = document.getElementById('af-food-total');
+    const discountRow = document.getElementById('af-discount-row');
+    const discountEl = document.getElementById('af-discount-amount');
+    const grandTotalEl = document.getElementById('af-grand-total');
+
+    if (calcDays) calcDays.textContent = days;
+    if (calcMembers) calcMembers.textContent = members;
+    if (lodgingTotalEl) lodgingTotalEl.textContent = `₹${lodgingTotal}`;
+
+    if (foodRow) foodRow.style.display = includeFood ? 'flex' : 'none';
+    if (foodDays) foodDays.textContent = days;
+    if (foodMembers) foodMembers.textContent = members;
+    if (foodTotalEl) foodTotalEl.textContent = `₹${foodTotal}`;
+
+    if (discountRow) {
+      if (discount > 0) {
+        discountRow.style.display = 'flex';
+        if (discountEl) discountEl.textContent = `-₹${discount}`;
+      } else {
+        discountRow.style.display = 'none';
+      }
+    }
+
+    if (grandTotalEl) grandTotalEl.textContent = `₹${grandTotal}`;
+  };
+
+  window.handleAccomBookingSubmit = async function (form) {
+    const btn = document.getElementById('accom-submit-btn');
+    const originalText = btn ? btn.innerHTML : '';
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = `<span>RECORDING IN SUPABASE...</span>`;
+    }
+
+    const name = document.getElementById('accom-name').value.trim();
+    const email = document.getElementById('accom-email').value.trim();
+    const phone = document.getElementById('accom-phone').value.trim();
+    const college = document.getElementById('accom-college').value.trim();
+    const gender = document.getElementById('accom-gender').value;
+    const hostel = document.getElementById('accom-hostel').value;
+    const days = parseInt(document.getElementById('accom-days').value, 10) || 2;
+    const members = parseInt(document.getElementById('accom-members').value, 10) || 1;
+    const includeFood = document.getElementById('accom-include-food').checked;
+    const arrival = document.getElementById('accom-arrival').value.trim();
+    const notes = document.getElementById('accom-notes').value.trim();
+
+    // Strict 10-digit phone validation
+    const cleanPhone = phone.replace(/\D/g, '').slice(-10);
+    if (!/^[6-9]\d{9}$/.test(cleanPhone)) {
+      alert('Please enter a valid 10-digit Indian mobile number starting with 6, 7, 8, or 9.');
+      if (btn) { btn.disabled = false; btn.innerHTML = originalText; }
+      return;
+    }
+
+    const lodgingTotal = 50 * days * members;
+    const foodTotal = includeFood ? (125 * days * members) : 0;
+    let discount = members >= 12 ? 250 : (members >= 4 ? 150 : 0);
+    const totalAmount = Math.max(0, lodgingTotal + foodTotal - discount);
+    const dailyRate = includeFood ? 175 : 50;
+
+    const bookingRef = `ACCOM-BCE-${Math.floor(1000 + Math.random() * 9000)}`;
+
+    let savedInDB = false;
+    if (window.TechnoritiDB) {
+      try {
+        await window.TechnoritiDB.submitAccommodationBooking({
+          fullName: name,
+          email: email,
+          phone: cleanPhone,
+          college: college,
+          gender: gender,
+          hostelBlock: hostel,
+          daysCount: days,
+          occupants: members,
+          dailyRate: dailyRate,
+          totalFee: totalAmount,
+          foodRequired: includeFood,
+          bookingType: members > 1 ? `Group (${members} members)` : 'Solo',
+          preferences: `Arrival: ${arrival || 'Dec 2026'} | Notes: ${notes || 'None'}`
+        });
+        savedInDB = true;
+      } catch (err) {
+        console.warn('[Technoriti Supabase] Accommodation booking sync note:', err.message);
+      }
+    }
+
+    // Close booking modal
+    window.closeAccomBookingModal();
+
+    // Populate and open success modal
+    const refEl = document.getElementById('accom-success-ref');
+    const summaryEl = document.getElementById('accom-success-summary');
+    if (refEl) refEl.textContent = bookingRef;
+    if (summaryEl) {
+      summaryEl.textContent = `Hello ${name}! Your stay request for ${members} participant(s) for ${days} days at ${hostel} has been successfully recorded ${savedInDB ? 'in the Technoriti database' : ''}. Total estimated tariff: ₹${totalAmount}.`;
+    }
+
+    const successModal = document.getElementById('accom-success-modal');
+    if (successModal) successModal.classList.add('open');
+
+    form.reset();
+    window.updateAccomFeeSummary();
+
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = originalText;
+    }
+  };
+
+  // =====================================================================
   // 6. INITIALIZATION & BRIGHT NEON LEAF CUSTOM CURSOR ENGINE
   // =====================================================================
   const leafCursor = document.getElementById('neon-leaf-cursor');
@@ -1310,6 +1570,14 @@
 
   function setupNeonLeafCursor() {
     if (!leafCursor) return;
+
+    // Completely disable on mobile and touchscreen devices
+    if (window.matchMedia && window.matchMedia('(hover: none) or (pointer: coarse)').matches) {
+      if (leafCursor) leafCursor.style.display = 'none';
+      if (trailContainer) trailContainer.style.display = 'none';
+      if (cursorGlow) cursorGlow.style.display = 'none';
+      return;
+    }
 
     window.addEventListener('mousemove', (e) => {
       const x = e.clientX;
@@ -1504,21 +1772,44 @@
         }
       }
 
-      // 4. Hydrate Sponsors with Click-Through Links
+      // 4. Hydrate Accommodation FAQs
+      const faqs = await window.TechnoritiDB.getAccommodationFAQs();
+      if (faqs && Array.isArray(faqs) && faqs.length > 0) {
+        const faqList = document.getElementById('room-faq-list');
+        if (faqList) {
+          faqList.innerHTML = faqs.map(faq => `
+            <div class="faq-item" onclick="this.classList.toggle('active')">
+              <div class="faq-question">
+                <span>${escapeHtml(faq.question)}</span>
+                <span class="faq-toggle-icon">+</span>
+              </div>
+              <div class="faq-answer">
+                ${escapeHtml(faq.answer)}
+              </div>
+            </div>
+          `).join('');
+        }
+      }
+
+      // 5. Hydrate Sponsors with Click-Through Links & Logos
       const sponsors = await window.TechnoritiDB.getSponsors();
       if (sponsors && sponsors.length > 0) {
-        const sponsorsGrid = document.querySelector('.sponsors-grid');
-        if (sponsorsGrid) {
-          sponsorsGrid.innerHTML = sponsors.map(s => `
-            <a href="${escapeHtml(s.website_url || 'javascript:void(0)')}" ${s.website_url ? 'target="_blank" rel="noopener"' : ''} class="sponsor-card-link">
-              <div class="sponsor-card tier-${escapeHtml(s.tier || 'technical')}">
-                <div class="sponsor-emblem">${escapeHtml(s.emblem || '⚡')}</div>
-                <div class="sponsor-name">${escapeHtml(s.name)}</div>
-                <div class="sponsor-tier">${escapeHtml(s.tier ? s.tier.replace('_', ' ').toUpperCase() : 'PARTNER')}</div>
-                ${s.subtitle ? `<div class="sponsor-sub" style="font-size:0.75rem; color:var(--text-secondary); margin-top:4px;">${escapeHtml(s.subtitle)}</div>` : ''}
+        const partnerGrids = document.querySelectorAll('.partners-grid-dr');
+        if (partnerGrids.length > 0) {
+          const cellsHtml = sponsors.map(s => {
+            const logoMarkup = s.logo_url
+              ? `<img src="${escapeHtml(s.logo_url)}" alt="${escapeHtml(s.name)}" class="sponsor-logo-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"><div class="p-emblem" style="display:none;">${escapeHtml(s.emblem || '⚡')}</div>`
+              : `<div class="p-emblem">${escapeHtml(s.emblem || '⚡')}</div>`;
+
+            return `
+              <div class="partner-cell">
+                ${logoMarkup}
+                <strong>${escapeHtml(s.name)}</strong>
+                <p>${escapeHtml(s.subtitle || (s.tier ? s.tier.replace('_', ' ').toUpperCase() : 'Festival Partner'))}</p>
               </div>
-            </a>
-          `).join('');
+            `;
+          }).join('');
+          partnerGrids.forEach(g => g.innerHTML = cellsHtml);
         }
       }
     } catch (err) {
@@ -1535,7 +1826,7 @@
     setup3DRoomInteractions();
     initTvScreenStream();
     initRoomCountdown();
-    window.rotateRoomTo(0);
+    window.rotateRoomTo(-20);
     hydrateDynamicCmsContent();
     requestAnimationFrame(renderLoop);
   }

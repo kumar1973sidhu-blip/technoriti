@@ -56,6 +56,8 @@
             title,
             slug,
             category_id,
+            cover_image,
+            gallery_images,
             short_desc,
             registration_fee,
             fee_type,
@@ -460,6 +462,114 @@
       const { data, error } = await sb.from('accommodation_options').update(updates).eq('id', id).select('*').single();
       if (error) throw error;
       return data;
+    },
+
+    /**
+     * Submit verified accommodation booking to Supabase
+     */
+    async submitAccommodationBooking(booking) {
+      const sb = getSupabase();
+      if (!sb) throw new Error('Supabase client unavailable. Please check your internet connection.');
+
+      // Validation
+      if (!booking.fullName || !booking.fullName.trim()) throw new Error('Full Name is required.');
+      if (!booking.email || !booking.email.trim()) throw new Error('Valid email address is required.');
+      if (!booking.phone || !/^[6-9]\d{9}$/.test(booking.phone.trim().replace(/\D/g, '').slice(-10))) {
+        throw new Error('Please enter a valid 10-digit mobile number.');
+      }
+      if (!booking.college || !booking.college.trim()) throw new Error('College / University name is required.');
+
+      const gender = (booking.gender || 'male').toLowerCase();
+      const validGenders = ['male', 'female', 'other'];
+      const normalizedGender = validGenders.includes(gender) ? gender : 'male';
+      const hostelBlock = normalizedGender === 'female' ? 'Girls Hostel Block' : 'Boys Hostel Block';
+
+      const membersCount = parseInt(booking.occupants, 10) || 1;
+      const dailyRate = parseInt(booking.dailyRate, 10) || 175;
+      const daysCount = parseInt(booking.daysCount, 10) || 2;
+      const totalFee = parseInt(booking.totalFee, 10) || (dailyRate * membersCount * daysCount);
+
+      const notesArr = [
+        `Branch: ${booking.branch || 'Not specified'}`,
+        `Roll: ${booking.rollNumber || 'N/A'}`,
+        `Type: ${booking.bookingType || 'Solo'}`,
+        `Food Required: ${booking.foodRequired ? 'Yes' : 'No'}`,
+        booking.preferences ? `Preferences: ${booking.preferences}` : ''
+      ].filter(Boolean);
+
+      const payload = {
+        full_name: booking.fullName.trim(),
+        email: booking.email.trim().toLowerCase(),
+        phone: booking.phone.trim(),
+        college: booking.college.trim(),
+        gender: normalizedGender,
+        hostel_block: hostelBlock,
+        days_count: daysCount,
+        members_count: membersCount,
+        daily_rate: dailyRate,
+        total_fee: totalFee,
+        status: 'requested',
+        admin_notes: notesArr.join(' | ')
+      };
+
+      const { data, error } = await sb
+        .from('accommodation_bookings')
+        .insert(payload)
+        .select('*')
+        .single();
+
+      if (error) {
+        console.error('[TechnoritiDB] Booking failed:', error);
+        throw new Error(error.message || 'Failed to submit accommodation booking.');
+      }
+
+      return { success: true, booking: data };
+    },
+
+    // Accommodation FAQs CMS
+    async getAccommodationFAQs() {
+      const sb = getSupabase();
+      if (!sb) return null;
+      try {
+        const { data, error } = await sb.from('site_settings').select('value').eq('key', 'accommodation_faqs').single();
+        if (error || !data) return null;
+        return data.value;
+      } catch (err) {
+        return null;
+      }
+    },
+
+    async saveAccommodationFAQs(faqs) {
+      return this.updateSiteSetting('accommodation_faqs', faqs, 'Editable Accommodation Frequently Asked Questions');
+    },
+
+    // Payment Gateway Public Configuration CMS
+    async getPaymentGatewayConfig() {
+      const sb = getSupabase();
+      if (!sb) return null;
+      try {
+        const { data, error } = await sb.from('site_settings').select('value').eq('key', 'payment_gateway_config').single();
+        if (error || !data) return null;
+        return data.value;
+      } catch (err) {
+        return null;
+      }
+    },
+
+    async savePaymentGatewayConfig(config) {
+      // Security check: Never store private/secret keys in public site_settings
+      const safeConfig = {
+        provider: config.provider || 'manual_upi',
+        environment: config.environment || 'sandbox',
+        key_id: config.key_id || '', // Public Key only
+        merchant_upi: config.merchant_upi || '',
+        merchant_name: config.merchant_name || 'BCE Bhagalpur Technoriti',
+        checkout_enabled: !!config.checkout_enabled,
+        currency: 'INR',
+        webhook_status: config.webhook_status || 'not_configured',
+        updated_at: new Date().toISOString()
+      };
+      return this.updateSiteSetting('payment_gateway_config', safeConfig, 'Public Payment Gateway Integration Configuration');
     },
 
     // 8. Media Assets Library

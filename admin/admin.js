@@ -270,6 +270,11 @@
     populatePrizesEventSelector();
     renderSponsorsTable();
     populateAccommodationTariffs();
+    if (state.settings.accommodation_faqs && Array.isArray(state.settings.accommodation_faqs)) {
+      state.accommodationFaqs = state.settings.accommodation_faqs;
+    }
+    renderFaqEditorList();
+    renderPaymentGatewayConfig();
     renderAccommodationsTable();
     renderRegistrationsTable();
     renderPaymentsTable();
@@ -985,6 +990,19 @@
     }).join('');
   }
 
+  window.updateCompImagePreview = function (url) {
+    const box = document.getElementById('compCoverPreviewBox');
+    const img = document.getElementById('compCoverPreviewImg');
+    if (!box || !img) return;
+    if (url && url.trim()) {
+      img.src = url.trim();
+      box.style.display = 'block';
+    } else {
+      img.src = '';
+      box.style.display = 'none';
+    }
+  };
+
   window.openNewCompetitionModal = function () {
     document.getElementById('compFormId').value = '';
     document.getElementById('compFormTitle').value = '';
@@ -997,6 +1015,9 @@
     document.getElementById('compFormPrizePool').value = '₹10,000';
     document.getElementById('compFormFirstPrize').value = '₹6,000';
     document.getElementById('compFormShortDesc').value = '';
+    const coverInput = document.getElementById('compFormCoverImage');
+    if (coverInput) coverInput.value = '';
+    window.updateCompImagePreview('');
     document.getElementById('compFormFullDesc').value = '';
     document.getElementById('compFormDate').value = 'December 18, 2026';
     document.getElementById('compFormVenue').value = 'BCE Campus';
@@ -1023,6 +1044,11 @@
     document.getElementById('compFormPrizePool').value = e.prize_pool || '';
     document.getElementById('compFormFirstPrize').value = e.first_prize || '';
     document.getElementById('compFormShortDesc').value = e.short_desc || '';
+    const coverInput = document.getElementById('compFormCoverImage');
+    if (coverInput) {
+      coverInput.value = e.cover_image || '';
+      window.updateCompImagePreview(e.cover_image || '');
+    }
     document.getElementById('compFormFullDesc').value = e.full_desc || '';
     document.getElementById('compFormDate').value = e.event_date || '';
     document.getElementById('compFormVenue').value = e.venue || '';
@@ -1039,11 +1065,13 @@
     try {
       const id = document.getElementById('compFormId').value;
       const slugVal = document.getElementById('compFormSlug').value.trim() || document.getElementById('compFormTitle').value.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-');
+      const coverVal = document.getElementById('compFormCoverImage')?.value.trim() || null;
       const payload = {
         id: id || slugVal,
         title: document.getElementById('compFormTitle').value.trim(),
         slug: slugVal,
         category_id: document.getElementById('compFormCategory').value,
+        cover_image: coverVal,
         fee_type: document.getElementById('compFormFeeType').value,
         registration_fee: parseInt(document.getElementById('compFormFee').value, 10) || 0,
         team_size_min: parseInt(document.getElementById('compFormMinTeam').value, 10) || 1,
@@ -1433,6 +1461,159 @@
       showToast('Accommodation tariffs and policy saved!', 'success');
     } catch (err) {
       showToast('Save failed: ' + err.message, 'error');
+    }
+  };
+
+  // =========================================================================
+  // ACCOMMODATION FAQS CMS (EDITABLE IN ADMIN)
+  // =========================================================================
+  state.accommodationFaqs = [
+    {
+      question: "How do I register for accommodation?",
+      answer: "You can book your stay by clicking the 'BOOK NOW' button or visiting the Register section on this portal. Check the 'Need Campus Accommodation' option and submit your details.",
+      verified: true
+    },
+    {
+      question: "Can we book as a group?",
+      answer: "Yes! Teams and college contingents can book together. Groups with over 4 participants receive group tariff discounts.",
+      verified: true
+    },
+    {
+      question: "What documents are mandatory for room allotment?",
+      answer: "1) College ID Card (2 photocopies + original), 2) Aadhaar / PAN or Government ID (2 copies), 3) 3 passport size photos, 4) College NOC, and 5) Copy of payment slip.",
+      verified: true
+    },
+    {
+      question: "Does the accommodation fee include food?",
+      answer: "Lodging is ₹50 per person per day. Mess dining (hygienic breakfast, lunch, and dinner) is ₹125 per day served in the college dining hall.",
+      verified: true
+    },
+    {
+      question: "Will team members be given accommodation together?",
+      answer: "Yes, participants from the same team or institution of the same gender are allotted shared rooms together based on availability.",
+      verified: true
+    },
+    {
+      question: "What are the check-in and check-out timings?",
+      answer: "Check-in desk opens at 6:00 AM on festival opening day at the BCE Bhagalpur Main Gate Reception. Standard check-out is by 10:00 PM on closing day.",
+      verified: true
+    },
+    {
+      question: "How can I cancel or change my booking?",
+      answer: "Contact the Boys or Girls Hostel Logistics Coordinator with your registered Mobile Number and College Roll Number before the final deadline.",
+      verified: true
+    }
+  ];
+
+  function renderFaqEditorList() {
+    const container = document.getElementById('faqListEditorContainer');
+    if (!container) return;
+
+    if (state.accommodationFaqs.length === 0) {
+      container.innerHTML = '<div style="color:var(--text-dim); text-align:center; padding:16px;">No FAQs configured. Click "Add Question" above.</div>';
+      return;
+    }
+
+    container.innerHTML = state.accommodationFaqs.map((faq, idx) => `
+      <div class="cms-card" style="margin-bottom:0; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.08); padding:16px; border-radius:8px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <span style="font-family:var(--font-orbitron); font-size:0.8rem; color:var(--accent-cyan); font-weight:700;">QUESTION #${idx + 1}</span>
+          <button type="button" class="btn-action-icon reject" onclick="removeFaqItem(${idx})">✕ Delete</button>
+        </div>
+        <div class="cms-form-group">
+          <label class="cms-label">Question</label>
+          <input type="text" class="cms-input" id="faqQ_${idx}" value="${escapeHtml(faq.question || '')}" placeholder="e.g. How do I book accommodation?">
+        </div>
+        <div class="cms-form-group">
+          <label class="cms-label">Official Answer (or leave empty to mark as pending verification)</label>
+          <textarea class="cms-textarea" id="faqA_${idx}" rows="2" placeholder="Policy answer shown on public portal...">${escapeHtml(faq.answer || '')}</textarea>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <input type="checkbox" id="faqVer_${idx}" ${faq.verified !== false ? 'checked' : ''}>
+          <label for="faqVer_${idx}" style="font-size:0.8rem; color:var(--text-dim); cursor:pointer;">
+            Officially verified policy (uncheck if pending administration approval)
+          </label>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  window.addNewFaqItem = function () {
+    syncFaqFormValues();
+    state.accommodationFaqs.push({
+      question: 'New Question',
+      answer: '',
+      verified: false
+    });
+    renderFaqEditorList();
+  };
+
+  window.removeFaqItem = function (index) {
+    syncFaqFormValues();
+    state.accommodationFaqs.splice(index, 1);
+    renderFaqEditorList();
+  };
+
+  function syncFaqFormValues() {
+    state.accommodationFaqs.forEach((faq, idx) => {
+      const qEl = document.getElementById(`faqQ_${idx}`);
+      const aEl = document.getElementById(`faqA_${idx}`);
+      const verEl = document.getElementById(`faqVer_${idx}`);
+      if (qEl) faq.question = qEl.value.trim();
+      if (aEl) faq.answer = aEl.value.trim();
+      if (verEl) faq.verified = verEl.checked;
+    });
+  }
+
+  window.saveAccommodationFaqs = async function () {
+    try {
+      syncFaqFormValues();
+      await TechnoritiDB.saveAccommodationFAQs(state.accommodationFaqs);
+      showToast('Accommodation FAQs saved successfully!', 'success');
+    } catch (err) {
+      showToast('Failed to save FAQs: ' + err.message, 'error');
+    }
+  };
+
+  // =========================================================================
+  // PAYMENT GATEWAY PUBLIC CONFIGURATION
+  // =========================================================================
+  function renderPaymentGatewayConfig() {
+    const config = state.settings.payment_gateway_config || {};
+    const provEl = document.getElementById('cfgPaymentProvider');
+    const envEl = document.getElementById('cfgPaymentEnvironment');
+    const checkEl = document.getElementById('cfgPaymentCheckoutEnabled');
+    const keyEl = document.getElementById('cfgPaymentKeyId');
+    const upiEl = document.getElementById('cfgPaymentUpi');
+    const nameEl = document.getElementById('cfgPaymentMerchantName');
+    const webEl = document.getElementById('cfgPaymentWebhookStatus');
+
+    if (provEl && config.provider) provEl.value = config.provider;
+    if (envEl && config.environment) envEl.value = config.environment;
+    if (checkEl) checkEl.value = config.checkout_enabled ? 'true' : 'false';
+    if (keyEl && config.key_id) keyEl.value = config.key_id;
+    if (upiEl && config.merchant_upi) upiEl.value = config.merchant_upi;
+    if (nameEl && config.merchant_name) nameEl.value = config.merchant_name;
+    if (webEl && config.webhook_status) webEl.value = config.webhook_status;
+  }
+
+  window.savePaymentGatewaySettings = async function () {
+    try {
+      const payload = {
+        provider: document.getElementById('cfgPaymentProvider')?.value || 'manual_upi',
+        environment: document.getElementById('cfgPaymentEnvironment')?.value || 'sandbox',
+        checkout_enabled: document.getElementById('cfgPaymentCheckoutEnabled')?.value === 'true',
+        key_id: document.getElementById('cfgPaymentKeyId')?.value.trim() || '',
+        merchant_upi: document.getElementById('cfgPaymentUpi')?.value.trim() || '',
+        merchant_name: document.getElementById('cfgPaymentMerchantName')?.value.trim() || 'BCE Bhagalpur Technoriti 2026',
+        webhook_status: 'Active (Verified Callbacks Only)'
+      };
+
+      await TechnoritiDB.savePaymentGatewayConfig(payload);
+      state.settings.payment_gateway_config = payload;
+      showToast('Payment Gateway settings saved!', 'success');
+    } catch (err) {
+      showToast('Failed to save payment gateway settings: ' + err.message, 'error');
     }
   };
 
@@ -1941,7 +2122,12 @@
   window.selectMediaForTarget = function (url) {
     if (state.activeMediaPickerTarget) {
       const el = document.getElementById(state.activeMediaPickerTarget);
-      if (el) el.value = url;
+      if (el) {
+        el.value = url;
+        if (state.activeMediaPickerTarget === 'compFormCoverImage') {
+          window.updateCompImagePreview(url);
+        }
+      }
     }
     closeModal('mediaPickerModal');
     showToast('Media selected', 'success');

@@ -90,10 +90,38 @@
     <div class="header-inner">
       <!-- Logo Left -->
       <a href="javascript:void(0)" onclick="window.closeAllPanels()" class="brand" title="Technoriti '26 Home">
-        <div class="brand-symbol">
-          <svg viewBox="0 0 32 32" width="28" height="28" fill="none">
-            <polygon points="16,2 30,10 30,22 16,30 2,22 2,10" stroke="var(--accent-cyan)" stroke-width="2" fill="rgba(0, 240, 255, 0.08)"/>
-            <path d="M10 16 L16 22 L22 10" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <div class="brand-symbol" id="technoritiBrandSymbol">
+          <svg viewBox="0 0 36 36" width="32" height="32" fill="none" class="symbol-svg">
+            <defs>
+              <linearGradient id="cyberHexGrad" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#00ffff"/>
+                <stop offset="50%" stop-color="#00ff88"/>
+                <stop offset="100%" stop-color="#3b82f6"/>
+              </linearGradient>
+              <linearGradient id="coreEnergyGrad" x1="10" y1="8" x2="26" y2="28" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#ffffff"/>
+                <stop offset="60%" stop-color="#00ffff"/>
+                <stop offset="100%" stop-color="#8b5cf6"/>
+              </linearGradient>
+              <filter id="symbolGlowFilter" x="-40%" y="-40%" width="180%" height="180%">
+                <feGaussianBlur in="SourceGraphic" stdDeviation="2" result="blur"/>
+                <feMerge>
+                  <feMergeNode in="blur"/>
+                  <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+              </filter>
+            </defs>
+            <!-- 3D Shadow Plate -->
+            <polygon points="18,3 32,11 32,25 18,33 4,25 4,11" stroke="rgba(0, 240, 255, 0.4)" stroke-width="1.5" fill="rgba(0, 20, 40, 0.85)"/>
+            <!-- Outer Radiant Hexagon -->
+            <polygon points="18,5 30,12 30,24 18,31 6,24 6,12" stroke="url(#cyberHexGrad)" stroke-width="2" fill="rgba(0, 240, 255, 0.12)" filter="url(#symbolGlowFilter)"/>
+            <!-- Inner Cyber Tech Structure -->
+            <polygon points="18,9 26,14 26,22 18,27 10,22 10,14" stroke="rgba(0, 255, 136, 0.6)" stroke-width="1" stroke-dasharray="2 2" fill="rgba(0,0,0,0.5)"/>
+            <!-- Radiant Central Energy Core (T-Crest) -->
+            <path d="M12 14 L24 14 M18 14 L18 25 M14 25 L22 25" stroke="url(#coreEnergyGrad)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" filter="url(#symbolGlowFilter)"/>
+            <circle cx="18" cy="14" r="2.2" fill="#ffffff"/>
+            <circle cx="12" cy="14" r="1.5" fill="#00ffff"/>
+            <circle cx="24" cy="14" r="1.5" fill="#00ffff"/>
           </svg>
         </div>
         <div class="brand-text">
@@ -127,13 +155,6 @@
             <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
           </svg>
         </button>
-
-        <!-- Admin Portal Link -->
-        <a href="admin/" class="action-btn" title="Festival Admin Console" aria-label="Admin Console" style="text-decoration: none;">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-          </svg>
-        </a>
 
         <!-- Register Button -->
         <button class="cyber-btn-register" onclick="window.openPanel('register')">
@@ -343,23 +364,23 @@
     </div>
   </div>
 
-  <!-- 3. ACCOMMODATION PANEL (INTERACTIVE 3D ROTATING ROOM) -->
+  <!-- 3. ACCOMMODATION PANEL (STANDOUT LAYERED 3D PERSPECTIVE ROOM) -->
   <div id="accommodation-panel" class="slide-panel-overlay accommodation-3d-overlay" onclick="window.handleOverlayClick(event, 'accommodation')">
     <div class="room-viewport-container" onclick="event.stopPropagation()">
       <!-- Top Room Control Header -->
       <div class="room-top-bar">
         <div class="room-title-badge">
           <span class="pulse-dot"></span>
-          <span class="room-tag">3D HOSTEL ROOM EXPERIENCE</span>
-          <span class="room-angle-indicator" id="room-angle-text">WALL 01 // STAY</span>
+          <span class="room-tag">3D HOSTEL RESIDENCE // BCE BHAGALPUR</span>
+          <span class="room-angle-indicator" id="room-angle-text">VIEW 01 // STAY & TARIFF</span>
         </div>
 
         <!-- Room Wall Quick Tabs -->
         <div class="room-nav-pills">
-          <button class="room-pill active" onclick="window.rotateRoomTo(0)">01 Book Stay</button>
-          <button class="room-pill" onclick="window.rotateRoomTo(90)">02 TV Lounge</button>
-          <button class="room-pill" onclick="window.rotateRoomTo(180)">03 General Details</button>
-          <button class="room-pill" onclick="window.rotateRoomTo(270)">04 FAQs</button>
+          <button class="room-pill active" onclick="window.rotateRoomTo(-20)">01 3D Room Stay</button>
+          <button class="room-pill" onclick="window.rotateRoomTo(70)">02 TV Lounge</button>
+          <button class="room-pill" onclick="window.rotateRoomTo(160)">03 Facilities & Tariffs</button>
+          <button class="room-pill" onclick="window.rotateRoomTo(250)">04 FAQs</button>
         </div>
 
         <button class="drawer-close-btn" onclick="window.closeAllPanels()" title="Close Room View (Esc)">✕</button>
@@ -369,42 +390,79 @@
       <div class="room-3d-stage" id="room-3d-stage">
         <div class="room-3d-box" id="room-3d-box">
 
-          <!-- ================= WALL 1: FRONT (BOOK YOUR STAY) ================= -->
-          <div class="room-wall wall-front">
+          <!-- ================= WALL 1: FRONT (BOOK YOUR STAY & CLEAR TARIFFS) ================= -->
+          <div class="room-wall wall-front active-wall">
             <div class="wall-vignette"></div>
             <div class="wall-content-front">
-              <h2 class="room-heading-main">BOOK YOUR STAY</h2>
-              <h3 class="room-heading-sub">Inside BCE Bhagalpur Campus</h3>
-              <p class="room-subtext">Get Free Access to all events & arenas at Technoriti '26</p>
+              <div class="room-badge-pill">BCE CAMPUS HOSTEL EXPERIENCE</div>
+              <h2 class="room-heading-main">CAMPUS ACCOMMODATION</h2>
+              <h3 class="room-heading-sub">Bhagalpur College of Engineering</h3>
+              <p class="room-subtext">Secure hostel lodging inside BCE Campus with 24/7 security and dedicated dining</p>
 
-              <!-- Countdown Offer Box (From Page 1) -->
-              <div class="offer-ended-box">
-                <span class="offer-title">DECEMBER 2026 EDITION</span>
-                <div class="timer-digits-row">
-                  <div class="t-digit"><span id="room-timer-days">24</span><small>DAYS</small></div>
-                  <span class="t-colon">:</span>
-                  <div class="t-digit"><span id="room-timer-hours">12</span><small>HRS</small></div>
-                  <span class="t-colon">:</span>
-                  <div class="t-digit"><span id="room-timer-min">45</span><small>MIN</small></div>
-                  <span class="t-colon">:</span>
-                  <div class="t-digit"><span id="room-timer-sec">00</span><small>SEC</small></div>
+              <!-- Clear Separate Tariff Card (Rs. 50 lodging + Rs. 125 food = Rs. 175 total) -->
+              <div class="room-tariffs-showcase">
+                <div class="tariff-chip">
+                  <span class="chip-label">LODGING FEE</span>
+                  <span class="chip-price">₹50<small>/person/day</small></span>
+                  <span class="chip-sub">Secure Hostel Bed</span>
+                </div>
+                <div class="tariff-divider">+</div>
+                <div class="tariff-chip">
+                  <span class="chip-label">MESS FOOD</span>
+                  <span class="chip-price">₹125<small>/person/day</small></span>
+                  <span class="chip-sub">3 Hygienic Meals</span>
+                </div>
+                <div class="tariff-divider">=</div>
+                <div class="tariff-chip total-chip">
+                  <span class="chip-label">TOTAL ALL-INCLUSIVE</span>
+                  <span class="chip-price">₹175<small>/person/day</small></span>
+                  <span class="chip-sub">Stay + Food</span>
                 </div>
               </div>
 
-              <div class="early-bird-badge">EARLY BIRD BOOKING LIVE NOW</div>
-              <button class="room-book-now-btn" onclick="window.closeAllPanels(); window.openPanel('register');">
-                <span>BOOK NOW</span>
-              </button>
+              <!-- 6 Facilities Badges -->
+              <div class="room-facilities-strip">
+                <div class="facility-badge"><span>⚡</span> High-Speed Wi-Fi</div>
+                <div class="facility-badge"><span>🛡️</span> 24/7 Security</div>
+                <div class="facility-badge"><span>💧</span> RO Drinking Water</div>
+                <div class="facility-badge"><span>🔌</span> Charging Points</div>
+                <div class="facility-badge"><span>🛋️</span> Common Room</div>
+                <div class="facility-badge"><span>🚑</span> Medical Support</div>
+              </div>
+
+              <!-- Logistics Coordinators Mini Row -->
+              <div class="room-coordinators-quick">
+                <div class="coord-quick-pill">
+                  <span class="cq-role">BOYS HOSTEL:</span>
+                  <span class="cq-name">Prof. Kumar Jyotiraditya</span>
+                  <a href="tel:7004618331" class="cq-link">📞 7004618331</a>
+                </div>
+                <div class="coord-quick-pill">
+                  <span class="cq-role">GIRLS HOSTEL:</span>
+                  <span class="cq-name">Prof. Sarika Kushwaha</span>
+                  <a href="tel:7321018753" class="cq-link">📞 7321018753</a>
+                </div>
+              </div>
+
+              <!-- Action Row -->
+              <div class="room-cta-row">
+                <button class="room-book-now-btn primary-glow-pulse" onclick="window.openAccomBookingModal()">
+                  <span>⚡ BOOK ACCOMMODATION NOW</span>
+                </button>
+                <button class="room-secondary-btn" onclick="window.rotateRoomTo(250)">
+                  <span>VIEW ALL FAQS</span>
+                </button>
+              </div>
 
               <div class="room-scroll-down-cue">
                 <div class="cue-pill">
-                  <span>SCROLL DOWN TO ROTATE ROOM</span>
+                  <span>SCROLL OR CLICK TABS TO ROTATE ROOM</span>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
                 </div>
               </div>
             </div>
 
-            <!-- 3D Bed on Left Side (From Page 1) -->
+            <!-- 3D Bed on Left Side -->
             <div class="room-bed-3d">
               <div class="bed-headboard"></div>
               <div class="bed-frame"></div>
@@ -413,7 +471,7 @@
               <div class="bed-pillow-white"></div>
             </div>
 
-            <!-- 3D Nightstand & Bedside Lamp on Right Side (From Page 1) -->
+            <!-- 3D Nightstand & Bedside Lamp on Right Side -->
             <div class="room-nightstand-3d">
               <div class="nightstand-table">
                 <div class="drawer-line d-top">
@@ -436,7 +494,7 @@
           <div class="room-wall wall-right">
             <div class="wall-vignette"></div>
             <div class="wall-content-right">
-              <!-- Wall Mounted TV playing fest video/canvas (From Page 2) -->
+              <!-- Wall Mounted TV playing fest video/canvas -->
               <div class="tv-unit-mount">
                 <div class="tv-bezel">
                   <div class="tv-screen">
@@ -449,7 +507,7 @@
                 </div>
               </div>
 
-              <!-- Potted Plants on Floating Wooden Shelves (From Page 2) -->
+              <!-- Potted Plants on Floating Wooden Shelves -->
               <div class="wall-floating-shelves">
                 <div class="shelf-tier shelf-tier-1">
                   <div class="wood-shelf"></div>
@@ -467,7 +525,7 @@
                 </div>
               </div>
 
-              <!-- Blue Room Door Frame on Right Corner (From Page 2) -->
+              <!-- Blue Room Door Frame on Right Corner -->
               <div class="room-door-frame">
                 <div class="door-inner">
                   <div class="door-handle"></div>
@@ -476,50 +534,52 @@
             </div>
           </div>
 
-          <!-- ================= WALL 3: BACK (GENERAL DETAILS) ================= -->
+          <!-- ================= WALL 3: BACK (FULL TARIFF & LOGISTICS DETAILS) ================= -->
           <div class="room-wall wall-back">
             <div class="wall-vignette"></div>
             <div class="wall-content-back">
-              <h2 class="room-section-title">GENERAL DETAILS</h2>
+              <h2 class="room-section-title">CAMPUS LOGISTICS & TARIFF</h2>
               <p class="room-section-sub">Official BCE Bhagalpur Campus Logistics & Tariff Information</p>
 
-              <!-- 3 Wall Mounted Cards (From Page 3) -->
+              <!-- 3 Wall Mounted Cards -->
               <div class="wall-cards-trio">
                 <!-- Card 1: Charges -->
                 <div class="wall-detail-card">
-                  <h4 class="wd-card-title">CHARGES</h4>
+                  <h4 class="wd-card-title">SEPARATE CHARGES</h4>
                   <div class="wd-card-body">
                     <p class="wd-main-p">
-                      The Accommodation fee is <strong>Rs. 50 per person per day</strong> (Lodging) and <strong>Rs. 125 per day</strong> (Food) inside BCE Bhagalpur Campus.
+                      <strong>Lodging Fee:</strong> ₹50 per person per day.<br>
+                      <strong>Food & Dining:</strong> ₹125 per day (Breakfast, Lunch & Dinner).<br>
+                      <strong>Total All-Inclusive:</strong> <strong>₹175 per head/day</strong>.
                     </p>
                     <div class="wd-discount-pill">
-                      *Note: Get flat ₹150 off on group bookings of over 4 people and flat ₹250 off on 12+ members.
+                      🎁 <strong>Group Discounts:</strong> Flat ₹150 off on group bookings over 4 people; flat ₹250 off on 12+ members.
                     </div>
                   </div>
                 </div>
 
                 <!-- Card 2: Location -->
                 <div class="wall-detail-card">
-                  <h4 class="wd-card-title">LOCATION</h4>
+                  <h4 class="wd-card-title">LOCATION & ALLOTMENT</h4>
                   <div class="wd-card-body">
                     <p class="wd-main-p">
-                      Stay will be provided inside <strong>BCE BHAGALPUR CAMPUS</strong> with separate secure Boys & Girls hostel blocks.
+                      Inside <strong>BCE BHAGALPUR CAMPUS</strong>. Separate secure Boys & Girls hostel blocks with 24/7 security & faculty warden supervision.
                     </p>
                     <div class="wd-discount-pill">
-                      *Note: Booking of rooms is on a First Come First Served basis as there are limited rooms on campus.
+                      ⚠️ <strong>First-Come First-Served:</strong> Limited rooms available. Teams of same gender allotted together.
                     </div>
                   </div>
                 </div>
 
-                <!-- Card 3: Duration -->
+                <!-- Card 3: Duration & Documents -->
                 <div class="wall-detail-card">
-                  <h4 class="wd-card-title">DURATION</h4>
+                  <h4 class="wd-card-title">CHECK-IN & DOCUMENTS</h4>
                   <div class="wd-card-body">
                     <p class="wd-main-p">
-                      Accommodation will be available from <strong>December 2026, 6:00 AM</strong> until <strong>December 2026, 10:00 PM</strong>.
+                      Check-in from <strong>December 2026, 6:00 AM</strong>. Early check-in supported.
                     </p>
                     <div class="wd-discount-pill">
-                      Early check-in assistance provided by the student hospitality council.
+                      📋 <strong>Mandatory at Desk:</strong> College ID (2 copies + original), Govt ID, 3 photos, College NOC, Payment slip.
                     </div>
                   </div>
                 </div>
@@ -537,6 +597,9 @@
                   <span class="cp-name">Prof. Sarika Kushwaha</span>
                   <a href="tel:7321018753" class="cp-phone">📞 7321018753</a>
                 </div>
+                <button class="primary-glow-btn" onclick="window.openAccomBookingModal()" style="margin-left:12px;">
+                  <span>BOOK NOW</span>
+                </button>
               </div>
             </div>
           </div>
@@ -545,10 +608,10 @@
           <div class="room-wall wall-left">
             <div class="wall-vignette"></div>
             <div class="wall-content-left">
-              <h2 class="room-section-title">Frequently asked questions</h2>
+              <h2 class="room-section-title">FREQUENTLY ASKED QUESTIONS</h2>
               <p class="room-section-sub">Everything you need to know about staying at BCE Bhagalpur</p>
 
-              <!-- FAQs Accordion List (From Page 4) -->
+              <!-- FAQs Accordion List -->
               <div class="faq-accordion-list" id="room-faq-list">
                 <div class="faq-item" onclick="this.classList.toggle('active')">
                   <div class="faq-question">
@@ -556,17 +619,27 @@
                     <span class="faq-toggle-icon">+</span>
                   </div>
                   <div class="faq-answer">
-                    You can book your stay by clicking the "BOOK NOW" button or visiting the Register section on this portal. Check the "Need Campus Accommodation" option and submit your details.
+                    Click the "BOOK ACCOMMODATION NOW" button or open the Dedicated Accommodation Form. Enter your details, choose your days and hostel preference, and confirm your booking.
                   </div>
                 </div>
 
                 <div class="faq-item" onclick="this.classList.toggle('active')">
                   <div class="faq-question">
-                    <span>Can we book as a group?</span>
+                    <span>What is the fee breakdown for staying?</span>
                     <span class="faq-toggle-icon">+</span>
                   </div>
                   <div class="faq-answer">
-                    Yes! Teams and college contingents can book together. Groups with over 4 participants receive group tariff discounts.
+                    Lodging is ₹50 per person per day. Food (breakfast, lunch, and dinner) is ₹125 per person per day. The total all-inclusive fee is ₹175 per person per day.
+                  </div>
+                </div>
+
+                <div class="faq-item" onclick="this.classList.toggle('active')">
+                  <div class="faq-question">
+                    <span>Can we book as a group or team?</span>
+                    <span class="faq-toggle-icon">+</span>
+                  </div>
+                  <div class="faq-answer">
+                    Yes! Teams and contingents can book together. Groups with over 4 participants receive flat ₹150 off, and groups of 12+ receive flat ₹250 off.
                   </div>
                 </div>
 
@@ -576,39 +649,35 @@
                     <span class="faq-toggle-icon">+</span>
                   </div>
                   <div class="faq-answer">
-                    1) College ID Card (2 photocopies + original), 2) Aadhaar / PAN or Government ID (2 copies), 3) 3 passport size photos, 4) College NOC, and 5) Copy of payment slip.
+                    1) College ID Card (2 photocopies + original), 2) Aadhaar / PAN or Government ID (2 copies), 3) 3 passport size photos, 4) College NOC, and 5) Copy of registration/payment slip.
                   </div>
                 </div>
 
                 <div class="faq-item" onclick="this.classList.toggle('active')">
                   <div class="faq-question">
-                    <span>Does the accommodation fee include food?</span>
+                    <span>What amenities and facilities are provided?</span>
                     <span class="faq-toggle-icon">+</span>
                   </div>
                   <div class="faq-answer">
-                    Lodging is ₹50 per person per day. Mess dining (hygienic breakfast, lunch, and dinner) is ₹125 per day served in the college dining hall.
+                    High-speed campus Wi-Fi, 24/7 security guard presence, clean RO drinking water, power points for device charging, recreation/common room, and emergency first-aid/medical aid.
                   </div>
                 </div>
 
                 <div class="faq-item" onclick="this.classList.toggle('active')">
                   <div class="faq-question">
-                    <span>Will team members be given accommodation together?</span>
+                    <span>Can faculty mentors or parents stay?</span>
                     <span class="faq-toggle-icon">+</span>
                   </div>
                   <div class="faq-answer">
-                    Yes, participants from the same team or institution of the same gender are allotted shared rooms together based on availability.
+                    Yes, faculty coordinators and accompanying mentors can avail guest accommodation upon prior notification to the hostel logistics desk (Prof. Kumar Jyotiraditya: 7004618331).
                   </div>
                 </div>
+              </div>
 
-                <div class="faq-item" onclick="this.classList.toggle('active')">
-                  <div class="faq-question">
-                    <span>Can we purchase accommodation for parents or faculty mentors?</span>
-                    <span class="faq-toggle-icon">+</span>
-                  </div>
-                  <div class="faq-answer">
-                    Yes, faculty coordinators and accompanying mentors can avail guest accommodation upon prior notification to the hostel logistics desk.
-                  </div>
-                </div>
+              <div style="margin-top:20px; text-align:center;">
+                <button class="primary-glow-btn" onclick="window.openAccomBookingModal()">
+                  <span>PROCEED TO BOOK ACCOMMODATION</span>
+                </button>
               </div>
             </div>
           </div>
@@ -616,7 +685,7 @@
           <!-- ================= ROOM FLOOR WITH CARPET ================= -->
           <div class="room-floor">
             <div class="floor-planks-grid"></div>
-            <!-- Striped Geometric Carpet (From Page 1 & 2) -->
+            <!-- Striped Geometric Carpet -->
             <div class="room-carpet">
               <div class="carpet-inner-stripe"></div>
             </div>
@@ -826,13 +895,161 @@
     </div>
   </div>
 
-  <!-- Registration Success Notification Modal -->
-  <div id="success-modal" class="modal-backdrop" onclick="this.classList.remove('open')">
-    <div class="modal-dialog glassmorphism-card success-dialog" onclick="event.stopPropagation()">
-      <div class="success-icon">✓</div>
-      <h3 class="success-title">Registration Recorded!</h3>
-      <p id="success-msg" class="success-desc">Thank you for registering. Your slot for Technoriti '26 has been submitted.</p>
-      <button class="primary-glow-btn" onclick="document.getElementById('success-modal').classList.remove('open')">GOT IT</button>
+  <!-- Dedicated Accommodation Booking Modal -->
+  <div id="accom-booking-modal" class="modal-backdrop" onclick="window.closeAccomBookingModal(event)">
+    <div class="modal-dialog glassmorphism-card wide-dialog accom-dialog" onclick="event.stopPropagation()">
+      <button class="modal-close-btn" onclick="window.closeAccomBookingModal()">✕</button>
+      
+      <div class="modal-header-styled">
+        <div class="header-icon-badge">🏠</div>
+        <div>
+          <span class="panel-badge">BCE CAMPUS HOSTEL ALLOTMENT</span>
+          <h2 class="modal-styled-title">CAMPUS ACCOMMODATION BOOKING</h2>
+          <p class="modal-styled-desc">Lodging ₹50/day + Food ₹125/day (₹175 per head/day) inside BCE Bhagalpur Campus</p>
+        </div>
+      </div>
+
+      <form id="accom-booking-form" onsubmit="event.preventDefault(); window.handleAccomBookingSubmit(this);">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="accom-name">Full Name *</label>
+            <input type="text" id="accom-name" required placeholder="e.g. Siddharth Sharma">
+          </div>
+          <div class="form-group">
+            <label for="accom-email">Email Address *</label>
+            <input type="email" id="accom-email" required placeholder="siddharth@example.com">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="accom-phone">10-Digit Mobile Number (WhatsApp) *</label>
+            <input type="tel" id="accom-phone" required pattern="[6-9][0-9]{9}" maxlength="10" placeholder="e.g. 9876543210" title="Please enter a valid 10-digit Indian mobile number starting with 6-9">
+          </div>
+          <div class="form-group">
+            <label for="accom-college">College / University Name *</label>
+            <input type="text" id="accom-college" required placeholder="e.g. BCE Bhagalpur / NIT Patna">
+          </div>
+        </div>
+
+        <div class="form-row three-col">
+          <div class="form-group">
+            <label for="accom-gender">Gender *</label>
+            <select id="accom-gender" required onchange="window.updateAccomHostelBlock(); window.updateAccomFeeSummary();">
+              <option value="male" selected>Male</option>
+              <option value="female">Female</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="accom-hostel">Hostel Block Preference</label>
+            <select id="accom-hostel" required>
+              <option value="Boys Hostel Block" selected>Boys Hostel Block</option>
+              <option value="Girls Hostel Block">Girls Hostel Block</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="accom-members">Number of Members</label>
+            <select id="accom-members" onchange="window.updateAccomFeeSummary()">
+              <option value="1" selected>1 (Solo Participant)</option>
+              <option value="2">2 Members</option>
+              <option value="3">3 Members</option>
+              <option value="4">4 Members (Group)</option>
+              <option value="5">5 Members</option>
+              <option value="6">6 Members</option>
+              <option value="8">8 Members</option>
+              <option value="10">10 Members</option>
+              <option value="12">12+ Members (Contingent)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="accom-days">Number of Days Stay</label>
+            <select id="accom-days" onchange="window.updateAccomFeeSummary()">
+              <option value="1">1 Day</option>
+              <option value="2" selected>2 Days (Recommended)</option>
+              <option value="3">3 Days (Full Fest)</option>
+              <option value="4">4 Days (Early Arrival)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="accom-arrival">Expected Arrival Date & Time</label>
+            <input type="text" id="accom-arrival" placeholder="e.g. 18 Dec 2026, 8:00 AM">
+          </div>
+        </div>
+
+        <div class="form-checkbox-group" style="margin: 12px 0;">
+          <input type="checkbox" id="accom-include-food" checked onchange="window.updateAccomFeeSummary()">
+          <label for="accom-include-food">
+            <strong>Include Campus Mess Food (₹125/day per person)</strong>
+            <span>3 hygienic meals daily (Breakfast, Lunch & Dinner in BCE Dining Hall)</span>
+          </label>
+        </div>
+
+        <div class="form-group">
+          <label for="accom-notes">Special Requests / Group Member Names</label>
+          <input type="text" id="accom-notes" placeholder="e.g. Arriving together with Team RoboWar, need adjacent rooms">
+        </div>
+
+        <!-- Live Fee Calculation Breakdown -->
+        <div class="live-fee-card accom-fee-card">
+          <div class="fee-row">
+            <span>Hostel Lodging (₹50 × <span id="af-calc-days">2</span> days × <span id="af-calc-members">1</span> pers.):</span>
+            <span id="af-lodging-total" class="fee-highlight">₹100</span>
+          </div>
+          <div class="fee-row" id="af-food-row">
+            <span>Mess Food (₹125 × <span id="af-food-days">2</span> days × <span id="af-food-members">1</span> pers.):</span>
+            <span id="af-food-total" class="fee-highlight">₹250</span>
+          </div>
+          <div class="fee-row" id="af-discount-row" style="display:none; color:var(--accent-gold);">
+            <span>🎁 Group Tariff Discount:</span>
+            <span id="af-discount-amount" class="fee-highlight">-₹150</span>
+          </div>
+          <div class="fee-total-row">
+            <span>Total Accommodation Fee:</span>
+            <span id="af-grand-total" class="total-highlight">₹350</span>
+          </div>
+        </div>
+
+        <button type="submit" class="submit-register-btn" id="accom-submit-btn">
+          <span>CONFIRM & RECORD BOOKING</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Dedicated Accommodation Success Modal -->
+  <div id="accom-success-modal" class="modal-backdrop" onclick="this.classList.remove('open')">
+    <div class="modal-dialog glassmorphism-card success-dialog accom-success-box" onclick="event.stopPropagation()">
+      <div class="success-icon">🏠</div>
+      <div class="accom-ref-pill">BOOKING CONFIRMED: <span id="accom-success-ref">ACCOM-BCE-2026</span></div>
+      <h3 class="success-title">Hostel Booking Recorded!</h3>
+      <p id="accom-success-summary" class="success-desc">
+        Your accommodation reservation at BCE Bhagalpur campus has been successfully recorded in the Technoriti database.
+      </p>
+      
+      <div class="accom-checkin-checklist">
+        <h4>CHECK-IN INSTRUCTIONS AT CAMPUS DESK:</h4>
+        <ul>
+          <li>Carry your original Institute College ID + 2 photocopies</li>
+          <li>Carry Government Photo ID (Aadhaar / Voter / PAN) + 2 copies</li>
+          <li>Carry 3 recent passport size photographs</li>
+          <li>Carry official College NOC / Permission Slip</li>
+          <li>Show this booking reference ID to the hospitality desk</li>
+        </ul>
+      </div>
+
+      <div class="accom-desk-contacts">
+        <strong>Hostel Logistics Desk:</strong>
+        <span>Boys: Prof. Kumar Jyotiraditya (7004618331) • Girls: Prof. Sarika Kushwaha (7321018753)</span>
+      </div>
+
+      <button class="primary-glow-btn" onclick="document.getElementById('accom-success-modal').classList.remove('open')">
+        DONE & CLOSE
+      </button>
     </div>
   </div>
 
