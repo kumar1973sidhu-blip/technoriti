@@ -64,7 +64,10 @@ This repository is pre-configured for zero-friction Vercel deployment:
 1. Push your repository to GitHub: `https://github.com/kumar1973sidhu-blip/technoriti.git`.
 2. Go to [vercel.com/new](https://vercel.com/new).
 3. Import the `technoriti` repository.
-4. Leave framework preset as **Other** (it will automatically use the included `vercel.json`).
+4. Configure the project settings:
+   - **Framework Preset**: `Other`
+   - **Build Command**: `node build.js` (or leave default to run `npm run build`)
+   - **Output Directory**: `dist` (automatically recognized via `vercel.json`)
 5. (Optional) Set Environment Variables if you want to override default Supabase keys:
    - `SUPABASE_URL`: `https://rrkgrisyaeeuphnvhflu.supabase.co`
    - `SUPABASE_ANON_KEY`: `sb_publishable_EA2Vt_mY3bfxf9o0Ufgs4Q_WAufCucT`

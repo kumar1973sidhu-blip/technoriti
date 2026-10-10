@@ -1,12 +1,32 @@
 /**
- * TECHNORITI '26 - Vercel & Production Build Script
- * Generates runtime client environment configuration (env-config.js)
- * Only public/publishable credentials are exposed to the browser.
+ * TECHNORITI '26 - Production Build & Static Asset Pipeline
+ * Prepares the complete 'dist/' directory for Vercel static deployment.
+ * Copies all HTML, CSS, JavaScript, media assets, and 170 canvas animation frames.
+ * Generates runtime env-config.js using Vercel or environment credentials (public keys only).
  */
 
 const fs = require('fs');
 const path = require('path');
 
+const ROOT_DIR = __dirname;
+const DIST_DIR = path.join(ROOT_DIR, 'dist');
+
+console.log('🚀 [Build] Starting TECHNORITI \'26 production build...');
+console.log(`   Source Directory: ${ROOT_DIR}`);
+console.log(`   Output Directory: ${DIST_DIR}`);
+
+// 1. Ensure clean dist directory
+try {
+  if (fs.existsSync(DIST_DIR)) {
+    fs.rmSync(DIST_DIR, { recursive: true, force: true });
+  }
+  fs.mkdirSync(DIST_DIR, { recursive: true });
+} catch (err) {
+  console.error('❌ [Build Error] Failed to prepare dist directory:', err);
+  process.exit(1);
+}
+
+// 2. Read environment variables (public publishable credentials only)
 const supabaseUrl = process.env.SUPABASE_URL || 
                     process.env.NEXT_PUBLIC_SUPABASE_URL || 
                     process.env.VITE_SUPABASE_URL || 
@@ -28,13 +48,109 @@ window.__ENV = Object.freeze({
 });
 `;
 
-const outputPath = path.join(__dirname, 'env-config.js');
-try {
-  fs.writeFileSync(outputPath, envContent, 'utf-8');
-  console.log('✅ [Build] env-config.js generated successfully.');
-  console.log(`   Supabase Endpoint: ${supabaseUrl}`);
-  console.log(`   Supabase Anon Key: ${supabaseAnonKey.substring(0, 16)}...`);
-} catch (err) {
-  console.error('❌ [Build Error] Failed to write env-config.js:', err);
+// Write env-config.js to dist AND root
+fs.writeFileSync(path.join(DIST_DIR, 'env-config.js'), envContent, 'utf-8');
+fs.writeFileSync(path.join(ROOT_DIR, 'env-config.js'), envContent, 'utf-8');
+console.log('✅ [Build] env-config.js generated with public Supabase configuration.');
+
+// 3. Static files to copy from root to dist
+const rootFilesToCopy = [
+  'index.html',
+  'styles.css',
+  'script.js',
+  'supabase-client.js',
+  'principal-portrait.png',
+  'principal.png'
+];
+
+for (const file of rootFilesToCopy) {
+  const src = path.join(ROOT_DIR, file);
+  const dest = path.join(DIST_DIR, file);
+  if (fs.existsSync(src)) {
+    fs.copyFileSync(src, dest);
+    console.log(`   Copied ${file} -> dist/${file}`);
+  } else {
+    console.error(`❌ [Build Error] Missing required file: ${file}`);
+    process.exit(1);
+  }
+}
+
+// 4. Copy all 170 animation frames (ezgif-frame-001.jpg to ezgif-frame-170.jpg)
+let frameCount = 0;
+for (let i = 1; i <= 170; i++) {
+  const numStr = String(i).padStart(3, '0');
+  const frameName = `ezgif-frame-${numStr}.jpg`;
+  const src = path.join(ROOT_DIR, frameName);
+  const dest = path.join(DIST_DIR, frameName);
+  if (fs.existsSync(src)) {
+    fs.copyFileSync(src, dest);
+    frameCount++;
+  } else {
+    console.error(`❌ [Build Error] Missing frame: ${frameName}`);
+    process.exit(1);
+  }
+}
+console.log(`✅ [Build] Successfully copied ${frameCount}/170 canvas animation frames to dist/`);
+
+// 5. Copy admin directory recursively
+const adminSrcDir = path.join(ROOT_DIR, 'admin');
+const adminDestDir = path.join(DIST_DIR, 'admin');
+fs.mkdirSync(adminDestDir, { recursive: true });
+
+const adminFiles = ['index.html', 'login.html', 'admin.css', 'admin.js'];
+for (const file of adminFiles) {
+  const src = path.join(adminSrcDir, file);
+  const dest = path.join(adminDestDir, file);
+  if (fs.existsSync(src)) {
+    fs.copyFileSync(src, dest);
+    console.log(`   Copied admin/${file} -> dist/admin/${file}`);
+  } else {
+    console.error(`❌ [Build Error] Missing required admin file: admin/${file}`);
+    process.exit(1);
+  }
+}
+console.log('✅ [Build] Successfully copied complete admin portal to dist/admin/');
+
+// 6. Comprehensive Verification Audit
+const verificationChecks = [
+  'index.html',
+  'styles.css',
+  'script.js',
+  'supabase-client.js',
+  'env-config.js',
+  'principal-portrait.png',
+  'principal.png',
+  'ezgif-frame-001.jpg',
+  'ezgif-frame-170.jpg',
+  'admin/index.html',
+  'admin/login.html',
+  'admin/admin.css',
+  'admin/admin.js'
+];
+
+let allPassed = true;
+for (const check of verificationChecks) {
+  const fullPath = path.join(DIST_DIR, check);
+  if (!fs.existsSync(fullPath)) {
+    console.error(`❌ [Audit Failed] ${check} is missing in dist!`);
+    allPassed = false;
+  } else {
+    const size = fs.statSync(fullPath).size;
+    if (size === 0) {
+      console.error(`❌ [Audit Failed] ${check} is empty (0 bytes) in dist!`);
+      allPassed = false;
+    }
+  }
+}
+
+if (!allPassed) {
+  console.error('❌ [Build Error] Output verification failed.');
   process.exit(1);
 }
+
+const totalDistRootFiles = fs.readdirSync(DIST_DIR).filter(f => fs.statSync(path.join(DIST_DIR, f)).isFile()).length;
+const totalDistAdminFiles = fs.readdirSync(adminDestDir).length;
+console.log(`\n🎉 [Build Complete] Production build verified in dist/`);
+console.log(`   - Root assets in dist/: ${totalDistRootFiles}`);
+console.log(`   - Admin assets in dist/admin/: ${totalDistAdminFiles}`);
+console.log(`   - Total assets deployed: ${totalDistRootFiles + totalDistAdminFiles}`);
