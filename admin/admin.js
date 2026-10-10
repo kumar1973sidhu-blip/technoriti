@@ -6,6 +6,18 @@
 (function () {
   'use strict';
 
+  // Dynamic TechnoritiDB Delegate (resilient to script timing and execution order)
+  const TechnoritiDB = new Proxy({}, {
+    get(target, prop) {
+      const db = (typeof window !== 'undefined' && window.TechnoritiDB) || (typeof globalThis !== 'undefined' && globalThis.TechnoritiDB);
+      if (db && typeof db[prop] !== 'undefined') {
+        const val = db[prop];
+        return typeof val === 'function' ? val.bind(db) : val;
+      }
+      return target[prop];
+    }
+  });
+
   // Global Admin State
   const state = {
     currentUser: null,
@@ -2172,6 +2184,12 @@
   // Bootstrap
   window.addEventListener('DOMContentLoaded', async () => {
     initListeners();
+    // Ensure TechnoritiDB is available
+    if (typeof window !== 'undefined' && !window.TechnoritiDB) {
+      for (let i = 0; i < 60 && !window.TechnoritiDB; i++) {
+        await new Promise(r => setTimeout(r, 50));
+      }
+    }
     const authorized = await initSecurityGuard();
     if (authorized) {
       await fetchAllData();

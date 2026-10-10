@@ -693,7 +693,15 @@
     }
   };
 
-  // Expose to window
-  window.TechnoritiDB = TechnoritiDB;
+  // Expose to window and global scope unconditionally
+  if (typeof window !== 'undefined') {
+    window.TechnoritiDB = TechnoritiDB;
+  }
+  if (typeof globalThis !== 'undefined') {
+    globalThis.TechnoritiDB = TechnoritiDB;
+  }
+  if (typeof self !== 'undefined') {
+    self.TechnoritiDB = TechnoritiDB;
+  }
 
-})(window);
+})(typeof window !== 'undefined' ? window : (typeof globalThis !== 'undefined' ? globalThis : this));

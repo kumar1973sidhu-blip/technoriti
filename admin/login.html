@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
   <!-- Stylesheet -->
-  <link rel="stylesheet" href="/admin/admin.css">
+  <link rel="stylesheet" href="/admin/admin.css?v=2.2">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
 </head>
 <body>
@@ -67,20 +67,59 @@
 
   <!-- Supabase CDN, Runtime Config & Client SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="/env-config.js"></script>
-  <script src="/supabase-client.js"></script>
+  <script src="/env-config.js?v=2.2"></script>
+  <script src="/supabase-client.js?v=2.2"></script>
 
   <script>
-    (async function initLogin() {
-      // Check if already logged in as admin
-      try {
-        const isAdmin = await TechnoritiDB.checkIsAdmin();
-        if (isAdmin) {
-          window.location.replace('/admin');
-          return;
+    // Robust resolver to ensure TechnoritiDB is available
+    function waitForDB(timeoutMs = 6000) {
+      return new Promise((resolve) => {
+        if (typeof window !== 'undefined' && window.TechnoritiDB) {
+          return resolve(window.TechnoritiDB);
         }
-      } catch (err) {
-        console.warn('Initial session check:', err);
+        const startTime = Date.now();
+        const interval = setInterval(() => {
+          if (typeof window !== 'undefined' && window.TechnoritiDB) {
+            clearInterval(interval);
+            resolve(window.TechnoritiDB);
+          } else if (Date.now() - startTime > timeoutMs) {
+            clearInterval(interval);
+            resolve(null);
+          }
+        }, 50);
+      });
+    }
+
+    (async function initLogin() {
+      const errorBox = document.getElementById('loginError');
+      function showError(msg) {
+        if (errorBox) {
+          errorBox.textContent = msg;
+          errorBox.style.display = 'block';
+        }
+      }
+      function clearError() {
+        if (errorBox) {
+          errorBox.textContent = '';
+          errorBox.style.display = 'none';
+        }
+      }
+
+      // Check database client readiness
+      const db = await waitForDB();
+      if (!db) {
+        showError('Warning: Supabase client initializing slowly. If problems persist, refresh this page.');
+      } else {
+        // Check if already logged in as admin
+        try {
+          const isAdmin = await db.checkIsAdmin();
+          if (isAdmin) {
+            window.location.replace('/admin');
+            return;
+          }
+        } catch (err) {
+          console.warn('Initial session check:', err);
+        }
       }
 
       const form = document.getElementById('adminLoginForm');
@@ -88,17 +127,6 @@
       const passInput = document.getElementById('adminPassword');
       const loginBtn = document.getElementById('loginBtn');
       const btnText = document.getElementById('btnText');
-      const errorBox = document.getElementById('loginError');
-
-      function showError(msg) {
-        errorBox.textContent = msg;
-        errorBox.style.display = 'block';
-      }
-
-      function clearError() {
-        errorBox.textContent = '';
-        errorBox.style.display = 'none';
-      }
 
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -116,7 +144,15 @@
         btnText.textContent = 'VERIFYING CREDENTIALS...';
 
         try {
-          const res = await TechnoritiDB.signInAdmin(email, password);
+          const clientDB = await waitForDB();
+          if (!clientDB) {
+            showError('Database client is not available yet. Please refresh the page.');
+            loginBtn.disabled = false;
+            btnText.textContent = 'AUTHENTICATE ACCESS';
+            return;
+          }
+
+          const res = await clientDB.signInAdmin(email, password);
 
           if (!res.success) {
             showError(res.error || 'Authentication failed. Please verify credentials.');
