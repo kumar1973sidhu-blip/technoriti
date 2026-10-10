@@ -806,9 +806,9 @@
   // =====================================================================
   // 3. SLIDE-OUT DRAWER PANELS & 3D PERSPECTIVE ROOM ENGINE
   // =====================================================================
-  let currentRoomAngle = -20;
-  let targetRoomAngle = -20;
-  const roomAngles = [-20, 70, 160, 250];
+  let currentRoomAngle = 0;
+  let targetRoomAngle = 0;
+  const roomAngles = [0, 90, 180, 270];
   const wallLabels = ['VIEW 01 // STAY & TARIFF', 'VIEW 02 // TV LOUNGE', 'VIEW 03 // FACILITIES & TARIFFS', 'VIEW 04 // FAQS'];
   const roomBox = document.getElementById('room-3d-box');
   const roomAngleText = document.getElementById('room-angle-text');
@@ -821,7 +821,7 @@
       roomBox.style.setProperty('--room-rotate', `${deg}deg`);
     }
 
-    // Determine closest index of [-20, 70, 160, 250]
+    // Determine closest index of [0, 90, 180, 270]
     let closestIdx = 0;
     let minDiff = 9999;
     const normDeg = ((deg % 360) + 360) % 360;
@@ -1011,7 +1011,7 @@
     if (target) {
       target.classList.add('open');
       if (panelName === 'accommodation') {
-        window.rotateRoomTo(-20);
+        window.rotateRoomTo(0);
       }
     }
 
@@ -1030,6 +1030,7 @@
 
   window.closeAllPanels = function () {
     document.querySelectorAll('.slide-panel-overlay').forEach(p => p.classList.remove('open'));
+    if (typeof window.closeMobileDrawer === 'function') window.closeMobileDrawer();
     document.querySelectorAll('.dock-link').forEach(link => {
       link.classList.toggle('active', link.getAttribute('onclick') && link.getAttribute('onclick').includes('closeAllPanels'));
     });
@@ -1089,14 +1090,46 @@
     return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
   }
 
+  const EVENT_COVER_IMAGES = {
+    'robowar': 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=700&q=80',
+    'robosoccer': 'https://images.unsplash.com/photo-1561557944-6e7860d1a7eb?auto=format&fit=crop&w=700&q=80',
+    'dhanush': 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=700&q=80',
+    'matsya': 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=700&q=80',
+    'hackathon': 'https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=700&q=80',
+    'forensic': 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=700&q=80',
+    'competitive': 'https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&fit=crop&w=700&q=80',
+    'blindcoding': 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=700&q=80',
+    'bughunting': 'https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=700&q=80',
+    'freefire': 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=700&q=80',
+    'chess': 'https://images.unsplash.com/photo-1529699211952-734e80c4d42b?auto=format&fit=crop&w=700&q=80',
+    'bridgemaking': 'https://images.unsplash.com/photo-1545558014-8692077e9b5c?auto=format&fit=crop&w=700&q=80',
+    'surveyking': 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=700&q=80',
+    'autocad': 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=700&q=80',
+    'solidworks': 'https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=700&q=80',
+    'boatmaking': 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?auto=format&fit=crop&w=700&q=80',
+    'electrotechnovation': 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=700&q=80',
+    'arduinoeffect': 'https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=700&q=80',
+    'zerocarbon': 'https://images.unsplash.com/photo-1497435334941-8c899ee9e8e9?auto=format&fit=crop&w=700&q=80',
+    'memecircuit': 'https://images.unsplash.com/photo-1517077304055-6e89abbf09b0?auto=format&fit=crop&w=700&q=80',
+    'matlab': 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=700&q=80',
+    'cinematography': 'https://images.unsplash.com/photo-1579632652768-6cb9dcf85912?auto=format&fit=crop&w=700&q=80',
+    'photography': 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=700&q=80',
+    'electromania': 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=700&q=80',
+    'nukkad': 'https://images.unsplash.com/photo-1460723237483-7a6dc9d0b212?auto=format&fit=crop&w=700&q=80',
+    'generalquiz': 'https://images.unsplash.com/photo-1606326608606-aa0b62935f2b?auto=format&fit=crop&w=700&q=80',
+    'electronicsproject': 'https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=700&q=80',
+    'projectpres': 'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?auto=format&fit=crop&w=700&q=80'
+  };
+
   function renderEventCards(grid, items) {
     grid.innerHTML = items.map(item => {
       const fallbackUrl = getThemedCategoryFallback(item.category, item.title);
-      const coverUrl = item.coverImage || fallbackUrl;
+      const coverUrl = item.coverImage || EVENT_COVER_IMAGES[item.id] || fallbackUrl;
       const prizeShort = (item.prizes || '').split('•')[0] || 'Trophy & Prize';
 
       return `
       <div class="event-card" data-id="${item.id}" onclick="this.classList.toggle('expanded')">
+        <!-- 1. Media Area (Always Visible) -->
         <div class="event-card-media">
           <img class="event-cover-img" src="${coverUrl}" alt="${escapeHtml(item.title)}" loading="lazy" onerror="this.onerror=null; this.src='${fallbackUrl}';">
           <div class="event-media-overlay"></div>
@@ -1105,33 +1138,57 @@
             <span class="event-prize-tag">${escapeHtml(prizeShort)}</span>
           </div>
         </div>
+
+        <!-- 2. Base Card Body: Visible when mouse is NOT on card -->
         <div class="event-card-body">
           <h3 class="event-name">${escapeHtml(item.title)}</h3>
           <p class="event-desc">${escapeHtml(item.shortDesc)}</p>
-          <div class="event-meta-specs">
-            <div class="spec-cell">
-              <span class="spec-key">DATE</span>
-              <span class="spec-val">${escapeHtml(item.date)}</span>
-            </div>
-            <div class="spec-cell">
-              <span class="spec-key">ENTRY FEE</span>
-              <span class="spec-val">${escapeHtml(item.fee)}</span>
-            </div>
-            <div class="spec-cell">
-              <span class="spec-key">TEAM FORMAT</span>
-              <span class="spec-val">${escapeHtml(item.teamSize)}</span>
-            </div>
-            <div class="spec-cell">
-              <span class="spec-key">PRIZE POOL</span>
-              <span class="spec-val">${escapeHtml(item.prizes)}</span>
-            </div>
-          </div>
           <div class="event-actions">
-            <button class="view-rules-btn" onclick="event.stopPropagation(); window.openCompModal('${item.id}')">
+            <button type="button" class="view-rules-btn" onclick="event.stopPropagation(); window.openCompModal('${item.id}')">
               RULES & DETAILS
             </button>
-            <button class="quick-reg-btn" onclick="event.stopPropagation(); window.quickRegisterForEvent('${escapeHtml(item.title)}')">
+            <button type="button" class="quick-reg-btn" onclick="event.stopPropagation(); window.quickRegisterForEvent('${escapeHtml(item.title)}')">
               REGISTER
+            </button>
+          </div>
+        </div>
+
+        <!-- 3. Translucent Animated HUD Overlay: Slides in when pointer hovers over card -->
+        <div class="event-card-hover-overlay">
+          <div class="echo-header">
+            <span class="echo-badge">ARENA INTEL // DEC 2026</span>
+            <h4 class="echo-title">${escapeHtml(item.title)}</h4>
+          </div>
+
+          <div class="echo-specs-grid">
+            <div class="echo-spec-cell">
+              <span class="echo-key">📅 DATE & TIME</span>
+              <span class="echo-val">${escapeHtml(item.date)}</span>
+            </div>
+            <div class="echo-spec-cell">
+              <span class="echo-key">💳 ENTRY FEE</span>
+              <span class="echo-val highlight-fee">${escapeHtml(item.fee)}</span>
+            </div>
+            <div class="echo-spec-cell">
+              <span class="echo-key">👥 TEAM FORMAT</span>
+              <span class="echo-val">${escapeHtml(item.teamSize)}</span>
+            </div>
+            <div class="echo-spec-cell">
+              <span class="echo-key">🏆 PRIZE POOL</span>
+              <span class="echo-val highlight-gold">${escapeHtml(item.prizes)}</span>
+            </div>
+            <div class="echo-spec-cell full-width">
+              <span class="echo-key">📞 COORDINATOR</span>
+              <span class="echo-val coord-val">${escapeHtml(item.coordinator || 'Technoriti Desk')}</span>
+            </div>
+          </div>
+
+          <div class="echo-actions">
+            <button type="button" class="view-rules-btn" onclick="event.stopPropagation(); window.openCompModal('${item.id}')">
+              RULES & DETAILS
+            </button>
+            <button type="button" class="quick-reg-btn" onclick="event.stopPropagation(); window.quickRegisterForEvent('${escapeHtml(item.title)}')">
+              REGISTER NOW
             </button>
           </div>
         </div>
@@ -1391,6 +1448,25 @@
     if (modal) modal.classList.remove('open');
   };
 
+  window.updateAccomBookingType = function () {
+    const typeSel = document.getElementById('accom-booking-type');
+    const membersGroup = document.getElementById('accom-members-group');
+    const membersSel = document.getElementById('accom-members');
+    if (!typeSel || !membersSel) return;
+
+    if (typeSel.value === 'solo') {
+      membersSel.value = '1';
+      membersSel.disabled = true;
+      if (membersGroup) membersGroup.style.opacity = '0.6';
+    } else {
+      membersSel.disabled = false;
+      if (membersGroup) membersGroup.style.opacity = '1';
+      if (membersSel.value === '1') {
+        membersSel.value = '4';
+      }
+    }
+  };
+
   window.updateAccomHostelBlock = function () {
     const genderSel = document.getElementById('accom-gender');
     const hostelSel = document.getElementById('accom-hostel');
@@ -1467,9 +1543,12 @@
     }
 
     const name = document.getElementById('accom-name').value.trim();
-    const email = document.getElementById('accom-email').value.trim();
-    const phone = document.getElementById('accom-phone').value.trim();
+    const roll = document.getElementById('accom-roll')?.value.trim() || 'N/A';
     const college = document.getElementById('accom-college').value.trim();
+    const branch = document.getElementById('accom-branch')?.value.trim() || 'General';
+    const phone = document.getElementById('accom-phone').value.trim();
+    const email = document.getElementById('accom-email').value.trim();
+    const bookingType = document.getElementById('accom-booking-type')?.value || 'solo';
     const gender = document.getElementById('accom-gender').value;
     const hostel = document.getElementById('accom-hostel').value;
     const days = parseInt(document.getElementById('accom-days').value, 10) || 2;
@@ -1499,18 +1578,20 @@
       try {
         await window.TechnoritiDB.submitAccommodationBooking({
           fullName: name,
-          email: email,
-          phone: cleanPhone,
+          rollNumber: roll,
           college: college,
+          branch: branch,
+          phone: cleanPhone,
+          email: email,
           gender: gender,
+          bookingType: bookingType === 'group' ? `Group (${members} members)` : 'Solo',
           hostelBlock: hostel,
           daysCount: days,
           occupants: members,
           dailyRate: dailyRate,
           totalFee: totalAmount,
           foodRequired: includeFood,
-          bookingType: members > 1 ? `Group (${members} members)` : 'Solo',
-          preferences: `Arrival: ${arrival || 'Dec 2026'} | Notes: ${notes || 'None'}`
+          preferences: `Roll: ${roll} | Branch: ${branch} | Type: ${bookingType} | Arrival: ${arrival || 'Dec 2026'} | Notes: ${notes || 'None'}`
         });
         savedInDB = true;
       } catch (err) {
@@ -1526,7 +1607,7 @@
     const summaryEl = document.getElementById('accom-success-summary');
     if (refEl) refEl.textContent = bookingRef;
     if (summaryEl) {
-      summaryEl.textContent = `Hello ${name}! Your stay request for ${members} participant(s) for ${days} days at ${hostel} has been successfully recorded ${savedInDB ? 'in the Technoriti database' : ''}. Total estimated tariff: ₹${totalAmount}.`;
+      summaryEl.textContent = `Hello ${name} (Roll: ${roll}, Branch: ${branch})! Your ${bookingType.toUpperCase()} reservation for ${members} person(s) for ${days} days at ${hostel} has been successfully recorded ${savedInDB ? 'in the Technoriti database' : ''}. Total estimated tariff: ₹${totalAmount}.`;
     }
 
     const successModal = document.getElementById('accom-success-modal');
@@ -1539,6 +1620,27 @@
       btn.disabled = false;
       btn.innerHTML = originalText;
     }
+  };
+
+  // FAQ Accordion Handler
+  window.toggleFaq = function (el) {
+    if (!el) return;
+    el.classList.toggle('active');
+  };
+
+  // Mobile Navigation Drawer Handlers (Concetto Style)
+  window.toggleMobileDrawer = function () {
+    const overlay = document.getElementById('mobile-nav-overlay');
+    const btn = document.getElementById('mobile-menu-btn');
+    if (overlay) overlay.classList.toggle('open');
+    if (btn) btn.classList.toggle('active');
+  };
+
+  window.closeMobileDrawer = function () {
+    const overlay = document.getElementById('mobile-nav-overlay');
+    const btn = document.getElementById('mobile-menu-btn');
+    if (overlay) overlay.classList.remove('open');
+    if (btn) btn.classList.remove('active');
   };
 
   // =====================================================================
@@ -1651,7 +1753,12 @@
       if (e.key === 'Escape') {
         window.closeAllPanels();
         window.closeCompModal();
-        document.getElementById('success-modal').classList.remove('open');
+        if (typeof window.closeMobileDrawer === 'function') window.closeMobileDrawer();
+        if (typeof window.closeAccomBookingModal === 'function') window.closeAccomBookingModal();
+        const successModal = document.getElementById('success-modal');
+        if (successModal) successModal.classList.remove('open');
+        const accomSuccess = document.getElementById('accom-success-modal');
+        if (accomSuccess) accomSuccess.classList.remove('open');
       } else if (e.code === 'ArrowRight' || e.code === 'ArrowDown') {
         if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'SELECT') {
           targetFrame = Math.min(TOTAL_FRAMES - 1, targetFrame + 4);
@@ -1778,7 +1885,7 @@
         const faqList = document.getElementById('room-faq-list');
         if (faqList) {
           faqList.innerHTML = faqs.map(faq => `
-            <div class="faq-item" onclick="this.classList.toggle('active')">
+            <div class="faq-item" onclick="window.toggleFaq(this)">
               <div class="faq-question">
                 <span>${escapeHtml(faq.question)}</span>
                 <span class="faq-toggle-icon">+</span>
@@ -1826,7 +1933,7 @@
     setup3DRoomInteractions();
     initTvScreenStream();
     initRoomCountdown();
-    window.rotateRoomTo(-20);
+    window.rotateRoomTo(0);
     hydrateDynamicCmsContent();
     requestAnimationFrame(renderLoop);
   }

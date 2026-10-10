@@ -163,9 +163,78 @@
             <path d="M5 12h14M12 5l7 7-7 7"/>
           </svg>
         </button>
+
+        <!-- Mobile Navigation Menu Toggle (Concetto Style) -->
+        <button id="mobile-menu-btn" class="mobile-hamburger-btn" onclick="window.toggleMobileDrawer()" aria-label="Toggle Mobile Menu" title="Menu">
+          <span class="hamburger-bar"></span>
+          <span class="hamburger-bar"></span>
+          <span class="hamburger-bar"></span>
+        </button>
       </div>
     </div>
   </header>
+
+  <!-- Mobile Navigation Sidebar Drawer (Concetto Style) -->
+  <div id="mobile-nav-overlay" class="mobile-nav-overlay" onclick="window.closeMobileDrawer()">
+    <aside class="mobile-nav-drawer" onclick="event.stopPropagation()">
+      <div class="mobile-drawer-header">
+        <div class="brand">
+          <div class="brand-symbol">
+            <svg viewBox="0 0 36 36" width="28" height="28" fill="none">
+              <polygon points="18,5 30,12 30,24 18,31 6,24 6,12" stroke="#00ffff" stroke-width="2" fill="rgba(0, 240, 255, 0.15)"/>
+              <path d="M12 14 L24 14 M18 14 L18 25 M14 25 L22 25" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="brand-text">
+            <span class="brand-title">TECHNORITI '26</span>
+            <span class="brand-tag">BCE BHAGALPUR</span>
+          </div>
+        </div>
+        <button class="drawer-close-btn" onclick="window.closeMobileDrawer()" aria-label="Close Menu">✕</button>
+      </div>
+
+      <nav class="mobile-nav-links">
+        <button class="mobile-nav-item" onclick="window.closeMobileDrawer(); window.closeAllPanels();">
+          <span class="mni-icon">🏠</span>
+          <span class="mni-text">Home</span>
+        </button>
+        <button class="mobile-nav-item" onclick="window.closeMobileDrawer(); window.openPanel('competitions');">
+          <span class="mni-icon">🏆</span>
+          <span class="mni-text">Competitions (29 Arenas)</span>
+        </button>
+        <button class="mobile-nav-item" onclick="window.closeMobileDrawer(); window.openPanel('accommodation');">
+          <span class="mni-icon">🏨</span>
+          <span class="mni-text">Campus Accommodation</span>
+        </button>
+        <button class="mobile-nav-item" onclick="window.closeMobileDrawer(); window.openPanel('about');">
+          <span class="mni-icon">🏛️</span>
+          <span class="mni-text">About & Leadership</span>
+        </button>
+        <button class="mobile-nav-item" onclick="window.closeMobileDrawer(); window.openPanel('sponsors');">
+          <span class="mni-icon">🤝</span>
+          <span class="mni-text">Sponsors & Partners</span>
+        </button>
+        <button class="mobile-nav-item highlight-item" onclick="window.closeMobileDrawer(); window.openPanel('register');">
+          <span class="mni-icon">⚡</span>
+          <span class="mni-text">Register for Events</span>
+        </button>
+        <button class="mobile-nav-item accom-item" onclick="window.closeMobileDrawer(); window.openAccomBookingModal();">
+          <span class="mni-icon">🛌</span>
+          <span class="mni-text">Book Hostel Room</span>
+        </button>
+      </nav>
+
+      <div class="mobile-drawer-footer">
+        <div class="mdf-date">DECEMBER 2026 • BCE BHAGALPUR</div>
+        <div class="mdf-socials">
+          <a href="https://instagram.com" target="_blank" rel="noopener" title="Instagram">📸</a>
+          <a href="https://linkedin.com" target="_blank" rel="noopener" title="LinkedIn">💼</a>
+          <a href="https://youtube.com" target="_blank" rel="noopener" title="YouTube">📺</a>
+          <a href="https://whatsapp.com" target="_blank" rel="noopener" title="WhatsApp">💬</a>
+        </div>
+      </div>
+    </aside>
+  </div>
 
   <!-- Left Floating Dock (Reference Style) -->
   <aside class="floating-dock dock-left">
@@ -377,10 +446,10 @@
 
         <!-- Room Wall Quick Tabs -->
         <div class="room-nav-pills">
-          <button class="room-pill active" onclick="window.rotateRoomTo(-20)">01 3D Room Stay</button>
-          <button class="room-pill" onclick="window.rotateRoomTo(70)">02 TV Lounge</button>
-          <button class="room-pill" onclick="window.rotateRoomTo(160)">03 Facilities & Tariffs</button>
-          <button class="room-pill" onclick="window.rotateRoomTo(250)">04 FAQs</button>
+          <button class="room-pill active" onclick="window.rotateRoomTo(0)">01 3D Room Stay</button>
+          <button class="room-pill" onclick="window.rotateRoomTo(90)">02 TV Lounge</button>
+          <button class="room-pill" onclick="window.rotateRoomTo(180)">03 Facilities & Tariffs</button>
+          <button class="room-pill" onclick="window.rotateRoomTo(270)">04 FAQs</button>
         </div>
 
         <button class="drawer-close-btn" onclick="window.closeAllPanels()" title="Close Room View (Esc)">✕</button>
@@ -390,73 +459,35 @@
       <div class="room-3d-stage" id="room-3d-stage">
         <div class="room-3d-box" id="room-3d-box">
 
-          <!-- ================= WALL 1: FRONT (BOOK YOUR STAY & CLEAR TARIFFS) ================= -->
+          <!-- ================= WALL 1: FRONT (BOOK YOUR STAY - SCREENSHOT 60 CLEAN DESIGN) ================= -->
           <div class="room-wall wall-front active-wall">
             <div class="wall-vignette"></div>
-            <div class="wall-content-front">
-              <div class="room-badge-pill">BCE CAMPUS HOSTEL EXPERIENCE</div>
-              <h2 class="room-heading-main">CAMPUS ACCOMMODATION</h2>
-              <h3 class="room-heading-sub">Bhagalpur College of Engineering</h3>
-              <p class="room-subtext">Secure hostel lodging inside BCE Campus with 24/7 security and dedicated dining</p>
+            <div class="wall-content-front screenshot60-front">
+              <div class="screenshot60-tag">EARLY BIRD BOOKING LIVE NOW</div>
+              <h2 class="screenshot60-title">BOOK YOUR STAY</h2>
+              <h3 class="screenshot60-subtitle">Inside BCE Bhagalpur Campus</h3>
+              <p class="screenshot60-subtext">Get Free Access to all events & arenas at Technoriti '26</p>
 
-              <!-- Clear Separate Tariff Card (Rs. 50 lodging + Rs. 125 food = Rs. 175 total) -->
-              <div class="room-tariffs-showcase">
-                <div class="tariff-chip">
-                  <span class="chip-label">LODGING FEE</span>
-                  <span class="chip-price">₹50<small>/person/day</small></span>
-                  <span class="chip-sub">Secure Hostel Bed</span>
-                </div>
-                <div class="tariff-divider">+</div>
-                <div class="tariff-chip">
-                  <span class="chip-label">MESS FOOD</span>
-                  <span class="chip-price">₹125<small>/person/day</small></span>
-                  <span class="chip-sub">3 Hygienic Meals</span>
-                </div>
-                <div class="tariff-divider">=</div>
-                <div class="tariff-chip total-chip">
-                  <span class="chip-label">TOTAL ALL-INCLUSIVE</span>
-                  <span class="chip-price">₹175<small>/person/day</small></span>
-                  <span class="chip-sub">Stay + Food</span>
-                </div>
+              <!-- Clean Tariff Strip -->
+              <div class="screenshot60-tariff-pill">
+                <span class="stp-item">LODGING ₹50/DAY</span>
+                <span class="stp-dot">•</span>
+                <span class="stp-item">MESS FOOD ₹125/DAY</span>
+                <span class="stp-dot">•</span>
+                <span class="stp-item stp-accent">ALL-INCLUSIVE ₹175/DAY</span>
               </div>
 
-              <!-- 6 Facilities Badges -->
-              <div class="room-facilities-strip">
-                <div class="facility-badge"><span>⚡</span> High-Speed Wi-Fi</div>
-                <div class="facility-badge"><span>🛡️</span> 24/7 Security</div>
-                <div class="facility-badge"><span>💧</span> RO Drinking Water</div>
-                <div class="facility-badge"><span>🔌</span> Charging Points</div>
-                <div class="facility-badge"><span>🛋️</span> Common Room</div>
-                <div class="facility-badge"><span>🚑</span> Medical Support</div>
-              </div>
-
-              <!-- Logistics Coordinators Mini Row -->
-              <div class="room-coordinators-quick">
-                <div class="coord-quick-pill">
-                  <span class="cq-role">BOYS HOSTEL:</span>
-                  <span class="cq-name">Prof. Kumar Jyotiraditya</span>
-                  <a href="tel:7004618331" class="cq-link">📞 7004618331</a>
-                </div>
-                <div class="coord-quick-pill">
-                  <span class="cq-role">GIRLS HOSTEL:</span>
-                  <span class="cq-name">Prof. Sarika Kushwaha</span>
-                  <a href="tel:7321018753" class="cq-link">📞 7321018753</a>
-                </div>
-              </div>
-
-              <!-- Action Row -->
-              <div class="room-cta-row">
-                <button class="room-book-now-btn primary-glow-pulse" onclick="window.openAccomBookingModal()">
-                  <span>⚡ BOOK ACCOMMODATION NOW</span>
-                </button>
-                <button class="room-secondary-btn" onclick="window.rotateRoomTo(250)">
-                  <span>VIEW ALL FAQS</span>
+              <!-- Action Row: Prominent Clickable Red Button (Screenshot 60) -->
+              <div class="screenshot60-action-row">
+                <button type="button" class="screenshot60-book-btn" onclick="window.openAccomBookingModal()">
+                  <span>BOOK NOW</span>
                 </button>
               </div>
 
-              <div class="room-scroll-down-cue">
+              <!-- Scroll Cue -->
+              <div class="screenshot60-scroll-cue">
                 <div class="cue-pill">
-                  <span>SCROLL OR CLICK TABS TO ROTATE ROOM</span>
+                  <span>SCROLL DOWN</span>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
                 </div>
               </div>
@@ -613,17 +644,17 @@
 
               <!-- FAQs Accordion List -->
               <div class="faq-accordion-list" id="room-faq-list">
-                <div class="faq-item" onclick="this.classList.toggle('active')">
+                <div class="faq-item" onclick="window.toggleFaq(this)">
                   <div class="faq-question">
                     <span>How do I register for accommodation?</span>
                     <span class="faq-toggle-icon">+</span>
                   </div>
                   <div class="faq-answer">
-                    Click the "BOOK ACCOMMODATION NOW" button or open the Dedicated Accommodation Form. Enter your details, choose your days and hostel preference, and confirm your booking.
+                    Click the "BOOK NOW" button or open the Dedicated Accommodation Form. Enter your details, choose your days and hostel preference, and confirm your booking.
                   </div>
                 </div>
 
-                <div class="faq-item" onclick="this.classList.toggle('active')">
+                <div class="faq-item" onclick="window.toggleFaq(this)">
                   <div class="faq-question">
                     <span>What is the fee breakdown for staying?</span>
                     <span class="faq-toggle-icon">+</span>
@@ -633,7 +664,7 @@
                   </div>
                 </div>
 
-                <div class="faq-item" onclick="this.classList.toggle('active')">
+                <div class="faq-item" onclick="window.toggleFaq(this)">
                   <div class="faq-question">
                     <span>Can we book as a group or team?</span>
                     <span class="faq-toggle-icon">+</span>
@@ -643,7 +674,7 @@
                   </div>
                 </div>
 
-                <div class="faq-item" onclick="this.classList.toggle('active')">
+                <div class="faq-item" onclick="window.toggleFaq(this)">
                   <div class="faq-question">
                     <span>What documents are mandatory for room allotment?</span>
                     <span class="faq-toggle-icon">+</span>
@@ -653,7 +684,7 @@
                   </div>
                 </div>
 
-                <div class="faq-item" onclick="this.classList.toggle('active')">
+                <div class="faq-item" onclick="window.toggleFaq(this)">
                   <div class="faq-question">
                     <span>What amenities and facilities are provided?</span>
                     <span class="faq-toggle-icon">+</span>
@@ -663,7 +694,7 @@
                   </div>
                 </div>
 
-                <div class="faq-item" onclick="this.classList.toggle('active')">
+                <div class="faq-item" onclick="window.toggleFaq(this)">
                   <div class="faq-question">
                     <span>Can faculty mentors or parents stay?</span>
                     <span class="faq-toggle-icon">+</span>
@@ -910,10 +941,35 @@
       </div>
 
       <form id="accom-booking-form" onsubmit="event.preventDefault(); window.handleAccomBookingSubmit(this);">
+        <!-- Row 1: Name & Roll -->
         <div class="form-row">
           <div class="form-group">
             <label for="accom-name">Full Name *</label>
             <input type="text" id="accom-name" required placeholder="e.g. Siddharth Sharma">
+          </div>
+          <div class="form-group">
+            <label for="accom-roll">Roll Number / Student ID *</label>
+            <input type="text" id="accom-roll" required placeholder="e.g. 22105128001 / BCE-22-045">
+          </div>
+        </div>
+
+        <!-- Row 2: College & Branch -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="accom-college">College / University Name *</label>
+            <input type="text" id="accom-college" required placeholder="e.g. BCE Bhagalpur / NIT Patna">
+          </div>
+          <div class="form-group">
+            <label for="accom-branch">Branch / Department *</label>
+            <input type="text" id="accom-branch" required placeholder="e.g. Computer Science / Mechanical / ECE">
+          </div>
+        </div>
+
+        <!-- Row 3: Mobile & Email -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="accom-phone">10-Digit Mobile (WhatsApp) *</label>
+            <input type="tel" id="accom-phone" required pattern="[6-9][0-9]{9}" maxlength="10" placeholder="e.g. 9876543210" title="Please enter a valid 10-digit Indian mobile number starting with 6-9">
           </div>
           <div class="form-group">
             <label for="accom-email">Email Address *</label>
@@ -921,18 +977,15 @@
           </div>
         </div>
 
-        <div class="form-row">
-          <div class="form-group">
-            <label for="accom-phone">10-Digit Mobile Number (WhatsApp) *</label>
-            <input type="tel" id="accom-phone" required pattern="[6-9][0-9]{9}" maxlength="10" placeholder="e.g. 9876543210" title="Please enter a valid 10-digit Indian mobile number starting with 6-9">
-          </div>
-          <div class="form-group">
-            <label for="accom-college">College / University Name *</label>
-            <input type="text" id="accom-college" required placeholder="e.g. BCE Bhagalpur / NIT Patna">
-          </div>
-        </div>
-
+        <!-- Row 4: Booking Type, Gender & Hostel Block -->
         <div class="form-row three-col">
+          <div class="form-group">
+            <label for="accom-booking-type">Booking Type *</label>
+            <select id="accom-booking-type" required onchange="window.updateAccomBookingType(); window.updateAccomFeeSummary();">
+              <option value="solo" selected>Solo (1 Person)</option>
+              <option value="group">Group / Contingent</option>
+            </select>
+          </div>
           <div class="form-group">
             <label for="accom-gender">Gender *</label>
             <select id="accom-gender" required onchange="window.updateAccomHostelBlock(); window.updateAccomFeeSummary();">
@@ -942,13 +995,17 @@
             </select>
           </div>
           <div class="form-group">
-            <label for="accom-hostel">Hostel Block Preference</label>
+            <label for="accom-hostel">Hostel Block</label>
             <select id="accom-hostel" required>
               <option value="Boys Hostel Block" selected>Boys Hostel Block</option>
               <option value="Girls Hostel Block">Girls Hostel Block</option>
             </select>
           </div>
-          <div class="form-group">
+        </div>
+
+        <!-- Row 5: Members, Days & Arrival -->
+        <div class="form-row three-col">
+          <div class="form-group" id="accom-members-group">
             <label for="accom-members">Number of Members</label>
             <select id="accom-members" onchange="window.updateAccomFeeSummary()">
               <option value="1" selected>1 (Solo Participant)</option>
@@ -962,11 +1019,8 @@
               <option value="12">12+ Members (Contingent)</option>
             </select>
           </div>
-        </div>
-
-        <div class="form-row">
           <div class="form-group">
-            <label for="accom-days">Number of Days Stay</label>
+            <label for="accom-days">Days of Stay</label>
             <select id="accom-days" onchange="window.updateAccomFeeSummary()">
               <option value="1">1 Day</option>
               <option value="2" selected>2 Days (Recommended)</option>
@@ -975,7 +1029,7 @@
             </select>
           </div>
           <div class="form-group">
-            <label for="accom-arrival">Expected Arrival Date & Time</label>
+            <label for="accom-arrival">Expected Arrival</label>
             <input type="text" id="accom-arrival" placeholder="e.g. 18 Dec 2026, 8:00 AM">
           </div>
         </div>
