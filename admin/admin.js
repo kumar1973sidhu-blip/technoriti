@@ -489,12 +489,12 @@
       const el = document.getElementById(id);
       if (el) el.checked = !!val;
     };
-    setCheck('cfgMobileShowTagline', mobileHero.show_tagline);
-    setCheck('cfgMobileShowTheme', mobileHero.show_theme);
-    setCheck('cfgMobileShowEventDate', mobileHero.show_event_date);
-    setCheck('cfgMobileShowEditionCard', mobileHero.show_edition_card);
-    setCheck('cfgMobileShowCompCount', mobileHero.show_competition_count);
-    setCheck('cfgMobileShowPrizePool', mobileHero.show_prize_pool);
+    setCheck('cfgMobileShowTagline', mobileHero.show_tagline !== false);
+    setCheck('cfgMobileShowTheme', mobileHero.show_theme !== false);
+    setCheck('cfgMobileShowEventDate', mobileHero.show_event_date !== false);
+    setCheck('cfgMobileShowEditionCard', mobileHero.show_edition_card !== false);
+    setCheck('cfgMobileShowCompCount', mobileHero.show_competition_count !== false);
+    setCheck('cfgMobileShowPrizePool', mobileHero.show_prize_pool !== false);
     setCheck('cfgMobileShowCollegeTag', mobileHero.show_college_tag !== false);
     setCheck('cfgMobileShowCtaButtons', mobileHero.show_cta_buttons !== false);
   }

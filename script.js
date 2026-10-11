@@ -933,13 +933,13 @@
     let touchStartY = 0;
     let touchStartX = 0;
     stage.addEventListener('touchstart', (e) => {
-      if (e.target.closest('button, a, input, select, label, .room-pill, .room-top-bar, .modal-backdrop, .service-choice-card, .service-both-option, .screenshot60-book-btn, .clickable')) return;
+      if (e.target.closest('button, a, input, select, label, .room-pill, .room-top-bar, .modal-backdrop, .service-choice-card, .service-both-option, .screenshot60-book-btn, .screenshot60-action-row, #accom-book-btn-front, .accom-mobile-bar, .accom-mobile-bar-btn, .clickable')) return;
       touchStartY = e.touches[0].clientY;
       touchStartX = e.touches[0].clientX;
     }, { passive: true });
 
     stage.addEventListener('touchend', (e) => {
-      if (e.target.closest('button, a, input, select, label, .room-pill, .room-top-bar, .modal-backdrop, .service-choice-card, .service-both-option, .screenshot60-book-btn, .clickable')) return;
+      if (e.target.closest('button, a, input, select, label, .room-pill, .room-top-bar, .modal-backdrop, .service-choice-card, .service-both-option, .screenshot60-book-btn, .screenshot60-action-row, #accom-book-btn-front, .accom-mobile-bar, .accom-mobile-bar-btn, .clickable')) return;
       const touchEndY = e.changedTouches[0].clientY;
       const dy = touchStartY - touchEndY;
       if (Math.abs(dy) > 45) {
@@ -1333,10 +1333,44 @@
   };
 
   // =====================================================================
-  // 5. REGISTRATION FORM & LIVE FEE CALCULATOR
+  // 5. REGISTRATION FORM, MULTI-EVENT SELECTOR & LIVE FEE CALCULATOR
   // =====================================================================
+  window.addAdditionalEventRow = function () {
+    const container = document.getElementById('additional-events-container');
+    if (!container) return;
+
+    const row = document.createElement('div');
+    row.className = 'additional-event-row';
+
+    let optionsHtml = '<option value="" disabled selected>Select Additional Competition</option>';
+    COMPETITIONS_DATA.forEach(c => {
+      const feeLabel = c.feeType === 'team' ? `₹${c.feeNum} / team` : `₹${c.feeNum} / member`;
+      optionsHtml += `<option value="${escapeHtml(c.title)}" data-fee="${c.feeNum}" data-type="${c.feeType}">${escapeHtml(c.title)} (${feeLabel})</option>`;
+    });
+
+    row.innerHTML = `
+      <div class="aer-field">
+        <select class="additional-event-select" required onchange="window.updateFeeSummary()">
+          ${optionsHtml}
+        </select>
+      </div>
+      <button type="button" class="btn-remove-event-row" onclick="window.removeAdditionalEventRow(this)" title="Remove Competition">✕</button>
+    `;
+
+    container.appendChild(row);
+    window.updateFeeSummary();
+  };
+
+  window.removeAdditionalEventRow = function (btn) {
+    const row = btn.closest('.additional-event-row');
+    if (row) {
+      row.remove();
+      window.updateFeeSummary();
+    }
+  };
+
   window.updateFeeSummary = function () {
-    const eventSelect = document.getElementById('reg-event');
+    const primarySelect = document.getElementById('reg-event');
     const teamSizeSelect = document.getElementById('reg-team-size');
     const lodgingCheck = document.getElementById('reg-opt-lodging');
     const foodingCheck = document.getElementById('reg-opt-fooding');
@@ -1344,6 +1378,7 @@
     const daysGroup = document.getElementById('reg-service-days-group');
 
     const summaryEventFee = document.getElementById('summary-event-fee');
+    const summaryEventsBreakdown = document.getElementById('summary-selected-events-breakdown');
     const lodgingRow = document.getElementById('reg-lodging-row');
     const summaryLodgingFee = document.getElementById('summary-lodging-fee');
     const lodgingCalcDesc = document.getElementById('reg-lodging-calc-desc');
@@ -1352,14 +1387,60 @@
     const foodingCalcDesc = document.getElementById('reg-fooding-calc-desc');
     const summaryTotalFee = document.getElementById('summary-total-fee');
 
-    if (!eventSelect || !teamSizeSelect) return;
-
-    const selectedOption = eventSelect.options[eventSelect.selectedIndex];
-    const unitFee = parseInt(selectedOption?.dataset?.fee, 10) || 50;
-    const feeType = selectedOption?.dataset?.type || 'member';
+    if (!teamSizeSelect) return { totalCost: 0, totalEventsCost: 0, lodgingCost: 0, foodingCost: 0, selectedEventsList: [] };
     const teamSize = parseInt(teamSizeSelect.value, 10) || 1;
 
-    let eventCost = feeType === 'member' ? unitFee * teamSize : unitFee;
+    let totalEventsCost = 0;
+    const selectedEventsList = [];
+
+    // 1. Primary Event
+    if (primarySelect && primarySelect.value) {
+      const selectedOption = primarySelect.options[primarySelect.selectedIndex];
+      const unitFee = parseInt(selectedOption?.dataset?.fee, 10) || 50;
+      const feeType = selectedOption?.dataset?.type || 'member';
+      const eventCost = feeType === 'member' ? unitFee * teamSize : unitFee;
+      totalEventsCost += eventCost;
+      selectedEventsList.push({
+        title: primarySelect.value,
+        fee: eventCost,
+        unitFee: unitFee,
+        feeType: feeType,
+        isPrimary: true
+      });
+    }
+
+    // 2. Additional Events
+    const extraSelects = document.querySelectorAll('.additional-event-select');
+    extraSelects.forEach(sel => {
+      if (sel && sel.value) {
+        const opt = sel.options[sel.selectedIndex];
+        const unitFee = parseInt(opt?.dataset?.fee, 10) || 50;
+        const feeType = opt?.dataset?.type || 'member';
+        const eventCost = feeType === 'member' ? unitFee * teamSize : unitFee;
+        totalEventsCost += eventCost;
+        selectedEventsList.push({
+          title: sel.value,
+          fee: eventCost,
+          unitFee: unitFee,
+          feeType: feeType,
+          isPrimary: false
+        });
+      }
+    });
+
+    // Render badges in summary
+    if (summaryEventsBreakdown) {
+      if (selectedEventsList.length > 0) {
+        summaryEventsBreakdown.innerHTML = selectedEventsList.map(e => `
+          <span class="event-summary-pill">
+            <span>${e.isPrimary ? '★ ' : '＋ '}${escapeHtml(e.title)}</span>
+            <strong>₹${e.fee}</strong>
+          </span>
+        `).join('');
+      } else {
+        summaryEventsBreakdown.innerHTML = '';
+      }
+    }
 
     const isLodging = lodgingCheck ? lodgingCheck.checked : false;
     const isFooding = foodingCheck ? foodingCheck.checked : false;
@@ -1384,79 +1465,248 @@
       if (foodingCalcDesc) foodingCalcDesc.textContent = `₹125 × ${serviceDays}d × ${teamSize}p`;
     }
 
-    if (summaryEventFee) summaryEventFee.textContent = `₹${eventCost}`;
-    if (summaryTotalFee) summaryTotalFee.textContent = `₹${eventCost + lodgingCost + foodingCost}`;
+    if (summaryEventFee) summaryEventFee.textContent = `₹${totalEventsCost}`;
+    if (summaryTotalFee) summaryTotalFee.textContent = `₹${totalEventsCost + lodgingCost + foodingCost}`;
+
+    return {
+      totalEventsCost,
+      lodgingCost,
+      foodingCost,
+      totalCost: totalEventsCost + lodgingCost + foodingCost,
+      selectedEventsList
+    };
   };
 
-  window.handleRegistration = async function (form) {
-    const submitBtn = form.querySelector('button[type="submit"]');
-    const originalBtnText = submitBtn ? submitBtn.innerHTML : '';
-    if (submitBtn) {
-      submitBtn.disabled = true;
-      submitBtn.innerHTML = `<span>RECORDING IN SUPABASE...</span>`;
+  // State for pending registration during payment verification
+  let pendingRegistrationData = null;
+
+  window.handleRegistration = function (form) {
+    const name = document.getElementById('reg-fullname').value.trim();
+    const email = document.getElementById('reg-email').value.trim();
+    const phone = document.getElementById('reg-phone').value.trim();
+    const college = document.getElementById('reg-college').value.trim();
+    const primarySelect = document.getElementById('reg-event');
+
+    if (!primarySelect || !primarySelect.value) {
+      alert('Please select at least one primary competition/arena.');
+      return;
     }
 
-    const name = document.getElementById('reg-fullname').value;
-    const email = document.getElementById('reg-email').value;
-    const phone = document.getElementById('reg-phone').value;
-    const college = document.getElementById('reg-college').value;
-    const eventSelect = document.getElementById('reg-event');
-    const eventTitle = eventSelect.value;
-    const selectedOption = eventSelect.options[eventSelect.selectedIndex];
-    const unitFee = parseInt(selectedOption?.dataset?.fee, 10) || 50;
-    const feeType = selectedOption?.dataset?.type || 'member';
-    const teamSize = parseInt(document.getElementById('reg-team-size').value, 10) || 1;
+    // Clean Indian 10-digit mobile
+    const cleanPhone = phone.replace(/\D/g, '').slice(-10);
+    if (!/^[6-9]\d{9}$/.test(cleanPhone)) {
+      alert('Please enter a valid 10-digit Indian WhatsApp mobile number starting with 6, 7, 8, or 9.');
+      return;
+    }
+
+    const feeData = window.updateFeeSummary();
     const isLodging = document.getElementById('reg-opt-lodging')?.checked || false;
     const isFooding = document.getElementById('reg-opt-fooding')?.checked || false;
     const serviceDays = parseInt(document.getElementById('reg-service-days')?.value, 10) || 2;
+    const teamSize = parseInt(document.getElementById('reg-team-size')?.value, 10) || 1;
 
-    let eventCost = feeType === 'member' ? unitFee * teamSize : unitFee;
-    let lodgingCost = isLodging ? (50 * serviceDays * teamSize) : 0;
-    let foodingCost = isFooding ? (125 * serviceDays * teamSize) : 0;
-    let totalServicesCost = lodgingCost + foodingCost;
-    let totalCost = eventCost + totalServicesCost;
+    const refId = `REG-BCE-${Math.random().toString(36).substring(2, 6).toUpperCase()}-${Date.now().toString().slice(-4)}`;
 
-    // Find eventId slug
-    const matchedComp = COMPETITIONS_DATA.find(c => c.title.toLowerCase() === eventTitle.toLowerCase());
-    const eventId = matchedComp ? matchedComp.id : eventTitle.toLowerCase().replace(/[^a-z0-9]/g, '');
+    // Store in pendingRegistrationData
+    pendingRegistrationData = {
+      fullName: name,
+      email: email,
+      phone: cleanPhone,
+      college: college,
+      teamSize: teamSize,
+      events: feeData.selectedEventsList,
+      primaryEvent: feeData.selectedEventsList[0],
+      lodgingRequired: isLodging,
+      foodingRequired: isFooding,
+      serviceDays: serviceDays,
+      eventFee: feeData.totalEventsCost,
+      accommodationFee: feeData.lodgingCost + feeData.foodingCost,
+      totalAmount: feeData.totalCost,
+      refId: refId
+    };
 
-    let dbSaved = false;
-    if (window.TechnoritiDB) {
-      try {
-        await window.TechnoritiDB.submitRegistration({
-          fullName: name,
-          email: email,
-          phone: phone,
-          college: college,
-          eventId: eventId,
-          eventTitle: eventTitle,
-          teamSize: teamSize,
-          lodgingRequired: isLodging,
-          foodingRequired: isFooding,
-          serviceDays: serviceDays,
-          eventFee: eventCost,
-          accommodationFee: totalServicesCost,
-          totalAmount: totalCost
-        });
-        dbSaved = true;
-      } catch (err) {
-        console.warn('[Technoriti Supabase] Saved locally (cloud sync pending):', err.message);
+    // Populate Payment Gateway Modal
+    const modal = document.getElementById('payment-gateway-modal');
+    if (!modal) return;
+
+    const orderIdEl = document.getElementById('pay-order-id');
+    const nameEl = document.getElementById('pay-summary-name');
+    const collegeEl = document.getElementById('pay-summary-college');
+    const phoneEl = document.getElementById('pay-summary-phone');
+    const teamEl = document.getElementById('pay-summary-team');
+    const eventsContainer = document.getElementById('pay-summary-events');
+    const servicesRow = document.getElementById('pay-summary-services-row');
+    const servicesTextEl = document.getElementById('pay-summary-services');
+    const totalAmountEl = document.getElementById('pay-total-amount');
+    const qrImg = document.getElementById('upi-qr-image');
+    const intentLink = document.getElementById('pay-upi-intent-link');
+    const utrInput = document.getElementById('pay-utr-input');
+    const errBanner = document.getElementById('pay-error-banner');
+
+    if (orderIdEl) orderIdEl.textContent = `REF: ${refId}`;
+    if (nameEl) nameEl.textContent = name;
+    if (collegeEl) collegeEl.textContent = college;
+    if (phoneEl) phoneEl.textContent = cleanPhone;
+    if (teamEl) teamEl.textContent = teamSize === 1 ? '1 (Solo Participant)' : `${teamSize} Members (Team)`;
+
+    if (eventsContainer) {
+      eventsContainer.innerHTML = feeData.selectedEventsList.map(e => `
+        <span class="event-summary-pill">
+          <span>${e.isPrimary ? '★ ' : '＋ '}${escapeHtml(e.title)}</span>
+          <strong>₹${e.fee}</strong>
+        </span>
+      `).join('');
+    }
+
+    if (servicesRow) {
+      if (isLodging || isFooding) {
+        servicesRow.style.display = 'block';
+        const parts = [];
+        if (isLodging) parts.push(`Hostel Lodging (${serviceDays} days × ${teamSize} pers)`);
+        if (isFooding) parts.push(`Mess Food Pass (${serviceDays} days × ${teamSize} pers)`);
+        if (servicesTextEl) servicesTextEl.textContent = parts.join(' + ');
+      } else {
+        servicesRow.style.display = 'none';
       }
     }
 
-    const servicesDesc = (isLodging && isFooding) ? ' + Hostel Lodging & Campus Mess' : (isLodging ? ' + Hostel Lodging' : (isFooding ? ' + Campus Mess Food' : ''));
-    const successMsg = document.getElementById('success-msg');
-    if (successMsg) {
-      successMsg.textContent = `Welcome, ${name}! Your registration for ${eventTitle}${servicesDesc} has been securely recorded ${dbSaved ? 'in the Technoriti database' : ''} (Total: ₹${totalCost}). Please carry your verification slip and college NOC to BCE Bhagalpur in December 2026.`;
+    const totalCost = feeData.totalCost;
+    if (totalAmountEl) totalAmountEl.textContent = `₹${totalCost}`;
+
+    // Generate Dynamic UPI QR Code URL & Intent Link
+    const upiVpa = 'bcebhagalpur@upi';
+    const upiPayee = 'Technoriti 2026 BCE';
+    const upiNote = `REG-${cleanPhone}-${refId.slice(-6)}`;
+    const upiUrl = `upi://pay?pa=${encodeURIComponent(upiVpa)}&pn=${encodeURIComponent(upiPayee)}&am=${totalCost}&cu=INR&tn=${encodeURIComponent(upiNote)}`;
+
+    if (qrImg) {
+      qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(upiUrl)}`;
+    }
+    if (intentLink) {
+      intentLink.href = upiUrl;
+    }
+    if (utrInput) utrInput.value = '';
+    if (errBanner) {
+      errBanner.style.display = 'none';
+      errBanner.textContent = '';
     }
 
-    document.getElementById('success-modal').classList.add('open');
-    form.reset();
-    window.updateFeeSummary();
+    modal.classList.add('open');
+  };
 
-    if (submitBtn) {
-      submitBtn.disabled = false;
-      submitBtn.innerHTML = originalBtnText;
+  window.closePaymentGateway = function (e) {
+    if (e && e.target && e.target.classList.contains('payment-gateway-dialog')) return;
+    const modal = document.getElementById('payment-gateway-modal');
+    if (modal) modal.classList.remove('open');
+  };
+
+  window.copyUpiId = function () {
+    const vpa = document.getElementById('pay-upi-vpa')?.textContent || 'bcebhagalpur@upi';
+    navigator.clipboard.writeText(vpa).then(() => {
+      const btnText = document.getElementById('copy-btn-text');
+      if (btnText) {
+        btnText.textContent = '✓ Copied!';
+        setTimeout(() => { btnText.textContent = '📋 Copy UPI ID'; }, 2000);
+      }
+    }).catch(() => {
+      prompt('Copy UPI ID:', vpa);
+    });
+  };
+
+  window.confirmPaymentAndCompleteRegistration = async function () {
+    if (!pendingRegistrationData) return;
+
+    const utrInput = document.getElementById('pay-utr-input');
+    const utrVal = utrInput ? utrInput.value.trim() : '';
+    const errBanner = document.getElementById('pay-error-banner');
+    const verifyBtn = document.getElementById('btn-pay-verify');
+    const originalBtnText = verifyBtn ? verifyBtn.innerHTML : '';
+
+    if (!utrVal || utrVal.length < 8) {
+      const msg = 'Please enter a valid 12-digit UPI Transaction Reference / UTR Number from your payment app screen.';
+      if (errBanner) {
+        errBanner.textContent = msg;
+        errBanner.style.display = 'block';
+      } else {
+        alert(msg);
+      }
+      return;
+    }
+
+    if (verifyBtn) {
+      verifyBtn.disabled = true;
+      verifyBtn.innerHTML = `<span>VERIFYING & RECORDING IN SUPABASE...</span>`;
+    }
+
+    try {
+      const data = pendingRegistrationData;
+      const allEventsTitles = data.events.map(e => e.title).join(', ');
+      const matchedComp = COMPETITIONS_DATA.find(c => c.title.toLowerCase() === data.primaryEvent.title.toLowerCase());
+      const eventId = matchedComp ? matchedComp.id : data.primaryEvent.title.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+      let dbSaved = false;
+      if (window.TechnoritiDB) {
+        try {
+          await window.TechnoritiDB.submitRegistration({
+            fullName: data.fullName,
+            email: data.email,
+            phone: data.phone,
+            college: data.college,
+            eventId: eventId,
+            eventTitle: allEventsTitles,
+            teamSize: data.teamSize,
+            lodgingRequired: data.lodgingRequired,
+            foodingRequired: data.foodingRequired,
+            serviceDays: data.serviceDays,
+            eventFee: data.eventFee,
+            accommodationFee: data.accommodationFee,
+            totalAmount: data.totalAmount,
+            paymentStatus: 'pending_verification',
+            paymentReference: `UTR: ${utrVal} | Ref: ${data.refId}`
+          });
+          dbSaved = true;
+        } catch (err) {
+          console.warn('[Technoriti Supabase] Sync notice:', err.message);
+        }
+      }
+
+      // Close Payment Gateway
+      window.closePaymentGateway();
+
+      // Open Success Modal
+      const successModal = document.getElementById('success-modal');
+      const refEl = document.getElementById('reg-success-ref');
+      const msgEl = document.getElementById('success-msg');
+
+      if (refEl) refEl.textContent = data.refId;
+      if (msgEl) {
+        const eventsCount = data.events.length;
+        const eventsDesc = eventsCount > 1 ? `${data.primaryEvent.title} + ${eventsCount - 1} more competition(s) [${allEventsTitles}]` : data.primaryEvent.title;
+        const servicesDesc = (data.lodgingRequired && data.foodingRequired) ? ' + Hostel Lodging & Campus Mess' : (data.lodgingRequired ? ' + Hostel Lodging' : (data.foodingRequired ? ' + Campus Mess Food' : ''));
+        msgEl.textContent = `Welcome, ${data.fullName}! Your registration for ${eventsDesc}${servicesDesc} has been securely recorded ${dbSaved ? 'in the Technoriti database' : ''} (UTR: ${utrVal}, Total Paid: ₹${data.totalAmount}). Please present this reference ID (${data.refId}) and college ID upon arrival at BCE Bhagalpur in December 2026.`;
+      }
+
+      if (successModal) successModal.classList.add('open');
+
+      // Reset form and additional events rows
+      const form = document.getElementById('fest-registration-form');
+      if (form) form.reset();
+      const extraContainer = document.getElementById('additional-events-container');
+      if (extraContainer) extraContainer.innerHTML = '';
+      window.updateFeeSummary();
+
+      pendingRegistrationData = null;
+    } catch (err) {
+      console.error('Registration completion error:', err);
+      if (errBanner) {
+        errBanner.textContent = `Error: ${err.message || 'Failed to complete registration.'}`;
+        errBanner.style.display = 'block';
+      }
+    } finally {
+      if (verifyBtn) {
+        verifyBtn.disabled = false;
+        verifyBtn.innerHTML = originalBtnText;
+      }
     }
   };
 
@@ -2007,22 +2257,23 @@
           window.closeAllPanels();
         } else if (action === 'competitions' || action === 'accommodation' || action === 'about' || action === 'sponsors' || action === 'register') {
           window.openPanel(action);
-        } else if (action === 'lodging') {
-          window.openAccomServiceSelector('lodging');
-        } else if (action === 'fooding') {
-          window.openAccomServiceSelector('fooding');
         }
       });
     });
 
-    // Accommodation Booking Buttons (Front Wall, Logistics Strip, FAQs, and secondary triggers)
-    document.querySelectorAll('#accom-book-btn-front, #accom-book-btn-strip, #accom-book-btn-faq, .screenshot60-book-btn').forEach(btn => {
+    // Accommodation Booking Buttons (Front Wall, Logistics Strip, FAQs, Mobile Bar, and secondary triggers)
+    document.querySelectorAll('#accom-book-btn-front, #accom-book-btn-strip, #accom-book-btn-faq, .screenshot60-book-btn, .accom-mobile-bar-btn, #accom-mobile-bar button').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
         window.openAccomServiceSelector();
       });
       btn.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        window.openAccomServiceSelector();
+      });
+      btn.addEventListener('pointerup', (e) => {
         e.preventDefault();
         e.stopPropagation();
         window.openAccomServiceSelector();
@@ -2039,6 +2290,7 @@
         if (typeof window.closeMobileDrawer === 'function') window.closeMobileDrawer();
         if (typeof window.closeAccomServiceSelector === 'function') window.closeAccomServiceSelector();
         if (typeof window.closeAccomBookingModal === 'function') window.closeAccomBookingModal();
+        if (typeof window.closePaymentGateway === 'function') window.closePaymentGateway();
         const successModal = document.getElementById('success-modal');
         if (successModal) successModal.classList.remove('open');
         const accomSuccess = document.getElementById('accom-success-modal');
@@ -2213,33 +2465,33 @@
 
   function applyMobileHeroVisibility(cfg) {
     const m = cfg || {
-      show_tagline: false,
-      show_theme: false,
-      show_event_date: false,
-      show_edition_card: false,
-      show_competition_count: false,
-      show_prize_pool: false,
+      show_tagline: true,
+      show_theme: true,
+      show_event_date: true,
+      show_edition_card: true,
+      show_competition_count: true,
+      show_prize_pool: true,
       show_college_tag: true,
       show_cta_buttons: true
     };
 
     const badge = document.getElementById('hero-badge-tagline');
-    if (badge) badge.classList.toggle('mobile-forced-show', !!m.show_tagline);
+    if (badge) badge.classList.toggle('mobile-forced-hide', m.show_tagline === false);
 
     const theme = document.getElementById('hero-theme-text');
-    if (theme) theme.classList.toggle('mobile-forced-show', !!m.show_theme);
+    if (theme) theme.classList.toggle('mobile-forced-hide', m.show_theme === false);
 
     const dateCue = document.getElementById('hero-date-text');
-    if (dateCue) dateCue.classList.toggle('mobile-forced-show', !!m.show_event_date);
+    if (dateCue) dateCue.classList.toggle('mobile-forced-hide', m.show_event_date === false);
 
     const statEdition = document.getElementById('hero-stat-edition');
-    if (statEdition) statEdition.classList.toggle('mobile-forced-show', !!m.show_edition_card);
+    if (statEdition) statEdition.classList.toggle('mobile-forced-hide', m.show_edition_card === false);
 
     const statComps = document.getElementById('hero-stat-comps');
-    if (statComps) statComps.classList.toggle('mobile-forced-show', !!m.show_competition_count);
+    if (statComps) statComps.classList.toggle('mobile-forced-hide', m.show_competition_count === false);
 
     const statPrize = document.getElementById('hero-stat-prize');
-    if (statPrize) statPrize.classList.toggle('mobile-forced-show', !!m.show_prize_pool);
+    if (statPrize) statPrize.classList.toggle('mobile-forced-hide', m.show_prize_pool === false);
 
     const collegeTag = document.getElementById('hero-college-name');
     if (collegeTag) collegeTag.classList.toggle('mobile-forced-hide', m.show_college_tag === false);
@@ -2248,10 +2500,80 @@
     if (ctaGroup) ctaGroup.classList.toggle('mobile-forced-hide', m.show_cta_buttons === false);
 
     const statsContainer = document.getElementById('hero-stats-container');
-    const hasVisibleStats = !!(m.show_edition_card || m.show_competition_count || m.show_prize_pool);
+    const hasVisibleStats = (m.show_edition_card !== false || m.show_competition_count !== false || m.show_prize_pool !== false);
     if (statsContainer) {
-      statsContainer.classList.toggle('mobile-has-visible-stats', hasVisibleStats);
+      statsContainer.classList.toggle('mobile-forced-hide', !hasVisibleStats);
     }
+  }
+
+  // =====================================================================
+  // 7. 3D INTERACTIVE MOUSE PARALLAX ENGINE
+  // =====================================================================
+  function setup3DMouseParallax() {
+    const heroContent = document.querySelector('.hero-stage-content');
+    const canvasWrapper = document.getElementById('canvas-wrapper');
+    if (!heroContent) return;
+
+    let targetTiltX = 0;
+    let targetTiltY = 0;
+    let targetTransX = 0;
+    let targetTransY = 0;
+
+    let curTiltX = 0;
+    let curTiltY = 0;
+    let curTransX = 0;
+    let curTransY = 0;
+
+    const isTouch = window.matchMedia && window.matchMedia('(hover: none) or (pointer: coarse)').matches;
+
+    if (!isTouch) {
+      window.addEventListener('mousemove', (e) => {
+        const halfW = window.innerWidth / 2;
+        const halfH = window.innerHeight / 2;
+        const nx = (e.clientX - halfW) / halfW;
+        const ny = (e.clientY - halfH) / halfH;
+
+        // Smooth 3D tilt angles and translation
+        targetTiltX = -ny * 7.5; // Rotate around X
+        targetTiltY = nx * 8.5;  // Rotate around Y
+        targetTransX = nx * 14;  // Parallax shift X
+        targetTransY = ny * 10;  // Parallax shift Y
+      }, { passive: true });
+
+      document.addEventListener('mouseleave', () => {
+        targetTiltX = 0;
+        targetTiltY = 0;
+        targetTransX = 0;
+        targetTransY = 0;
+      });
+    }
+
+    let breathTime = 0;
+    function updateParallax() {
+      if (isTouch) {
+        // Gentle organic 3D ambient floating for touchscreen mobile visitors
+        breathTime += 0.02;
+        targetTiltX = Math.sin(breathTime * 0.8) * 3;
+        targetTiltY = Math.cos(breathTime * 0.6) * 3.5;
+        targetTransX = Math.sin(breathTime * 0.7) * 4;
+        targetTransY = Math.cos(breathTime * 0.8) * 3;
+      }
+
+      curTiltX += (targetTiltX - curTiltX) * 0.08;
+      curTiltY += (targetTiltY - curTiltY) * 0.08;
+      curTransX += (targetTransX - curTransX) * 0.08;
+      curTransY += (targetTransY - curTransY) * 0.08;
+
+      heroContent.style.transform = `perspective(1000px) rotateX(${curTiltX.toFixed(2)}deg) rotateY(${curTiltY.toFixed(2)}deg) translate3d(${curTransX.toFixed(1)}px, ${curTransY.toFixed(1)}px, 0)`;
+
+      if (canvasWrapper) {
+        canvasWrapper.style.transform = `scale(1.03) translate3d(${(-curTransX * 0.25).toFixed(1)}px, ${(-curTransY * 0.25).toFixed(1)}px, 0)`;
+      }
+
+      requestAnimationFrame(updateParallax);
+    }
+
+    requestAnimationFrame(updateParallax);
   }
 
   function init() {
@@ -2264,6 +2586,7 @@
     setup3DRoomInteractions();
     initTvScreenStream();
     initRoomCountdown();
+    setup3DMouseParallax();
     window.rotateRoomTo(0);
     hydrateDynamicCmsContent();
     requestAnimationFrame(renderLoop);

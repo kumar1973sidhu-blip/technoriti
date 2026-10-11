@@ -218,14 +218,6 @@
           <span class="mni-icon">⚡</span>
           <span class="mni-text">Event Registration</span>
         </button>
-        <button class="mobile-nav-item accom-lodging-item" data-action="lodging">
-          <span class="mni-icon">🛌</span>
-          <span class="mni-text">Lodging / Hostel Booking</span>
-        </button>
-        <button class="mobile-nav-item accom-food-item" data-action="fooding">
-          <span class="mni-icon">🍱</span>
-          <span class="mni-text">Fooding / Campus Mess</span>
-        </button>
       </nav>
 
       <div class="mobile-drawer-footer">
@@ -482,7 +474,7 @@
 
               <!-- Action Row: Prominent Clickable Red Button (Screenshot 60) -->
               <div class="screenshot60-action-row">
-                <button type="button" id="accom-book-btn-front" class="screenshot60-book-btn" onclick="window.openAccomServiceSelector()">
+                <button type="button" id="accom-book-btn-front" class="screenshot60-book-btn" onclick="window.openAccomServiceSelector()" onpointerup="window.openAccomServiceSelector()" ontouchend="window.openAccomServiceSelector()">
                   <span>BOOK NOW</span>
                 </button>
               </div>
@@ -740,6 +732,15 @@
           <span>DRAG OR SCROLL TO ROTATE 360° ROOM</span>
         </span>
       </div>
+
+      <!-- Dedicated Mobile Floating Booking Bar (100% Reliable Touch Access on Mobile) -->
+      <div class="accom-mobile-bar" id="accom-mobile-bar">
+        <button type="button" class="accom-mobile-bar-btn" onclick="window.openAccomServiceSelector()" onpointerup="window.openAccomServiceSelector()" ontouchend="window.openAccomServiceSelector()">
+          <span class="amb-icon">🏨</span>
+          <span class="amb-text">BOOK STAY &amp; MESS (FROM ₹50/DAY)</span>
+          <span class="amb-arrow">→</span>
+        </button>
+      </div>
     </div>
   </div>
 
@@ -840,10 +841,10 @@
           </div>
 
           <div class="form-row">
-            <div class="form-group">
-              <label for="reg-event">Selected Arena *</label>
+            <div class="form-group" style="flex: 2;">
+              <label for="reg-event">Primary Competition / Arena *</label>
               <select id="reg-event" required onchange="window.updateFeeSummary()">
-                <option value="" disabled selected>Select a Competition</option>
+                <option value="" disabled selected>Select Primary Competition</option>
                 <option value="RoboWar" data-fee="50" data-type="member">RoboWar (₹50 / member)</option>
                 <option value="RoboSoccer" data-fee="50" data-type="member">RoboSoccer (₹50 / member)</option>
                 <option value="Dhanush - LFR" data-fee="50" data-type="member">Dhanush - Line Following Robot (₹50 / member)</option>
@@ -876,7 +877,7 @@
               </select>
             </div>
 
-            <div class="form-group">
+            <div class="form-group" style="flex: 1;">
               <label for="reg-team-size">Team Members</label>
               <select id="reg-team-size" onchange="window.updateFeeSummary()">
                 <option value="1">1 (Solo)</option>
@@ -885,6 +886,15 @@
                 <option value="4" selected>4 Members</option>
               </select>
             </div>
+          </div>
+
+          <!-- Multi-Event Permission Container -->
+          <div class="additional-events-wrapper">
+            <div id="additional-events-container" class="additional-events-list"></div>
+            <button type="button" id="btn-add-event" class="btn-add-event-row" onclick="window.addAdditionalEventRow()">
+              <span class="btn-icon">＋</span>
+              <span>Add Another Competition / Arena</span>
+            </button>
           </div>
 
           <!-- Independent Services Selection Cards for Event Registration -->
@@ -928,9 +938,10 @@
 
           <div class="live-fee-card">
             <div class="fee-row">
-              <span>Event Entry Fee:</span>
+              <span id="summary-event-label">Competitions Entry Fee:</span>
               <span id="summary-event-fee" class="fee-highlight">₹200</span>
             </div>
+            <div id="summary-selected-events-breakdown" class="summary-events-pill-row"></div>
             <div class="fee-row" id="reg-lodging-row" style="display:none;">
               <span>Hostel Lodging (<span id="reg-lodging-calc-desc">₹50 × 2d × 1p</span>):</span>
               <span id="summary-lodging-fee" class="fee-highlight">₹100</span>
@@ -945,8 +956,8 @@
             </div>
           </div>
 
-          <button type="submit" class="submit-register-btn">
-            <span>SUBMIT REGISTRATION</span>
+          <button type="submit" class="submit-register-btn" id="reg-proceed-pay-btn">
+            <span>PROCEED TO PAYMENT GATEWAY</span>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
           </button>
         </form>
@@ -960,6 +971,112 @@
       <button class="modal-close-btn" onclick="window.closeCompModal()">✕</button>
       <div id="modal-content-container">
         <!-- Injected via script.js -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= PAYMENT GATEWAY MODAL ================= -->
+  <div id="payment-gateway-modal" class="modal-backdrop" onclick="window.closePaymentGateway(event)">
+    <div class="modal-dialog glassmorphism-card payment-gateway-dialog" onclick="event.stopPropagation()">
+      <button class="modal-close-btn" onclick="window.closePaymentGateway()" title="Cancel Payment & Return">✕</button>
+
+      <div class="modal-header-styled">
+        <div class="header-icon-badge">⚡</div>
+        <div style="flex:1;">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+            <span class="panel-badge">OFFICIAL UPI PAYMENT GATEWAY</span>
+            <span class="secure-badge">🔒 256-BIT ENCRYPTED</span>
+          </div>
+          <h2 class="modal-styled-title">TECHNORITI '26 CHECKOUT</h2>
+          <p class="modal-styled-desc">Scan the UPI QR code or pay via any UPI app to complete your competition registration.</p>
+        </div>
+      </div>
+
+      <!-- Payment Order Breakdown Summary -->
+      <div class="payment-order-summary">
+        <div class="pos-header">
+          <span class="pos-badge">ORDER SUMMARY</span>
+          <span class="pos-id" id="pay-order-id">REF: REG-BCE-2026</span>
+        </div>
+        <div class="pos-details">
+          <div class="pos-line"><strong>Participant:</strong> <span id="pay-summary-name">-</span> (<span id="pay-summary-college">-</span>)</div>
+          <div class="pos-line"><strong>WhatsApp Phone:</strong> <span id="pay-summary-phone">-</span></div>
+          <div class="pos-line"><strong>Team Size:</strong> <span id="pay-summary-team">1 (Solo)</span></div>
+          <div class="pos-line">
+            <strong>Selected Arenas:</strong>
+            <div id="pay-summary-events" class="pos-events-tags"></div>
+          </div>
+          <div class="pos-line" id="pay-summary-services-row" style="display:none;">
+            <strong>Campus Services:</strong> <span id="pay-summary-services">-</span>
+          </div>
+        </div>
+        <div class="pos-amount-banner">
+          <div class="pab-left">
+            <span class="pab-label">TOTAL AMOUNT PAYABLE</span>
+            <span class="pab-hint">Includes all selected competitions &amp; services</span>
+          </div>
+          <div class="pab-right">
+            <span class="pab-amount" id="pay-total-amount">₹200</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- UPI QR Code & Direct Intent Block -->
+      <div class="upi-payment-block">
+        <div class="qr-container">
+          <div class="qr-code-frame">
+            <img id="upi-qr-image" src="" alt="Scan UPI QR Code" class="upi-qr-code-img">
+            <div class="qr-scan-lens"></div>
+          </div>
+          <span class="qr-scan-caption">Scan with ANY UPI App</span>
+        </div>
+
+        <div class="upi-details-col">
+          <div class="upi-id-box">
+            <span class="uib-label">OFFICIAL RECEIVER UPI ID:</span>
+            <div class="uib-row">
+              <code class="uib-vpa" id="pay-upi-vpa">bcebhagalpur@upi</code>
+              <button type="button" class="btn-copy-upi" onclick="window.copyUpiId()" title="Copy UPI VPA">
+                <span id="copy-btn-text">📋 Copy UPI ID</span>
+              </button>
+            </div>
+            <span class="uib-account-name">BCE Bhagalpur Technoriti Desk</span>
+          </div>
+
+          <!-- Direct Intent for Mobile Devices -->
+          <div class="upi-mobile-intent">
+            <a id="pay-upi-intent-link" href="#" class="upi-intent-btn">
+              <span>📱 Open in UPI App (GPay / PhonePe / Paytm / BHIM)</span>
+            </a>
+          </div>
+
+          <div class="upi-accepted-apps">
+            <span class="uaa-text">Accepted via: Google Pay • PhonePe • Paytm • BHIM • Cred • Amazon Pay • All Bank UPI Apps</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Verification Step: UTR / Reference ID -->
+      <div class="payment-verification-block">
+        <label for="pay-utr-input" class="utr-label">
+          <span>ENTER 12-DIGIT UPI TRANSACTION REF / UTR NUMBER *</span>
+          <span class="utr-help-hint">(From your UPI payment successful screen)</span>
+        </label>
+        <div class="utr-input-wrap">
+          <input type="text" id="pay-utr-input" required maxlength="22" placeholder="e.g. 428901234567 / T240915123456" class="utr-input-field">
+          <span class="utr-status-icon" id="utr-status-icon">🔒</span>
+        </div>
+        <div id="pay-error-banner" class="form-error-banner" style="display:none; margin-top:10px;"></div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="payment-gateway-footer">
+        <button type="button" class="btn-pay-cancel" onclick="window.closePaymentGateway()">
+          <span>← Back to Edit</span>
+        </button>
+        <button type="button" class="btn-pay-verify primary-glow-btn" id="btn-pay-verify" onclick="window.confirmPaymentAndCompleteRegistration()">
+          <span>VERIFY &amp; COMPLETE REGISTRATION ✓</span>
+        </button>
       </div>
     </div>
   </div>
@@ -1262,6 +1379,33 @@
 
       <button class="primary-glow-btn" onclick="document.getElementById('accom-success-modal').classList.remove('open')">
         DONE & CLOSE
+      </button>
+    </div>
+  </div>
+
+  <!-- Event Registration & Payment Confirmation Success Modal -->
+  <div id="success-modal" class="modal-backdrop" onclick="this.classList.remove('open')">
+    <div class="modal-dialog glassmorphism-card success-dialog reg-success-box" onclick="event.stopPropagation()">
+      <div class="success-icon">⚡</div>
+      <div class="accom-ref-pill">REGISTRATION CONFIRMED: <span id="reg-success-ref">REG-BCE-2026</span></div>
+      <h3 class="success-title">Payment &amp; Slot Recorded!</h3>
+      <p id="success-msg" class="success-desc">
+        Your registration and UPI payment details have been successfully recorded in the Technoriti database.
+      </p>
+      
+      <div class="accom-checkin-checklist">
+        <h4>EVENT ENTRY INSTRUCTIONS AT BCE BHAGALPUR:</h4>
+        <ul>
+          <li>Carry your original Institute College ID card (2 photocopies)</li>
+          <li>Carry Government Photo ID (Aadhaar / Voter / PAN)</li>
+          <li>Carry 2 recent passport size photographs</li>
+          <li>Keep your UPI payment UTR receipt screenshot handy</li>
+          <li>Report to the Registration Desk at BCE Campus in December 2026</li>
+        </ul>
+      </div>
+
+      <button class="primary-glow-btn" onclick="document.getElementById('success-modal').classList.remove('open')">
+        DONE &amp; CLOSE
       </button>
     </div>
   </div>
