@@ -165,7 +165,7 @@
         </button>
 
         <!-- Mobile Navigation Menu Toggle (Concetto Style) -->
-        <button id="mobile-menu-btn" class="mobile-hamburger-btn" aria-label="Open Navigation Menu" aria-expanded="false" aria-controls="mobile-nav-drawer" title="Menu">
+        <button id="mobile-menu-btn" class="mobile-hamburger-btn" aria-label="Open Navigation Menu" aria-expanded="false" aria-controls="mobile-nav-drawer" title="Menu" onclick="window.toggleMobileDrawer()">
           <span class="hamburger-bar"></span>
           <span class="hamburger-bar"></span>
           <span class="hamburger-bar"></span>
@@ -281,18 +281,43 @@
 
   <!-- ==================== CLEAN HERO STAGE ==================== -->
   <main class="clean-hero-viewport">
+    <!-- Cosmic 3D Atmospheric Backdrop (Mobile-only cinematic layers) -->
+    <div class="mobile-cosmic-backdrop" aria-hidden="true">
+      <div class="cosmic-bg-image"></div>
+      <div class="cosmic-planet-glow"></div>
+      <div class="cosmic-starfield"></div>
+    </div>
+
     <div class="hero-stage-content">
-      <div class="hero-badge" id="hero-badge-tagline">
+      <!-- Mobile Top Cyan Accent Line -->
+      <div class="hero-accent-bar" id="hero-accent-bar"></div>
+
+      <!-- Desktop Tagline Badge (Preserved for desktop, admin toggled for mobile) -->
+      <div class="hero-badge desktop-only-elem" id="hero-badge-tagline">
         <span class="pulsing-radar"></span>
         <span>EAST INDIA'S PREMIER TECHNICAL FESTIVAL</span>
       </div>
       
       <h2 class="hero-college-tag" id="hero-college-name">BHAGALPUR COLLEGE OF ENGINEERING</h2>
-      <h1 class="hero-main-title" id="hero-main-title">TECHNORITI '26</h1>
-      <p class="hero-date-cue" id="hero-date-text">COMING DECEMBER 2026</p>
-      <p class="hero-tagline" id="hero-theme-text">An Aetherial Confluence of Technology, Robotics & Pure Innovation</p>
+      <h1 class="hero-main-title" id="hero-main-title">
+        <span class="title-tech">TECHNORITI</span>
+        <br class="mobile-title-break">
+        <span class="title-year">'26</span>
+      </h1>
 
-      <div class="hero-stats-bar" id="hero-stats-container">
+      <!-- Mobile Minimalist Tagline & Dates -->
+      <p class="hero-tagline-mobile" id="hero-tagline-mobile">BUILD BEYOND BOUNDARIES.</p>
+      <div class="hero-mobile-date-badge" id="hero-mobile-date">
+        <span class="hmd-dash">—</span>
+        <span class="hmd-text">DECEMBER 2026</span>
+        <span class="hmd-dash">—</span>
+      </div>
+
+      <!-- Desktop Legacy Texts (Preserved for desktop, admin toggled for mobile) -->
+      <p class="hero-date-cue desktop-only-elem" id="hero-date-text">COMING DECEMBER 2026</p>
+      <p class="hero-tagline desktop-only-elem" id="hero-theme-text">An Aetherial Confluence of Technology, Robotics & Pure Innovation</p>
+
+      <div class="hero-stats-bar desktop-only-elem" id="hero-stats-container">
         <div class="stat-cell" id="hero-stat-edition">
           <span class="sc-num">DEC 2026</span>
           <span class="sc-label">EDITION DATES</span>
@@ -309,25 +334,71 @@
         </div>
       </div>
 
+      <!-- Mid-stage spacer to reveal 3D Gateway & Student Silhouette on Mobile -->
+      <div class="cosmic-portal-spacer" aria-hidden="true"></div>
+
+      <!-- Three Call-To-Action Buttons -->
       <div class="hero-cta-buttons" id="hero-cta-group">
-        <button class="primary-glow-btn" onclick="window.openPanel('competitions')">
-          <span>EXPLORE COMPETITIONS</span>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        <!-- Button 1: EXPLORE COMPETITIONS -->
+        <button class="primary-glow-btn cta-btn-competitions" onclick="window.openPanel('competitions')">
+          <span class="btn-left-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94A5.01 5.01 0 0 0 11 15.9V19H7v2h10v-2h-4v-3.1c1.8-.41 3.23-1.85 3.61-3.96C19.08 11.63 21 9.55 21 8V7c0-1.1-.9-2-2-2zM5 8V7h2v3.82C5.84 10.4 5 9.3 5 8zm14 0c0 1.3-.84 2.4-2 2.82V7h2v1z"/>
+            </svg>
+          </span>
+          <span class="btn-label">EXPLORE COMPETITIONS</span>
+          <span class="btn-right-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </span>
         </button>
-        <button class="secondary-glass-btn" onclick="window.openPanel('register')">
-          <span>REGISTER NOW</span>
+
+        <!-- Button 2: REGISTER NOW -->
+        <button class="secondary-glass-btn cta-btn-register" onclick="window.openPanel('register')">
+          <span class="btn-left-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+            </svg>
+          </span>
+          <span class="btn-label">REGISTER NOW</span>
+          <span class="btn-right-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </span>
         </button>
-        <button class="tertiary-pill-btn" onclick="window.openPanel('accommodation')">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
-          <span>HOSTEL & STAY</span>
+
+        <!-- Button 3: HOSTEL & STAY -->
+        <button class="tertiary-pill-btn cta-btn-accommodation" onclick="window.openPanel('accommodation')">
+          <span class="btn-left-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M7 13c1.66 0 3-1.34 3-3S8.66 7 7 7s-3 1.34-3 3 1.34 3 3 3zm12-6h-8v7H3V5H1v15h2v-3h18v3h2v-9c0-2.21-1.79-4-4-4z"/>
+            </svg>
+          </span>
+          <span class="btn-label">HOSTEL & STAY</span>
+          <span class="btn-right-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </span>
         </button>
       </div>
 
-      <div class="scroll-canvas-cue">
+      <!-- Bottom Scroll Cue (Desktop and Mobile) -->
+      <div class="scroll-canvas-cue" onclick="window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })">
         <div class="scroll-mouse-icon">
-          <div class="wheel-dot"></div>
+          <div class="wheel-dot dot-1"></div>
+          <div class="wheel-dot dot-2"></div>
         </div>
-        <span>SCROLL TO EXPLORE 3D ODYSSEY</span>
+        <div class="scroll-chevron-down">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </div>
+        <span class="scroll-text-desktop">SCROLL TO EXPLORE 3D ODYSSEY</span>
+        <span class="scroll-text-mobile">SCROLL TO EXPLORE</span>
       </div>
     </div>
   </main>

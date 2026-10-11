@@ -717,6 +717,23 @@ html, body {
   font-size: 1.2rem;
 }
 
+/* Defaults for elements introduced for mobile cosmic hero (hidden on desktop) */
+.mobile-cosmic-backdrop { display: none !important; }
+.hero-accent-bar { display: none !important; }
+.mobile-title-break { display: none !important; }
+.hero-tagline-mobile { display: none !important; }
+.hero-mobile-date-badge { display: none !important; }
+.cosmic-portal-spacer { display: none !important; }
+.scroll-text-mobile { display: none !important; }
+.scroll-chevron-down { display: none !important; }
+.wheel-dot.dot-2 { display: none !important; }
+
+/* Desktop button icon alignment */
+.hero-cta-buttons .btn-left-icon { display: none; }
+.hero-cta-buttons .btn-right-icon { display: none; }
+.cta-btn-competitions .btn-right-icon { display: inline-flex; }
+.cta-btn-accommodation .btn-left-icon { display: inline-flex; }
+
 .hero-cta-buttons {
   display: flex;
   justify-content: center;
@@ -1857,175 +1874,438 @@ html, body {
    Desktop layout is completely preserved. Mobile hero is rich and futuristic.
    ===================================================================== */
 @media (max-width: 768px) {
-  /* Mobile Hero Viewport & Stage Content */
+  /* Floating Pill Header on Mobile (Matches Reference) */
+  .site-header {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    padding: 12px 14px !important;
+    background: transparent !important;
+    pointer-events: none !important;
+    z-index: 100 !important;
+  }
+
+  .header-inner {
+    pointer-events: auto !important;
+    width: 100% !important;
+    max-width: 440px !important;
+    margin: 0 auto !important;
+    background: rgba(4, 12, 28, 0.78) !important;
+    border: 1px solid rgba(0, 240, 255, 0.55) !important;
+    box-shadow: 0 0 20px rgba(0, 240, 255, 0.22), inset 0 0 10px rgba(0, 240, 255, 0.08) !important;
+    border-radius: 9999px !important;
+    padding: 6px 18px 6px 14px !important;
+    height: 52px !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+  }
+
+  .brand {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    text-decoration: none !important;
+  }
+
+  .brand-symbol {
+    width: 32px !important;
+    height: 32px !important;
+    filter: drop-shadow(0 0 8px rgba(0, 240, 255, 0.8)) !important;
+  }
+
+  .brand-title {
+    font-family: var(--font-orbitron) !important;
+    font-size: 0.95rem !important;
+    font-weight: 800 !important;
+    letter-spacing: 1.5px !important;
+    color: #ffffff !important;
+    text-shadow: 0 0 10px rgba(0, 240, 255, 0.6) !important;
+  }
+
+  .brand-tag {
+    display: none !important;
+  }
+
+  .mobile-hamburger-btn {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 4.5px !important;
+    width: 36px !important;
+    height: 36px !important;
+    background: transparent !important;
+    border: none !important;
+    cursor: pointer !important;
+    padding: 0 !important;
+  }
+
+  .hamburger-bar {
+    width: 22px !important;
+    height: 2px !important;
+    background: #ffffff !important;
+    border-radius: 2px !important;
+  }
+
+  /* Mobile Cosmic Viewport */
   .clean-hero-viewport {
-    padding: 0 4vw;
-    height: auto;
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    background: radial-gradient(circle at 50% 40%, rgba(0, 240, 255, 0.08) 0%, rgba(3, 7, 18, 0.95) 75%);
+    position: relative !important;
+    min-height: 100vh !important;
+    min-height: 100dvh !important;
+    padding: 72px 16px 16px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    overflow: hidden !important;
+    background: #01040d !important;
   }
 
-  .hero-stage-content {
-    padding-top: 76px;
-    padding-bottom: 40px;
-    width: 100%;
-    max-width: 440px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-  }
-
-  /* 1. Glowing Cyber Pill Badge */
-  #hero-badge-tagline {
-    display: inline-flex !important;
-    font-size: 0.62rem;
-    padding: 5px 14px;
-    margin-bottom: 12px;
-    background: rgba(10, 20, 38, 0.85);
-    border: 1px solid rgba(0, 240, 255, 0.5);
-    box-shadow: 0 0 18px rgba(0, 240, 255, 0.25), inset 0 0 8px rgba(0, 240, 255, 0.1);
-    letter-spacing: 1.2px;
-    border-radius: 100px;
-  }
-  #hero-badge-tagline.mobile-forced-hide {
-    display: none !important;
-  }
-
-  /* 2. College Name Tag */
-  .hero-college-tag {
-    font-size: 0.72rem;
-    letter-spacing: 2px;
-    color: #38bdf8;
-    margin-bottom: 4px;
-    font-weight: 700;
-    text-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
-  }
-  #hero-college-name.mobile-forced-hide {
-    display: none !important;
-  }
-
-  /* 3. Radiant Cyber Main Title */
-  .hero-main-title {
-    font-size: clamp(2.35rem, 8.5vw, 3.2rem);
-    font-weight: 900;
-    letter-spacing: 2px;
-    line-height: 1.1;
-    margin-bottom: 8px;
-    background: linear-gradient(135deg, #ffffff 15%, #00ffff 60%, #38bdf8 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    filter: drop-shadow(0 0 16px rgba(0, 240, 255, 0.55));
-  }
-
-  /* 4. Date Cue with Gold Accent */
-  .hero-date-cue {
-    display: inline-block !important;
-    font-family: var(--font-orbitron);
-    font-size: 0.75rem;
-    font-weight: 800;
-    letter-spacing: 2px;
-    color: var(--accent-gold);
-    text-shadow: 0 0 12px rgba(251, 191, 36, 0.5);
-    margin-bottom: 8px;
-  }
-  #hero-date-text.mobile-forced-hide {
-    display: none !important;
-  }
-
-  /* 5. Theme Tagline with High Readability */
-  .hero-tagline {
+  /* Cosmic 3D Atmospheric Backdrop */
+  .mobile-cosmic-backdrop {
     display: block !important;
-    font-size: 0.82rem;
-    line-height: 1.45;
-    color: #cbd5e1;
-    max-width: 320px;
-    margin: 0 auto 16px;
-    font-weight: 500;
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
-  }
-  #hero-theme-text.mobile-forced-hide {
-    display: none !important;
+    position: absolute !important;
+    inset: 0 !important;
+    z-index: 1 !important;
+    overflow: hidden !important;
+    pointer-events: none !important;
   }
 
-  /* 6. Mobile Cyber Stats HUD Capsule Bar */
-  .hero-stats-bar {
+  .cosmic-bg-image {
+    position: absolute !important;
+    inset: 0 !important;
+    background: #01040d url('cosmic-hero-bg.jpg') no-repeat center top / cover !important;
+    will-change: transform !important;
+    transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+  }
+
+  .cosmic-planet-glow {
+    position: absolute !important;
+    top: 16% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: 88vw !important;
+    height: 88vw !important;
+    max-width: 440px !important;
+    max-height: 440px !important;
+    border-radius: 50% !important;
+    background: radial-gradient(circle, rgba(0, 240, 255, 0.22) 0%, rgba(0, 240, 255, 0.06) 50%, transparent 70%) !important;
+    pointer-events: none !important;
+    animation: planetAtmosphereBreath 6s ease-in-out infinite alternate !important;
+  }
+
+  .cosmic-starfield {
+    position: absolute !important;
+    inset: 0 !important;
+    background-image: 
+      radial-gradient(1px 1px at 20px 30px, #ffffff, rgba(0,0,0,0)),
+      radial-gradient(1.5px 1.5px at 140px 80px, rgba(0,240,255,0.9), rgba(0,0,0,0)),
+      radial-gradient(1px 1px at 240px 180px, #ffffff, rgba(0,0,0,0)),
+      radial-gradient(1.5px 1.5px at 320px 120px, rgba(168,85,247,0.8), rgba(0,0,0,0)),
+      radial-gradient(1px 1px at 80px 240px, #ffffff, rgba(0,0,0,0)) !important;
+    background-repeat: repeat !important;
+    background-size: 340px 340px !important;
+    opacity: 0.65 !important;
+    pointer-events: none !important;
+  }
+
+  /* Stage Content & Minimalist Typography */
+  .hero-stage-content {
+    position: relative !important;
+    z-index: 5 !important;
+    width: 100% !important;
+    max-width: 440px !important;
+    min-height: calc(100vh - 90px) !important;
+    min-height: calc(100dvh - 90px) !important;
     display: flex !important;
-    flex-direction: row !important;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    background: rgba(10, 16, 32, 0.92);
-    border: 1px solid rgba(0, 240, 255, 0.35);
-    border-radius: 100px;
-    padding: 7px 16px;
-    margin: 0 auto 20px;
-    width: fit-content;
-    max-width: 96vw;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 20px rgba(0, 240, 255, 0.18);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-  }
-  #hero-stats-container.mobile-forced-hide {
-    display: none !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    padding: 0 !important;
   }
 
-  .stat-cell {
+  /* 1. Mobile Cyan Top Accent Line */
+  .hero-accent-bar {
+    display: block !important;
+    width: 36px !important;
+    height: 2px !important;
+    background: #00f0ff !important;
+    border-radius: 2px !important;
+    margin: 0 auto 10px !important;
+    box-shadow: 0 0 10px #00f0ff !important;
+  }
+
+  /* 2. College Tag */
+  .hero-college-tag {
+    display: block !important;
+    font-family: var(--font-space), -apple-system, sans-serif !important;
+    font-size: clamp(0.62rem, 2.5vw, 0.72rem) !important;
+    font-weight: 600 !important;
+    letter-spacing: 2.2px !important;
+    color: #a5f3fc !important;
+    text-transform: uppercase !important;
+    margin-bottom: 8px !important;
+    text-shadow: 0 0 8px rgba(0, 240, 255, 0.4) !important;
+  }
+
+  /* 3. Bold Futuristic Title (Stacked) */
+  .hero-main-title {
+    display: block !important;
+    font-family: var(--font-orbitron) !important;
+    font-size: clamp(2.4rem, 10.5vw, 3.4rem) !important;
+    font-weight: 900 !important;
+    letter-spacing: 2.5px !important;
+    line-height: 1.05 !important;
+    margin: 0 0 12px !important;
+    background: linear-gradient(180deg, #ffffff 30%, #70e6ff 85%, #00f0ff 100%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    filter: drop-shadow(0 0 18px rgba(0, 240, 255, 0.65)) !important;
+  }
+
+  .mobile-title-break {
+    display: block !important;
+  }
+
+  /* 4. Minimalist Tagline */
+  .hero-tagline-mobile {
+    display: block !important;
+    font-family: var(--font-space), sans-serif !important;
+    font-size: clamp(0.72rem, 2.7vw, 0.82rem) !important;
+    font-weight: 700 !important;
+    letter-spacing: 2.5px !important;
+    color: #ffffff !important;
+    text-transform: uppercase !important;
+    margin-bottom: 10px !important;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5) !important;
+  }
+
+  /* 5. Minimalist Date Badge */
+  .hero-mobile-date-badge {
     display: flex !important;
-    flex-direction: column;
-    align-items: center;
-    padding: 0 4px;
-  }
-  .stat-cell.mobile-forced-hide {
-    display: none !important;
-  }
-
-  .sc-num {
-    font-family: var(--font-orbitron);
-    font-size: 0.82rem;
-    font-weight: 800;
-    color: var(--accent-cyan);
-    letter-spacing: 0.8px;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 12px !important;
+    font-family: var(--font-orbitron) !important;
+    font-size: clamp(0.64rem, 2.3vw, 0.75rem) !important;
+    font-weight: 700 !important;
+    letter-spacing: 2.5px !important;
+    color: #94a3b8 !important;
+    text-transform: uppercase !important;
+    margin-bottom: 8px !important;
   }
 
-  .sc-label {
-    font-size: 0.52rem;
-    font-weight: 700;
-    color: #94a3b8;
-    letter-spacing: 0.8px;
-  }
-
-  .stat-sep {
+  .hmd-dash {
     display: inline-block !important;
-    color: rgba(0, 240, 255, 0.4);
-    font-weight: 700;
-    font-size: 0.75rem;
+    width: 24px !important;
+    height: 1px !important;
+    background: rgba(148, 163, 184, 0.5) !important;
   }
 
-  /* 7. Mobile CTA Group */
+  /* Hidden on mobile by default (Preserved on desktop, controlled via admin) */
+  .desktop-only-elem {
+    display: none !important;
+  }
+  .mobile-forced-hide {
+    display: none !important;
+  }
+
+  /* 6. Mid-stage Gateway & Student Silhouette Spacer */
+  .cosmic-portal-spacer {
+    display: block !important;
+    flex: 1 1 auto !important;
+    min-height: 70px !important;
+    max-height: 240px !important;
+    pointer-events: none !important;
+  }
+
+  /* 7. Three Call-To-Action Buttons */
   .hero-cta-buttons {
     display: flex !important;
-    flex-direction: column;
-    gap: 10px;
-    width: 100%;
-    max-width: 290px;
-    margin: 0 auto;
+    flex-direction: column !important;
+    gap: 11px !important;
+    width: 100% !important;
+    max-width: 320px !important;
+    margin: 0 auto 16px !important;
+    z-index: 15 !important;
   }
-  #hero-cta-group.mobile-forced-hide {
+
+  .hero-cta-buttons button {
+    width: 100% !important;
+    min-height: 52px !important;
+    padding: 10px 18px !important;
+    border-radius: 9999px !important;
+    display: grid !important;
+    grid-template-columns: 24px 1fr 24px !important;
+    align-items: center !important;
+    cursor: pointer !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease !important;
+    touch-action: manipulation !important;
+    box-sizing: border-box !important;
+    text-decoration: none !important;
+  }
+
+  .hero-cta-buttons button:active {
+    transform: scale(0.97) !important;
+  }
+
+  .hero-cta-buttons .btn-label {
+    font-family: var(--font-orbitron) !important;
+    font-size: 0.82rem !important;
+    font-weight: 800 !important;
+    letter-spacing: 1.2px !important;
+    text-align: center !important;
+    white-space: nowrap !important;
+  }
+
+  .hero-cta-buttons .btn-left-icon,
+  .hero-cta-buttons .btn-right-icon {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  /* Button 1: EXPLORE COMPETITIONS */
+  .cta-btn-competitions {
+    background: linear-gradient(90deg, #00d4ff 0%, #00f5ff 100%) !important;
+    color: #040b15 !important;
+    border: none !important;
+    box-shadow: 0 0 24px rgba(0, 240, 255, 0.65), 0 4px 12px rgba(0, 0, 0, 0.5) !important;
+  }
+  .cta-btn-competitions .btn-label {
+    color: #040b15 !important;
+    font-weight: 900 !important;
+  }
+  .cta-btn-competitions svg {
+    color: #040b15 !important;
+    stroke: #040b15 !important;
+    fill: #040b15 !important;
+  }
+
+  /* Button 2: REGISTER NOW */
+  .cta-btn-register {
+    background: rgba(4, 14, 34, 0.82) !important;
+    border: 1.5px solid rgba(0, 220, 255, 0.85) !important;
+    box-shadow: 0 0 16px rgba(0, 220, 255, 0.25), inset 0 0 10px rgba(0, 220, 255, 0.1) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+  }
+  .cta-btn-register .btn-label {
+    color: #ffffff !important;
+  }
+  .cta-btn-register svg {
+    color: #00f0ff !important;
+    stroke: #00f0ff !important;
+  }
+
+  /* Button 3: HOSTEL & STAY */
+  .cta-btn-accommodation {
+    background: rgba(28, 8, 48, 0.85) !important;
+    border: 1.5px solid rgba(185, 80, 255, 0.85) !important;
+    box-shadow: 0 0 22px rgba(185, 80, 255, 0.4), inset 0 0 12px rgba(185, 80, 255, 0.12) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+  }
+  .cta-btn-accommodation .btn-label {
+    color: #f5e8ff !important;
+  }
+  .cta-btn-accommodation svg {
+    color: #d98fff !important;
+    stroke: #d98fff !important;
+  }
+
+  /* 8. Bottom Scroll Indicator */
+  .scroll-canvas-cue {
+    position: relative !important;
+    bottom: auto !important;
+    left: auto !important;
+    transform: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 5px !important;
+    margin: 4px auto 4px !important;
+    cursor: pointer !important;
+    z-index: 15 !important;
+  }
+
+  .scroll-text-desktop {
     display: none !important;
   }
 
-  .primary-glow-btn, .secondary-glass-btn, .tertiary-pill-btn {
-    width: 100%;
-    justify-content: center;
-    padding: 13px 20px;
-    font-size: 0.85rem;
-    letter-spacing: 1.2px;
-    touch-action: manipulation !important;
+  .scroll-text-mobile {
+    display: inline !important;
+    font-family: var(--font-space), sans-serif !important;
+    font-size: 0.58rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 2px !important;
+    color: #94a3b8 !important;
+    text-transform: uppercase !important;
+  }
+
+  .scroll-mouse-icon {
+    width: 18px !important;
+    height: 30px !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.65) !important;
+    border-radius: 12px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 4px !important;
+  }
+
+  .wheel-dot.dot-1 {
+    width: 3px !important;
+    height: 3px !important;
+    background: #ffffff !important;
+    border-radius: 50% !important;
+    animation: cosmicDotPulse 1.8s ease-in-out infinite !important;
+  }
+
+  .wheel-dot.dot-2 {
+    display: block !important;
+    width: 3px !important;
+    height: 3px !important;
+    background: #ffffff !important;
+    border-radius: 50% !important;
+    opacity: 0.6 !important;
+    animation: cosmicDotPulse 1.8s ease-in-out infinite 0.3s !important;
+  }
+
+  .scroll-chevron-down {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: rgba(255, 255, 255, 0.7) !important;
+    animation: cosmicChevronBounce 1.8s ease-in-out infinite !important;
+  }
+}
+
+@keyframes planetAtmosphereBreath {
+  0% { transform: translate(-50%, -50%) scale(0.96); opacity: 0.7; }
+  100% { transform: translate(-50%, -50%) scale(1.05); opacity: 1; }
+}
+
+@keyframes cosmicDotPulse {
+  0%, 100% { transform: translateY(0); opacity: 0.4; }
+  50% { transform: translateY(2px); opacity: 1; }
+}
+
+@keyframes cosmicChevronBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(3px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cosmic-planet-glow,
+  .wheel-dot,
+  .scroll-chevron-down {
+    animation: none !important;
   }
 }
 

@@ -60,7 +60,8 @@ const rootFilesToCopy = [
   'script.js',
   'supabase-client.js',
   'principal-portrait.png',
-  'principal.png'
+  'principal.png',
+  'cosmic-hero-bg.jpg'
 ];
 
 for (const file of rootFilesToCopy) {

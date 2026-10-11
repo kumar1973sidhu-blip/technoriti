@@ -2465,54 +2465,61 @@
 
   function applyMobileHeroVisibility(cfg) {
     const m = cfg || {
-      show_tagline: true,
-      show_theme: true,
-      show_event_date: true,
-      show_edition_card: true,
-      show_competition_count: true,
-      show_prize_pool: true,
+      show_tagline: false,
+      show_theme: false,
+      show_event_date: false,
+      show_edition_card: false,
+      show_competition_count: false,
+      show_prize_pool: false,
       show_college_tag: true,
       show_cta_buttons: true
     };
 
     const badge = document.getElementById('hero-badge-tagline');
-    if (badge) badge.classList.toggle('mobile-forced-hide', m.show_tagline === false);
+    if (badge) badge.classList.toggle('mobile-forced-hide', m.show_tagline !== true);
 
     const theme = document.getElementById('hero-theme-text');
-    if (theme) theme.classList.toggle('mobile-forced-hide', m.show_theme === false);
+    if (theme) theme.classList.toggle('mobile-forced-hide', m.show_theme !== true);
 
     const dateCue = document.getElementById('hero-date-text');
-    if (dateCue) dateCue.classList.toggle('mobile-forced-hide', m.show_event_date === false);
+    if (dateCue) dateCue.classList.toggle('mobile-forced-hide', m.show_event_date !== true);
 
     const statEdition = document.getElementById('hero-stat-edition');
-    if (statEdition) statEdition.classList.toggle('mobile-forced-hide', m.show_edition_card === false);
+    if (statEdition) statEdition.classList.toggle('mobile-forced-hide', m.show_edition_card !== true);
 
     const statComps = document.getElementById('hero-stat-comps');
-    if (statComps) statComps.classList.toggle('mobile-forced-hide', m.show_competition_count === false);
+    if (statComps) statComps.classList.toggle('mobile-forced-hide', m.show_competition_count !== true);
 
     const statPrize = document.getElementById('hero-stat-prize');
-    if (statPrize) statPrize.classList.toggle('mobile-forced-hide', m.show_prize_pool === false);
+    if (statPrize) statPrize.classList.toggle('mobile-forced-hide', m.show_prize_pool !== true);
 
     const collegeTag = document.getElementById('hero-college-name');
     if (collegeTag) collegeTag.classList.toggle('mobile-forced-hide', m.show_college_tag === false);
+
+    const accentBar = document.getElementById('hero-accent-bar');
+    if (accentBar) accentBar.classList.toggle('mobile-forced-hide', m.show_college_tag === false);
 
     const ctaGroup = document.getElementById('hero-cta-group');
     if (ctaGroup) ctaGroup.classList.toggle('mobile-forced-hide', m.show_cta_buttons === false);
 
     const statsContainer = document.getElementById('hero-stats-container');
-    const hasVisibleStats = (m.show_edition_card !== false || m.show_competition_count !== false || m.show_prize_pool !== false);
+    const hasVisibleStats = (m.show_edition_card === true || m.show_competition_count === true || m.show_prize_pool === true);
     if (statsContainer) {
       statsContainer.classList.toggle('mobile-forced-hide', !hasVisibleStats);
     }
   }
 
   // =====================================================================
-  // 7. 3D INTERACTIVE MOUSE PARALLAX ENGINE
+  // 7. 3D INTERACTIVE MOUSE & COSMIC PARALLAX ENGINE
   // =====================================================================
   function setup3DMouseParallax() {
     const heroContent = document.querySelector('.hero-stage-content');
     const canvasWrapper = document.getElementById('canvas-wrapper');
+    const cosmicBg = document.querySelector('.cosmic-bg-image');
     if (!heroContent) return;
+
+    const prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) return;
 
     let targetTiltX = 0;
     let targetTiltY = 0;
@@ -2546,10 +2553,31 @@
         targetTransX = 0;
         targetTransY = 0;
       });
+    } else if (window.DeviceOrientationEvent && typeof DeviceOrientationEvent.requestPermission !== 'function') {
+      window.addEventListener('deviceorientation', (e) => {
+        if (e.gamma !== null && e.beta !== null) {
+          const clampX = Math.max(-20, Math.min(20, e.gamma));
+          const clampY = Math.max(-20, Math.min(20, e.beta - 45));
+          targetTiltY = (clampX / 20) * 4;
+          targetTiltX = -(clampY / 20) * 4;
+          targetTransX = (clampX / 20) * 8;
+          targetTransY = (clampY / 20) * 6;
+        }
+      }, { passive: true });
     }
+
+    let isTabVisible = !document.hidden;
+    document.addEventListener('visibilitychange', () => {
+      isTabVisible = !document.hidden;
+      if (isTabVisible) {
+        requestAnimationFrame(updateParallax);
+      }
+    });
 
     let breathTime = 0;
     function updateParallax() {
+      if (!isTabVisible) return;
+
       if (isTouch) {
         // Gentle organic 3D ambient floating for touchscreen mobile visitors
         breathTime += 0.02;
@@ -2568,6 +2596,10 @@
 
       if (canvasWrapper) {
         canvasWrapper.style.transform = `scale(1.03) translate3d(${(-curTransX * 0.25).toFixed(1)}px, ${(-curTransY * 0.25).toFixed(1)}px, 0)`;
+      }
+
+      if (cosmicBg) {
+        cosmicBg.style.transform = `scale(1.04) translate3d(${(-curTransX * 0.35).toFixed(1)}px, ${(-curTransY * 0.35).toFixed(1)}px, 0)`;
       }
 
       requestAnimationFrame(updateParallax);
