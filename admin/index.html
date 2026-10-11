@@ -876,6 +876,9 @@
                 <option value="Quizzing & Literary">Quizzing & Literary</option>
               </select>
 
+              <button class="btn-secondary" id="btnRefreshCompetitions" onclick="loadCompetitionsTable(true)" style="padding: 7px 14px; font-size: 0.8rem; white-space:nowrap;">
+                <span>🔄</span> Refresh
+              </button>
               <button class="btn-primary" onclick="openNewCompetitionModal()">
                 <span>➕</span> Add Competition
               </button>
@@ -917,10 +920,13 @@
               <h2 class="cms-card-title">🥇 Event Prizes & Rule Clauses Desk</h2>
               <p class="cms-card-sub">Select an event to view, add, reorder, or edit its normalized prizes and rules</p>
             </div>
-            <div style="min-width: 280px;">
+            <div style="min-width: 280px; display: flex; gap: 8px; align-items: center;">
               <select id="prizesEventSelector" class="cms-select" onchange="loadPrizesAndRulesForSelectedEvent()">
                 <option value="">Select a competition to edit...</option>
               </select>
+              <button class="btn-secondary" id="btnRefreshPrizesRules" onclick="loadPrizesAndRulesForSelectedEvent(true)" style="padding: 7px 14px; font-size: 0.8rem; white-space:nowrap;" title="Refresh Prizes & Rules">
+                <span>🔄</span>
+              </button>
             </div>
           </div>
 
@@ -999,6 +1005,9 @@
                 <option value="associate">Associate Partner</option>
               </select>
 
+              <button class="btn-secondary" id="btnRefreshSponsors" onclick="loadSponsorsTable(true)" style="padding: 7px 14px; font-size: 0.8rem; white-space:nowrap;">
+                <span>🔄</span> Refresh
+              </button>
               <button class="btn-primary" onclick="openNewSponsorModal()">
                 <span>➕</span> Add Sponsor
               </button>
@@ -1142,6 +1151,9 @@
                 <option value="checked_out">Checked Out</option>
                 <option value="cancelled">Cancelled</option>
               </select>
+              <button class="btn-primary" id="btnRefreshAccommodations" onclick="loadAccommodationsTable(true)" style="padding: 7px 14px; font-size: 0.8rem; white-space:nowrap;">
+                <span>🔄</span> Refresh Bookings
+              </button>
             </div>
           </div>
 

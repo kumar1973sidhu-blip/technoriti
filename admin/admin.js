@@ -133,6 +133,14 @@
     // Trigger tab-specific refresh
     if (tabName === 'registrations') {
       window.loadRegistrationsTable();
+    } else if (tabName === 'accommodations') {
+      window.loadAccommodationsTable();
+    } else if (tabName === 'sponsors') {
+      window.loadSponsorsTable();
+    } else if (tabName === 'competitions') {
+      window.loadCompetitionsTable();
+    } else if (tabName === 'prizes-rules') {
+      populatePrizesEventSelector();
     } else if (tabName === 'cms-about') {
       populateCmsAbout();
     }
@@ -192,107 +200,144 @@
     }
   }
 
+  // Array unwrapping and safety helper
+  function toArray(val) {
+    if (Array.isArray(val)) return val;
+    if (val && Array.isArray(val.data)) return val.data;
+    return [];
+  }
+
   // =========================================================================
   // 2. DATA SYNCHRONIZATION
   // =========================================================================
   async function fetchAllData() {
     const client = TechnoritiDB.getClient();
-    if (!client) return;
+    if (!client) {
+      console.warn('[Admin] Supabase client not yet available');
+      return;
+    }
+
+    // Helper to safely fetch with fallback
+    const safeFetch = async (fetcher, fallback = []) => {
+      try {
+        const res = await fetcher();
+        return toArray(res);
+      } catch (e) {
+        console.warn('[Admin] Data fetch warning:', e);
+        return fallback;
+      }
+    };
 
     try {
-      // 1. Site Settings
-      const settings = await TechnoritiDB.getSiteSettings();
-      if (settings) state.settings = settings;
+      // 1. Site Settings (object)
+      try {
+        const settings = await TechnoritiDB.getSiteSettings();
+        if (settings && typeof settings === 'object') {
+          state.settings = settings;
+        }
+      } catch (e) {
+        console.warn('[Admin] Failed to load site settings:', e);
+      }
 
-      // 2. Content Sections
-      state.contentSections = await TechnoritiDB.getContentSections();
+      // 2-11. Collections fetched in parallel with error isolation
+      const [
+        contentSections,
+        navItems,
+        events,
+        sponsors,
+        accommodationOptions,
+        accommodations,
+        registrations,
+        payments,
+        media,
+        adminUsers,
+        auditLogs
+      ] = await Promise.all([
+        safeFetch(() => TechnoritiDB.getContentSections()),
+        safeFetch(() => TechnoritiDB.getNavigationItems(false)),
+        safeFetch(() => TechnoritiDB.getAllEventsAdmin()),
+        safeFetch(() => TechnoritiDB.getAllSponsorsAdmin()),
+        safeFetch(() => TechnoritiDB.getAccommodationOptions()),
+        safeFetch(() => TechnoritiDB.getAccommodationBookingsAdmin ? TechnoritiDB.getAccommodationBookingsAdmin() : client.from('accommodation_bookings').select('*').order('created_at', { ascending: false })),
+        safeFetch(() => TechnoritiDB.getRegistrationsAdmin()),
+        safeFetch(() => TechnoritiDB.getPaymentsAdmin ? TechnoritiDB.getPaymentsAdmin() : client.from('payments').select('*, registrations:registration_id(full_name, email, event_title)').order('created_at', { ascending: false })),
+        safeFetch(() => TechnoritiDB.getMediaAssets()),
+        safeFetch(() => TechnoritiDB.getAdminUsers()),
+        safeFetch(() => TechnoritiDB.getAuditLogsAdmin ? TechnoritiDB.getAuditLogsAdmin(60) : client.from('admin_audit_logs').select('*').order('created_at', { ascending: false }).limit(60))
+      ]);
 
-      // 3. Navigation Items
-      state.navItems = await TechnoritiDB.getNavigationItems(false);
-
-      // 4. Events
-      state.events = await TechnoritiDB.getAllEventsAdmin();
-
-      // 5. Sponsors
-      state.sponsors = await TechnoritiDB.getAllSponsorsAdmin();
-
-      // 6. Accommodation Options & Bookings
-      state.accommodationOptions = await TechnoritiDB.getAccommodationOptions();
-      const { data: accData } = await client
-        .from('accommodation_bookings')
-        .select('*')
-        .order('created_at', { ascending: false });
-      if (accData) state.accommodations = accData;
-
-      // 7. Registrations
-      state.registrations = await TechnoritiDB.getRegistrationsAdmin();
-
-      // 8. Payments
-      const { data: payData } = await client
-        .from('payments')
-        .select('*, registrations:registration_id(full_name, email, event_title)')
-        .order('created_at', { ascending: false });
-      if (payData) state.payments = payData;
-
-      // 9. Media Assets
-      state.media = await TechnoritiDB.getMediaAssets();
-
-      // 10. Admin Users
-      state.adminUsers = await TechnoritiDB.getAdminUsers();
-
-      // 11. Audit Logs
-      const { data: logsData } = await client
-        .from('admin_audit_logs')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(60);
-      if (logsData) state.auditLogs = logsData;
+      state.contentSections = contentSections;
+      state.navItems = navItems;
+      state.events = events;
+      state.sponsors = sponsors;
+      state.accommodationOptions = accommodationOptions;
+      state.accommodations = accommodations;
+      state.registrations = registrations;
+      state.payments = payments;
+      state.media = media;
+      state.adminUsers = adminUsers;
+      state.auditLogs = auditLogs;
 
       // Render all views with live data
       renderAllViews();
       showToast('Live database synchronization complete', 'success');
     } catch (err) {
-      console.warn('Sync note:', err.message);
+      console.error('[Admin] Unexpected sync error:', err);
       renderAllViews();
     }
   }
 
   function renderAllViews() {
-    renderDashboard();
-    populateCmsHomepage();
-    populateCmsAbout();
-    renderNavigationTable();
-    renderSectionVisibilityCards();
-    populateCmsGeneral();
-    populateCmsSeo();
-    renderCompetitionsTable();
-    populatePrizesEventSelector();
-    renderSponsorsTable();
-    populateAccommodationTariffs();
-    if (state.settings.accommodation_faqs && Array.isArray(state.settings.accommodation_faqs)) {
+    const viewFunctions = [
+      ['renderDashboard', renderDashboard],
+      ['populateCmsHomepage', populateCmsHomepage],
+      ['populateCmsAbout', populateCmsAbout],
+      ['renderNavigationTable', renderNavigationTable],
+      ['renderSectionVisibilityCards', renderSectionVisibilityCards],
+      ['populateCmsGeneral', populateCmsGeneral],
+      ['populateCmsSeo', populateCmsSeo],
+      ['renderCompetitionsTable', renderCompetitionsTable],
+      ['populatePrizesEventSelector', populatePrizesEventSelector],
+      ['renderSponsorsTable', renderSponsorsTable],
+      ['populateAccommodationTariffs', populateAccommodationTariffs],
+      ['renderFaqEditorList', renderFaqEditorList],
+      ['renderPaymentGatewayConfig', renderPaymentGatewayConfig],
+      ['renderAccommodationsTable', renderAccommodationsTable],
+      ['renderRegistrationsTable', renderRegistrationsTable],
+      ['renderPaymentsTable', renderPaymentsTable],
+      ['renderMediaGrid', renderMediaGrid],
+      ['renderAdminUsersTable', renderAdminUsersTable],
+      ['renderAuditLogsTable', renderAuditLogsTable],
+      ['populateEventFilterDropdown', populateEventFilterDropdown]
+    ];
+
+    if (state.settings && state.settings.accommodation_faqs && Array.isArray(state.settings.accommodation_faqs)) {
       state.accommodationFaqs = state.settings.accommodation_faqs;
     }
-    renderFaqEditorList();
-    renderPaymentGatewayConfig();
-    renderAccommodationsTable();
-    renderRegistrationsTable();
-    renderPaymentsTable();
-    renderMediaGrid();
-    renderAdminUsersTable();
-    renderAuditLogsTable();
-    populateEventFilterDropdown();
+
+    for (const [name, fn] of viewFunctions) {
+      try {
+        if (typeof fn === 'function') fn();
+      } catch (err) {
+        console.error(`[Admin UI] Error rendering view "${name}":`, err);
+      }
+    }
   }
 
   // =========================================================================
   // 3. DASHBOARD & LIVE TELEMETRY
   // =========================================================================
   function renderDashboard() {
-    const totalRegs = state.registrations.length;
-    const verifiedRegs = state.registrations.filter(r => r.payment_status === 'completed' || r.payment_status === 'verified').length;
+    const regs = toArray(state.registrations);
+    const accs = toArray(state.accommodations);
+    const evts = toArray(state.events);
+
+    const totalRegs = regs.length;
+    const verifiedRegs = regs.filter(r => r.payment_status === 'completed' || r.payment_status === 'verified').length;
     const pendingRegs = totalRegs - verifiedRegs;
 
     let revenue = 0;
-    state.registrations.forEach(r => {
+    regs.forEach(r => {
       if (r.payment_status === 'completed' || r.payment_status === 'verified') {
         const fee = r.events?.registration_fee || r.event_fee || 0;
         revenue += Number(fee) || 0;
@@ -301,27 +346,32 @@
 
     let totalParticipants = 0;
     let totalTeams = 0;
-    state.registrations.forEach(r => {
+    regs.forEach(r => {
       const size = Number(r.team_size) || 1;
       totalParticipants += size;
       if (size > 1) totalTeams++;
     });
 
-    document.getElementById('kpiTotalRegs').textContent = totalRegs.toString();
-    document.getElementById('kpiRegsBreakdown').textContent = `Verified: ${verifiedRegs} | Pending: ${pendingRegs}`;
-    document.getElementById('kpiRevenue').textContent = `₹${revenue.toLocaleString('en-IN')}`;
-    document.getElementById('kpiAccommodations').textContent = state.accommodations.length.toString();
-    document.getElementById('kpiActiveEvents').textContent = (state.events.length || 29).toString();
-    document.getElementById('kpiVerifiedCount').textContent = verifiedRegs.toString();
-    document.getElementById('kpiPendingCount').textContent = pendingRegs.toString();
-    document.getElementById('kpiParticipantsCount').textContent = totalParticipants.toString();
-    document.getElementById('kpiTeamsCount').textContent = totalTeams.toString();
+    const setTxt = (id, val) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = String(val);
+    };
+
+    setTxt('kpiTotalRegs', totalRegs);
+    setTxt('kpiRegsBreakdown', `Verified: ${verifiedRegs} | Pending: ${pendingRegs}`);
+    setTxt('kpiRevenue', `₹${revenue.toLocaleString('en-IN')}`);
+    setTxt('kpiAccommodations', accs.length);
+    setTxt('kpiActiveEvents', evts.length || 29);
+    setTxt('kpiVerifiedCount', verifiedRegs);
+    setTxt('kpiPendingCount', pendingRegs);
+    setTxt('kpiParticipantsCount', totalParticipants);
+    setTxt('kpiTeamsCount', totalTeams);
 
     // Chart 1: Top Competitions
     const chartEventEl = document.getElementById('chartEventRegs');
     if (chartEventEl) {
       const counts = {};
-      state.registrations.forEach(r => {
+      regs.forEach(r => {
         const title = r.events?.title || r.event_title || 'General';
         counts[title] = (counts[title] || 0) + 1;
       });
@@ -347,7 +397,6 @@
     // Chart 2: Payment Status
     const chartPayEl = document.getElementById('chartPaymentStats');
     if (chartPayEl) {
-      const payCounts = { verified: verifiedRegs, pending: pendingRegs };
       chartPayEl.innerHTML = `
         <div class="chart-bar-row">
           <div class="chart-bar-label">
@@ -373,7 +422,7 @@
     // Recent 5 Registrations Table
     const tbody = document.getElementById('overviewRecentTableBody');
     if (tbody) {
-      if (state.registrations.length === 0) {
+      if (regs.length === 0) {
         tbody.innerHTML = `
           <tr>
             <td colspan="6" class="table-empty-state">
@@ -383,7 +432,7 @@
           </tr>
         `;
       } else {
-        tbody.innerHTML = state.registrations.slice(0, 5).map(reg => {
+        tbody.innerHTML = regs.slice(0, 5).map(reg => {
           const pName = reg.full_name || reg.participant_name || 'Participant';
           const eventTitle = reg.events?.title || reg.event_title || 'Event';
           const college = reg.college || 'BCE Bhagalpur';
@@ -405,6 +454,10 @@
       }
     }
   }
+
+  // Alias for backward compatibility
+  const updateDashboardStats = renderDashboard;
+  window.updateDashboardStats = renderDashboard;
 
   // =========================================================================
   // 4. CMS HOMEPAGE (HERO, ANNOUNCEMENTS, COUNTERS)
@@ -1040,14 +1093,69 @@
   // =========================================================================
   // 10. COMPETITIONS MANAGEMENT (FULL CRUD)
   // =========================================================================
+  window.loadCompetitionsTable = async function (forceRefresh = false) {
+    const btn = document.getElementById('btnRefreshCompetitions');
+    const originalText = btn ? btn.innerHTML : '';
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = '<span>⏳</span> Refreshing...';
+    }
+
+    const tbody = document.getElementById('competitionsTableBody');
+    if (tbody && (!state.events || state.events.length === 0)) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="8" class="table-empty-state">
+            <div class="table-empty-icon">⏳</div>
+            <div>Loading competitions from Supabase...</div>
+          </td>
+        </tr>
+      `;
+    }
+
+    try {
+      const events = toArray(await TechnoritiDB.getAllEventsAdmin());
+      state.events = events;
+      renderCompetitionsTable();
+      populatePrizesEventSelector();
+      populateEventFilterDropdown();
+      renderDashboard();
+      if (forceRefresh) {
+        showToast(`Competitions synchronized! (${events.length} events)`, 'success');
+      }
+    } catch (err) {
+      console.error('Error loading competitions:', err);
+      if (tbody) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="8" class="table-empty-state">
+              <div class="table-empty-icon">⚠️</div>
+              <div style="color:var(--accent-red); margin-bottom:8px;">Failed to load competitions: ${escapeHtml(err.message)}</div>
+              <button class="btn-action-icon" onclick="loadCompetitionsTable(true)"><span>🔄</span> Retry</button>
+            </td>
+          </tr>
+        `;
+      }
+      if (forceRefresh) {
+        showToast('Failed to refresh competitions: ' + err.message, 'error');
+      }
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = originalText || '<span>🔄</span> Refresh';
+      }
+    }
+  };
+
   function renderCompetitionsTable() {
     const tbody = document.getElementById('competitionsTableBody');
     if (!tbody) return;
 
+    const eventsList = toArray(state.events);
     const searchVal = (document.getElementById('compSearchInput')?.value || '').toLowerCase().trim();
     const categoryFilter = document.getElementById('compCategoryFilter')?.value || '';
 
-    const filtered = state.events.filter(e => {
+    const filtered = eventsList.filter(e => {
       const title = (e.title || '').toLowerCase();
       const cat = (e.event_categories?.name || e.category || '').toLowerCase();
       if (searchVal && !title.includes(searchVal) && !cat.includes(searchVal)) return false;
@@ -1060,7 +1168,9 @@
         <tr>
           <td colspan="8" class="table-empty-state">
             <div class="table-empty-icon">🏆</div>
-            <div>No competitions found matching filters.</div>
+            <div style="font-weight:600; font-size:1rem; margin-bottom:4px;">No Competitions Found</div>
+            <div style="color:var(--text-muted); font-size:0.85rem; margin-bottom:12px;">${searchVal || categoryFilter ? 'No events match your current search or category filters.' : 'No competitions registered in the database.'}</div>
+            <button class="btn-primary" onclick="openNewCompetitionModal()" style="padding:6px 14px; font-size:0.8rem;">+ Add Competition</button>
           </td>
         </tr>
       `;
@@ -1281,14 +1391,20 @@
     const sel = document.getElementById('prizesEventSelector');
     if (!sel) return;
     const currentVal = sel.value;
+    const eventsList = toArray(state.events);
     sel.innerHTML = '<option value="">Select a competition to view/edit...</option>' +
-      state.events.map(e => `<option value="${escapeHtml(e.id)}">${escapeHtml(e.title)}</option>`).join('');
-    if (currentVal && state.events.some(e => e.id === currentVal)) {
+      eventsList.map(e => `<option value="${escapeHtml(e.id)}">${escapeHtml(e.title)}</option>`).join('');
+    if (currentVal && eventsList.some(e => e.id === currentVal)) {
       sel.value = currentVal;
+    } else if (!currentVal && eventsList.length > 0) {
+      sel.value = eventsList[0].id;
+    }
+    if (sel.value) {
+      loadPrizesAndRulesForSelectedEvent();
     }
   }
 
-  window.loadPrizesAndRulesForSelectedEvent = async function () {
+  window.loadPrizesAndRulesForSelectedEvent = async function (forceToast = false) {
     const sel = document.getElementById('prizesEventSelector');
     const eventId = sel?.value;
     state.selectedEventIdForPrizes = eventId;
@@ -1297,45 +1413,82 @@
     const rulesTbody = document.getElementById('eventRulesTableBody');
 
     if (!eventId) {
-      if (prizesTbody) prizesTbody.innerHTML = '<tr><td colspan="4" class="table-empty-state">Select an event to load prizes</td></tr>';
-      if (rulesTbody) rulesTbody.innerHTML = '<tr><td colspan="3" class="table-empty-state">Select an event to load rules</td></tr>';
+      if (prizesTbody) prizesTbody.innerHTML = '<tr><td colspan="4" class="table-empty-state"><div class="table-empty-icon">👆</div><div>Please select a competition above to view prizes.</div></td></tr>';
+      if (rulesTbody) rulesTbody.innerHTML = '<tr><td colspan="3" class="table-empty-state"><div class="table-empty-icon">👆</div><div>Please select a competition above to view rules.</div></td></tr>';
       return;
     }
 
-    const prizes = await TechnoritiDB.getEventPrizes(eventId);
-    const rules = await TechnoritiDB.getEventRules(eventId);
+    if (prizesTbody) prizesTbody.innerHTML = '<tr><td colspan="4" class="table-empty-state"><div class="table-empty-icon">⏳</div><div>Loading event prizes...</div></td></tr>';
+    if (rulesTbody) rulesTbody.innerHTML = '<tr><td colspan="3" class="table-empty-state"><div class="table-empty-icon">⏳</div><div>Loading event rules...</div></td></tr>';
 
-    if (prizesTbody) {
-      if (prizes.length === 0) {
-        prizesTbody.innerHTML = '<tr><td colspan="4" class="table-empty-state">No position prizes configured. Click "Add Prize" to add.</td></tr>';
-      } else {
-        prizesTbody.innerHTML = prizes.map(p => `
-          <tr>
-            <td style="font-weight:700; color:var(--accent-yellow); font-family:var(--font-orbitron);">${p.position}</td>
-            <td style="font-weight:700; color:#fff;">${escapeHtml(p.prize_title)}</td>
-            <td style="font-weight:700; color:var(--accent-green);">${escapeHtml(p.prize_amount)}</td>
-            <td style="text-align:right;">
-              <button class="btn-action-icon reject" onclick="deletePrizeEntry('${p.id}')">✕</button>
-            </td>
-          </tr>
-        `).join('');
-      }
-    }
+    try {
+      const [prizesRes, rulesRes] = await Promise.all([
+        TechnoritiDB.getEventPrizes(eventId),
+        TechnoritiDB.getEventRules(eventId)
+      ]);
+      const prizes = toArray(prizesRes);
+      const rules = toArray(rulesRes);
 
-    if (rulesTbody) {
-      if (rules.length === 0) {
-        rulesTbody.innerHTML = '<tr><td colspan="3" class="table-empty-state">No rules defined. Click "Add Rule" to add clauses.</td></tr>';
-      } else {
-        rulesTbody.innerHTML = rules.map(r => `
-          <tr>
-            <td style="font-weight:700; color:var(--accent-cyan); font-family:var(--font-orbitron);">${r.rule_number}</td>
-            <td style="font-size:0.85rem; color:#fff;">${escapeHtml(r.rule_text)}</td>
-            <td style="text-align:right;">
-              <button class="btn-action-icon reject" onclick="deleteRuleEntry('${r.id}')">✕</button>
-            </td>
-          </tr>
-        `).join('');
+      if (prizesTbody) {
+        if (prizes.length === 0) {
+          prizesTbody.innerHTML = `
+            <tr>
+              <td colspan="4" class="table-empty-state">
+                <div class="table-empty-icon">🏆</div>
+                <div style="font-weight:600; margin-bottom:4px;">No Position Prizes Configured</div>
+                <div style="color:var(--text-muted); font-size:0.82rem; margin-bottom:10px;">Define 1st, 2nd, or 3rd place cash awards for this event.</div>
+                <button class="btn-primary" onclick="openAddPrizeModal()" style="padding:5px 12px; font-size:0.75rem;">➕ Add Prize</button>
+              </td>
+            </tr>
+          `;
+        } else {
+          prizesTbody.innerHTML = prizes.map(p => `
+            <tr>
+              <td style="font-weight:700; color:var(--accent-yellow); font-family:var(--font-orbitron);">${p.position}</td>
+              <td style="font-weight:700; color:#fff;">${escapeHtml(p.prize_title)}</td>
+              <td style="font-weight:700; color:var(--accent-green);">${escapeHtml(p.prize_amount)}</td>
+              <td style="text-align:right;">
+                <button class="btn-action-icon reject" onclick="deletePrizeEntry('${p.id}')">✕</button>
+              </td>
+            </tr>
+          `).join('');
+        }
       }
+
+      if (rulesTbody) {
+        if (rules.length === 0) {
+          rulesTbody.innerHTML = `
+            <tr>
+              <td colspan="3" class="table-empty-state">
+                <div class="table-empty-icon">📜</div>
+                <div style="font-weight:600; margin-bottom:4px;">No Rules Defined</div>
+                <div style="color:var(--text-muted); font-size:0.82rem; margin-bottom:10px;">Add regulations, eligibility clauses, and judging criteria.</div>
+                <button class="btn-primary" onclick="openAddRuleModal()" style="padding:5px 12px; font-size:0.75rem;">➕ Add Rule</button>
+              </td>
+            </tr>
+          `;
+        } else {
+          rulesTbody.innerHTML = rules.map(r => `
+            <tr>
+              <td style="font-weight:700; color:var(--accent-cyan); font-family:var(--font-orbitron);">${r.rule_number}</td>
+              <td style="font-size:0.85rem; color:#fff;">${escapeHtml(r.rule_text)}</td>
+              <td style="text-align:right;">
+                <button class="btn-action-icon reject" onclick="deleteRuleEntry('${r.id}')">✕</button>
+              </td>
+            </tr>
+          `).join('');
+        }
+      }
+
+      if (forceToast) {
+        const ev = toArray(state.events).find(e => e.id === eventId);
+        showToast(`Loaded ${prizes.length} prizes and ${rules.length} rules for ${ev?.title || 'event'}`, 'success');
+      }
+    } catch (err) {
+      console.error('Error loading prizes & rules:', err);
+      if (prizesTbody) prizesTbody.innerHTML = `<tr><td colspan="4" class="table-empty-state"><div class="table-empty-icon">⚠️</div><div style="color:var(--accent-red); margin-bottom:8px;">Failed to load prizes: ${escapeHtml(err.message)}</div><button class="btn-action-icon" onclick="loadPrizesAndRulesForSelectedEvent(true)"><span>🔄</span> Retry</button></td></tr>`;
+      if (rulesTbody) rulesTbody.innerHTML = `<tr><td colspan="3" class="table-empty-state"><div class="table-empty-icon">⚠️</div><div style="color:var(--accent-red); margin-bottom:8px;">Failed to load rules: ${escapeHtml(err.message)}</div><button class="btn-action-icon" onclick="loadPrizesAndRulesForSelectedEvent(true)"><span>🔄</span> Retry</button></td></tr>`;
+      if (forceToast) showToast('Failed to load prizes and rules: ' + err.message, 'error');
     }
   };
 
@@ -1409,19 +1562,73 @@
   // =========================================================================
   // 12. SPONSORS MANAGEMENT (FULL CRUD)
   // =========================================================================
+  window.loadSponsorsTable = async function (forceRefresh = false) {
+    const btn = document.getElementById('btnRefreshSponsors');
+    const originalText = btn ? btn.innerHTML : '';
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = '<span>⏳</span> Refreshing...';
+    }
+
+    const tbody = document.getElementById('sponsorsTableBody');
+    if (tbody && (!state.sponsors || state.sponsors.length === 0)) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="7" class="table-empty-state">
+            <div class="table-empty-icon">⏳</div>
+            <div>Loading festival sponsors from Supabase...</div>
+          </td>
+        </tr>
+      `;
+    }
+
+    try {
+      const sponsors = toArray(await TechnoritiDB.getAllSponsorsAdmin());
+      state.sponsors = sponsors;
+      renderSponsorsTable();
+      if (forceRefresh) {
+        showToast(`Sponsors synchronized! (${sponsors.length} active partners)`, 'success');
+      }
+    } catch (err) {
+      console.error('Error loading sponsors:', err);
+      if (tbody) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7" class="table-empty-state">
+              <div class="table-empty-icon">⚠️</div>
+              <div style="color:var(--accent-red); margin-bottom:8px;">Failed to load sponsors: ${escapeHtml(err.message)}</div>
+              <button class="btn-action-icon" onclick="loadSponsorsTable(true)"><span>🔄</span> Retry</button>
+            </td>
+          </tr>
+        `;
+      }
+      if (forceRefresh) {
+        showToast('Failed to refresh sponsors: ' + err.message, 'error');
+      }
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = originalText || '<span>🔄</span> Refresh';
+      }
+    }
+  };
+
   function renderSponsorsTable() {
     const tbody = document.getElementById('sponsorsTableBody');
     if (!tbody) return;
 
+    const sponsorsList = toArray(state.sponsors);
     const tierFilter = document.getElementById('sponsorTierFilter')?.value || '';
-    const filtered = state.sponsors.filter(s => !tierFilter || s.tier === tierFilter);
+    const filtered = sponsorsList.filter(s => !tierFilter || s.tier === tierFilter);
 
     if (filtered.length === 0) {
       tbody.innerHTML = `
         <tr>
           <td colspan="7" class="table-empty-state">
             <div class="table-empty-icon">🤝</div>
-            <div>No sponsors found. Click "Add Sponsor" to create partner entries.</div>
+            <div style="font-weight:600; font-size:1rem; margin-bottom:4px;">No Sponsors Found</div>
+            <div style="color:var(--text-muted); font-size:0.85rem; margin-bottom:12px;">${tierFilter ? 'No sponsors match the selected tier filter.' : 'No festival sponsors found in the database.'}</div>
+            <button class="btn-primary" onclick="openNewSponsorModal()" style="padding:6px 14px; font-size:0.8rem;">+ Add Sponsor</button>
           </td>
         </tr>
       `;
@@ -1730,16 +1937,71 @@
     }
   };
 
+  window.loadAccommodationsTable = async function (forceRefresh = false) {
+    const btn = document.getElementById('btnRefreshAccommodations');
+    const originalText = btn ? btn.innerHTML : '';
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = '<span>⏳</span> Refreshing...';
+    }
+
+    const tbody = document.getElementById('accommodationsTableBody');
+    if (tbody && (!state.accommodations || state.accommodations.length === 0)) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="9" class="table-empty-state">
+            <div class="table-empty-icon">⏳</div>
+            <div>Loading hostel bookings from Supabase...</div>
+          </td>
+        </tr>
+      `;
+    }
+
+    try {
+      const bookings = toArray(await (TechnoritiDB.getAccommodationBookingsAdmin ? TechnoritiDB.getAccommodationBookingsAdmin() : TechnoritiDB.getClient()?.from('accommodation_bookings').select('*').order('created_at', { ascending: false })));
+      state.accommodations = bookings;
+      renderAccommodationsTable();
+      renderDashboard();
+      if (forceRefresh) {
+        showToast(`Accommodations synchronized! (${bookings.length} requests)`, 'success');
+      }
+    } catch (err) {
+      console.error('Error loading accommodations:', err);
+      if (tbody) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="9" class="table-empty-state">
+              <div class="table-empty-icon">⚠️</div>
+              <div style="color:var(--accent-red); margin-bottom:8px;">Failed to load accommodations: ${escapeHtml(err.message)}</div>
+              <button class="btn-action-icon" onclick="loadAccommodationsTable(true)"><span>🔄</span> Retry</button>
+            </td>
+          </tr>
+        `;
+      }
+      if (forceRefresh) {
+        showToast('Failed to refresh accommodations: ' + err.message, 'error');
+      }
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = originalText || '<span>🔄</span> Refresh Bookings';
+      }
+    }
+  };
+
   function renderAccommodationsTable() {
     const tbody = document.getElementById('accommodationsTableBody');
     if (!tbody) return;
 
-    if (state.accommodations.length === 0) {
+    const accs = toArray(state.accommodations);
+    if (accs.length === 0) {
       tbody.innerHTML = `
         <tr>
           <td colspan="9" class="table-empty-state">
             <div class="table-empty-icon">🏨</div>
-            <div>No accommodation requests filed yet. Outstation bookings will appear here.</div>
+            <div style="font-weight:600; font-size:1rem; margin-bottom:4px;">No Accommodation Bookings Found</div>
+            <div style="color:var(--text-muted); font-size:0.85rem; margin-bottom:12px;">No outstation stay requests have been submitted yet.</div>
+            <button class="btn-primary" onclick="loadAccommodationsTable(true)" style="padding:6px 14px; font-size:0.8rem;"><span>🔄</span> Check for New Bookings</button>
           </td>
         </tr>
       `;
@@ -1750,7 +2012,7 @@
     const blockFilter = document.getElementById('accBlockFilter')?.value || '';
     const statusFilter = document.getElementById('accStatusFilter')?.value || '';
 
-    const filtered = state.accommodations.filter(acc => {
+    const filtered = accs.filter(acc => {
       const name = (acc.full_name || acc.guest_name || '').toLowerCase();
       const college = (acc.college || '').toLowerCase();
       if (searchVal && !name.includes(searchVal) && !college.includes(searchVal)) return false;
@@ -1758,6 +2020,19 @@
       if (statusFilter && acc.status !== statusFilter) return false;
       return true;
     });
+
+    if (filtered.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="9" class="table-empty-state">
+            <div class="table-empty-icon">🔍</div>
+            <div style="font-weight:600; font-size:1rem; margin-bottom:4px;">No Matching Bookings</div>
+            <div style="color:var(--text-muted); font-size:0.85rem;">No bookings match the current search filters. (${accs.length} total in DB)</div>
+          </td>
+        </tr>
+      `;
+      return;
+    }
 
     tbody.innerHTML = filtered.map((acc, index) => {
       const bookId = `ACC-${100 + index}`;
@@ -1875,18 +2150,39 @@
       btn.innerHTML = '<span>⏳</span> Refreshing...';
     }
 
+    const tbody = document.getElementById('registrationsTableBody');
+    if (tbody && (!state.registrations || state.registrations.length === 0)) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="9" class="table-empty-state">
+            <div class="table-empty-icon">⏳</div>
+            <div>Loading participant registrations from Supabase...</div>
+          </td>
+        </tr>
+      `;
+    }
+
     try {
-      const regs = await TechnoritiDB.getRegistrationsAdmin();
-      if (regs) {
-        state.registrations = regs;
-        renderRegistrationsTable();
-        updateDashboardStats();
-        if (forceRefresh) {
-          showToast(`Registrations synchronized! (${regs.length} records)`, 'success');
-        }
+      const regs = toArray(await TechnoritiDB.getRegistrationsAdmin());
+      state.registrations = regs;
+      renderRegistrationsTable();
+      renderDashboard();
+      if (forceRefresh) {
+        showToast(`Registrations synchronized! (${regs.length} records)`, 'success');
       }
     } catch (err) {
       console.error('Error refreshing registrations:', err);
+      if (tbody) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="9" class="table-empty-state">
+              <div class="table-empty-icon">⚠️</div>
+              <div style="color:var(--accent-red); margin-bottom:8px;">Failed to load registrations: ${escapeHtml(err.message)}</div>
+              <button class="btn-action-icon" onclick="loadRegistrationsTable(true)"><span>🔄</span> Retry</button>
+            </td>
+          </tr>
+        `;
+      }
       if (forceRefresh) {
         showToast('Failed to refresh registrations: ' + err.message, 'error');
       }
@@ -1902,12 +2198,27 @@
     const tbody = document.getElementById('registrationsTableBody');
     if (!tbody) return;
 
+    const regsList = toArray(state.registrations);
+    if (regsList.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="9" class="table-empty-state">
+            <div class="table-empty-icon">📋</div>
+            <div style="font-weight:600; font-size:1rem; margin-bottom:4px;">No Participant Registrations Found</div>
+            <div style="color:var(--text-muted); font-size:0.85rem; margin-bottom:12px;">No event entries have been submitted yet.</div>
+            <button class="btn-primary" onclick="loadRegistrationsTable(true)" style="padding:6px 14px; font-size:0.8rem;"><span>🔄</span> Refresh Desk</button>
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
     const searchVal = (document.getElementById('regSearchInput')?.value || '').toLowerCase().trim();
     const eventFilter = document.getElementById('regEventFilter')?.value || '';
     const statusFilter = document.getElementById('regStatusFilter')?.value || '';
     const paymentFilter = document.getElementById('regPaymentFilter')?.value || '';
 
-    const filtered = state.registrations.filter(reg => {
+    const filtered = regsList.filter(reg => {
       const pName = (reg.full_name || reg.participant_name || '').toLowerCase();
       const pEmail = (reg.email || '').toLowerCase();
       const pPhone = (reg.phone || '').toLowerCase();
@@ -1937,7 +2248,8 @@
         <tr>
           <td colspan="9" class="table-empty-state">
             <div class="table-empty-icon">🔍</div>
-            <div>No matching registrations found for current filters. (${state.registrations.length} total records in DB)</div>
+            <div style="font-weight:600; font-size:1rem; margin-bottom:4px;">No Matching Registrations</div>
+            <div style="color:var(--text-muted); font-size:0.85rem;">No registrations match current filters. (${regsList.length} total in DB)</div>
           </td>
         </tr>
       `;

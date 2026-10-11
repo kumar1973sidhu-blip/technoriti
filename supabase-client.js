@@ -262,7 +262,11 @@
      */
     async getRegistrationsAdmin() {
       const sb = getSupabase();
-      if (!sb) return { data: [], error: new Error('Supabase client unavailable') };
+      if (!sb) {
+        const empty = [];
+        empty.data = empty;
+        return empty;
+      }
 
       try {
         let res = await sb
@@ -281,10 +285,14 @@
             .select('*')
             .order('created_at', { ascending: false });
         }
-        return { data: res.data || [], error: res.error };
+        const list = (res && res.data) || [];
+        list.data = list; // backward compatibility for callers expecting { data: [...] }
+        return list;
       } catch (err) {
         console.error('[TechnoritiDB] Failed to fetch registrations:', err);
-        return { data: [], error: err };
+        const empty = [];
+        empty.data = empty;
+        return empty;
       }
     },
 
@@ -571,6 +579,35 @@
       return data;
     },
 
+    async getAccommodationBookingsAdmin() {
+      const sb = getSupabase();
+      if (!sb) {
+        const empty = [];
+        empty.data = empty;
+        return empty;
+      }
+      try {
+        const { data, error } = await sb
+          .from('accommodation_bookings')
+          .select('*')
+          .order('created_at', { ascending: false });
+        if (error) {
+          console.warn('[TechnoritiDB] getAccommodationBookingsAdmin note:', error.message);
+          const empty = [];
+          empty.data = empty;
+          return empty;
+        }
+        const list = data || [];
+        list.data = list;
+        return list;
+      } catch (err) {
+        console.warn('[TechnoritiDB] getAccommodationBookingsAdmin exception:', err);
+        const empty = [];
+        empty.data = empty;
+        return empty;
+      }
+    },
+
     /**
      * Submit verified accommodation booking to Supabase
      */
@@ -736,6 +773,49 @@
         });
       } catch (err) {
         console.warn('[TechnoritiDB] Failed to write audit log:', err);
+      }
+    },
+
+    async getAuditLogsAdmin(limit = 60) {
+      const sb = getSupabase();
+      if (!sb) return [];
+      try {
+        const { data, error } = await sb
+          .from('admin_audit_logs')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(limit);
+        if (error) {
+          console.warn('[TechnoritiDB] getAuditLogsAdmin error:', error.message);
+          return [];
+        }
+        const list = data || [];
+        list.data = list;
+        return list;
+      } catch (err) {
+        console.warn('[TechnoritiDB] getAuditLogsAdmin exception:', err);
+        return [];
+      }
+    },
+
+    async getPaymentsAdmin() {
+      const sb = getSupabase();
+      if (!sb) return [];
+      try {
+        const { data, error } = await sb
+          .from('payments')
+          .select('*, registrations:registration_id(full_name, email, event_title)')
+          .order('created_at', { ascending: false });
+        if (error) {
+          console.warn('[TechnoritiDB] getPaymentsAdmin error:', error.message);
+          return [];
+        }
+        const list = data || [];
+        list.data = list;
+        return list;
+      } catch (err) {
+        console.warn('[TechnoritiDB] getPaymentsAdmin exception:', err);
+        return [];
       }
     },
 

@@ -983,8 +983,15 @@
 
   // Countdown timer in Wall 1
   function initRoomCountdown() {
-    const targetDate = new Date('2026-12-18T09:00:00+05:30').getTime();
+    function getTarget() {
+      if (window.__FEST_COUNTDOWN_TARGET) {
+        const parsed = new Date(window.__FEST_COUNTDOWN_TARGET).getTime();
+        if (!isNaN(parsed) && parsed > 0) return parsed;
+      }
+      return new Date('2026-12-18T09:00:00+05:30').getTime();
+    }
     function updateTimer() {
+      const targetDate = getTarget();
       const now = new Date().getTime();
       const diff = Math.max(0, targetDate - now);
 
@@ -2463,6 +2470,24 @@
           if (fest.college_tag) {
             document.querySelectorAll('.brand-tag').forEach(el => el.textContent = fest.college_tag);
           }
+          if (fest.edition) {
+            const edUpper = fest.edition.toUpperCase();
+            const heroDateCue = document.getElementById('hero-date-text');
+            if (heroDateCue) heroDateCue.textContent = edUpper.includes('COMING') ? fest.edition : `COMING ${edUpper}`;
+            document.querySelectorAll('.hmd-text').forEach(el => el.textContent = edUpper);
+            const mdfDate = document.querySelector('.mdf-date');
+            if (mdfDate) mdfDate.textContent = `${edUpper} • BCE BHAGALPUR`;
+            const statEd = document.querySelector('#hero-stat-edition .sc-num');
+            if (statEd) statEd.textContent = edUpper;
+          }
+          if (fest.subtitle) {
+            const heroTheme = document.getElementById('hero-theme-text');
+            if (heroTheme) heroTheme.textContent = fest.subtitle;
+          }
+          if (fest.tagline) {
+            const heroMobileTag = document.getElementById('hero-tagline-mobile');
+            if (heroMobileTag) heroMobileTag.textContent = fest.tagline.toUpperCase();
+          }
           if (fest.cta_primary_text) {
             const regBtnText = document.querySelector('.cyber-btn-register .btn-text');
             if (regBtnText) regBtnText.textContent = fest.cta_primary_text;
@@ -2470,6 +2495,22 @@
           if (fest.registration_btn_visible === false) {
             const regBtn = document.querySelector('.cyber-btn-register');
             if (regBtn) regBtn.style.display = 'none';
+          }
+          if (fest.countdown_target) {
+            window.__FEST_COUNTDOWN_TARGET = fest.countdown_target;
+          }
+        }
+
+        // Live Stats Counters
+        const stats = settings.live_stats;
+        if (stats) {
+          if (stats.competitions_stat) {
+            const compNum = document.querySelector('#hero-stat-comps .sc-num');
+            if (compNum) compNum.textContent = stats.competitions_stat;
+          }
+          if (stats.prize_pool_stat) {
+            const prizeNum = document.querySelector('#hero-stat-prize .sc-num');
+            if (prizeNum) prizeNum.textContent = stats.prize_pool_stat;
           }
         }
 
@@ -2542,7 +2583,12 @@
 
           const pQuoteBox = document.getElementById('about-principal-quote') || document.querySelector('.principal-quote-box');
           if (pQuoteBox && principal.content) {
-            pQuoteBox.innerHTML = `<p>"${escapeHtml(principal.content)}"</p>`;
+            const paragraphs = principal.content.split(/\n\s*\n/).map(p => p.trim()).filter(Boolean);
+            if (paragraphs.length > 0) {
+              pQuoteBox.innerHTML = paragraphs.map(p => `<p>"${escapeHtml(p.replace(/^["“”]/, '').replace(/["“”]$/, ''))}"</p>`).join('');
+            } else {
+              pQuoteBox.innerHTML = `<p>"${escapeHtml(principal.content)}"</p>`;
+            }
           }
 
           const pPort = document.getElementById('about-principal-img') || document.querySelector('.principal-img, .principal-portrait');
@@ -2562,7 +2608,12 @@
 
           const cQuoteBox = document.getElementById('about-convener-quote') || document.querySelector('.convener-quote-box');
           if (cQuoteBox && convenor.content) {
-            cQuoteBox.innerHTML = `<p>"${escapeHtml(convenor.content)}"</p>`;
+            const paragraphs = convenor.content.split(/\n\s*\n/).map(p => p.trim()).filter(Boolean);
+            if (paragraphs.length > 0) {
+              cQuoteBox.innerHTML = paragraphs.map(p => `<p>"${escapeHtml(p.replace(/^["“”]/, '').replace(/["“”]$/, ''))}"</p>`).join('');
+            } else {
+              cQuoteBox.innerHTML = `<p>"${escapeHtml(convenor.content)}"</p>`;
+            }
           }
 
           const cPort = document.getElementById('about-convener-img') || document.querySelector('.convener-img');
@@ -2571,8 +2622,8 @@
           }
 
           const cFaculty = document.getElementById('about-convenors-faculty-list');
-          if (cFaculty && convenor.metadata?.faculty_roster) {
-            cFaculty.textContent = convenor.metadata.faculty_roster;
+          if (cFaculty && (convenor.metadata?.faculty_roster || convenor.content)) {
+            cFaculty.textContent = convenor.metadata?.faculty_roster || convenor.content;
           }
         }
 
