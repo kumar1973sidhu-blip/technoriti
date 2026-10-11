@@ -2089,31 +2089,64 @@
   };
 
   // Mobile Navigation Drawer Handlers (Concetto Style)
-  window.toggleMobileDrawer = function () {
+  let lastDrawerToggleAt = 0;
+
+  window.toggleMobileDrawer = function (e) {
+    if (e && typeof e.stopPropagation === 'function') {
+      e.stopPropagation();
+    }
+    const now = Date.now();
+    if (now - lastDrawerToggleAt < 300) {
+      return;
+    }
+    lastDrawerToggleAt = now;
+
     const overlay = document.getElementById('mobile-nav-overlay');
-    const btn = document.getElementById('mobile-menu-btn');
     const isOpen = overlay && overlay.classList.contains('open');
     if (isOpen) {
       window.closeMobileDrawer();
     } else {
-      if (overlay) overlay.classList.add('open');
-      if (btn) {
-        btn.classList.add('active');
-        btn.setAttribute('aria-expanded', 'true');
-      }
-      document.body.classList.add('mobile-drawer-open');
+      window.openMobileDrawer();
     }
+  };
+
+  window.openMobileDrawer = function () {
+    const overlay = document.getElementById('mobile-nav-overlay');
+    const btn = document.getElementById('mobile-menu-btn');
+    if (overlay) {
+      overlay.classList.add('open');
+      overlay.setAttribute('aria-hidden', 'false');
+    }
+    if (btn) {
+      btn.classList.add('active');
+      btn.setAttribute('aria-expanded', 'true');
+    }
+    document.body.classList.add('mobile-drawer-open');
   };
 
   window.closeMobileDrawer = function () {
     const overlay = document.getElementById('mobile-nav-overlay');
     const btn = document.getElementById('mobile-menu-btn');
-    if (overlay) overlay.classList.remove('open');
+    if (overlay) {
+      overlay.classList.remove('open');
+      overlay.setAttribute('aria-hidden', 'true');
+    }
     if (btn) {
       btn.classList.remove('active');
       btn.setAttribute('aria-expanded', 'false');
     }
     document.body.classList.remove('mobile-drawer-open');
+  };
+
+  window.navMobileTo = function (action) {
+    window.closeMobileDrawer();
+    if (!action || action === 'home') {
+      window.closeAllPanels();
+    } else if (typeof window.openPanel === 'function') {
+      setTimeout(() => {
+        window.openPanel(action);
+      }, 50);
+    }
   };
 
   // =====================================================================
@@ -2222,43 +2255,44 @@
     // Mobile Hamburger Button & Drawer Event Listeners
     const mobileMenuBtn = document.getElementById('mobile-menu-btn');
     if (mobileMenuBtn) {
-      mobileMenuBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        window.toggleMobileDrawer();
-      });
+      mobileMenuBtn.onclick = function (e) {
+        if (e) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+        window.toggleMobileDrawer(e);
+      };
     }
 
     const drawerCloseBtn = document.getElementById('mobile-drawer-close');
     if (drawerCloseBtn) {
-      drawerCloseBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
+      drawerCloseBtn.onclick = function (e) {
+        if (e) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
         window.closeMobileDrawer();
-      });
+      };
     }
 
     const mobileNavOverlay = document.getElementById('mobile-nav-overlay');
     if (mobileNavOverlay) {
-      mobileNavOverlay.addEventListener('click', (e) => {
-        if (e.target === mobileNavOverlay) {
+      mobileNavOverlay.onclick = function (e) {
+        if (e && e.target === mobileNavOverlay) {
           window.closeMobileDrawer();
         }
-      });
+      };
     }
 
     document.querySelectorAll('.mobile-nav-item').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const action = btn.getAttribute('data-action');
-        window.closeMobileDrawer();
-        if (action === 'home') {
-          window.closeAllPanels();
-        } else if (action === 'competitions' || action === 'accommodation' || action === 'about' || action === 'sponsors' || action === 'register') {
-          window.openPanel(action);
+      btn.onclick = function (e) {
+        if (e) {
+          e.preventDefault();
+          e.stopPropagation();
         }
-      });
+        const action = btn.getAttribute('data-action');
+        window.navMobileTo(action);
+      };
     });
 
     // Accommodation Booking Buttons (Front Wall, Logistics Strip, FAQs, Mobile Bar, and secondary triggers)

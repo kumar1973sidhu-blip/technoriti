@@ -165,7 +165,7 @@
         </button>
 
         <!-- Mobile Navigation Menu Toggle (Concetto Style) -->
-        <button id="mobile-menu-btn" class="mobile-hamburger-btn" aria-label="Open Navigation Menu" aria-expanded="false" aria-controls="mobile-nav-drawer" title="Menu" onclick="window.toggleMobileDrawer()">
+        <button id="mobile-menu-btn" class="mobile-hamburger-btn" aria-label="Open Navigation Menu" aria-expanded="false" aria-controls="mobile-nav-drawer" title="Menu" onclick="window.toggleMobileDrawer(event)">
           <span class="hamburger-bar"></span>
           <span class="hamburger-bar"></span>
           <span class="hamburger-bar"></span>
@@ -175,7 +175,7 @@
   </header>
 
   <!-- Mobile Navigation Sidebar Drawer (Concetto Style) -->
-  <div id="mobile-nav-overlay" class="mobile-nav-overlay" aria-hidden="true">
+  <div id="mobile-nav-overlay" class="mobile-nav-overlay" aria-hidden="true" onclick="if(event.target === this) window.closeMobileDrawer()">
     <aside id="mobile-nav-drawer" class="mobile-nav-drawer" role="dialog" aria-label="Mobile Navigation Menu" onclick="event.stopPropagation()">
       <div class="mobile-drawer-header">
         <div class="brand">
@@ -190,31 +190,31 @@
             <span class="brand-tag">BCE BHAGALPUR</span>
           </div>
         </div>
-        <button id="mobile-drawer-close" class="drawer-close-btn" aria-label="Close Menu">✕</button>
+        <button id="mobile-drawer-close" class="drawer-close-btn" aria-label="Close Menu" onclick="window.closeMobileDrawer()">✕</button>
       </div>
 
       <nav class="mobile-nav-links">
-        <button class="mobile-nav-item" data-action="home">
+        <button class="mobile-nav-item" data-action="home" onclick="window.navMobileTo('home')">
           <span class="mni-icon">🏠</span>
           <span class="mni-text">Home</span>
         </button>
-        <button class="mobile-nav-item" data-action="competitions">
+        <button class="mobile-nav-item" data-action="competitions" onclick="window.navMobileTo('competitions')">
           <span class="mni-icon">🏆</span>
           <span class="mni-text">Competitions</span>
         </button>
-        <button class="mobile-nav-item" data-action="accommodation">
+        <button class="mobile-nav-item" data-action="accommodation" onclick="window.navMobileTo('accommodation')">
           <span class="mni-icon">🏨</span>
           <span class="mni-text">Accommodation</span>
         </button>
-        <button class="mobile-nav-item" data-action="about">
+        <button class="mobile-nav-item" data-action="about" onclick="window.navMobileTo('about')">
           <span class="mni-icon">🏛️</span>
           <span class="mni-text">Leadership</span>
         </button>
-        <button class="mobile-nav-item" data-action="sponsors">
+        <button class="mobile-nav-item" data-action="sponsors" onclick="window.navMobileTo('sponsors')">
           <span class="mni-icon">🤝</span>
           <span class="mni-text">Sponsors</span>
         </button>
-        <button class="mobile-nav-item highlight-item" data-action="register">
+        <button class="mobile-nav-item highlight-item" data-action="register" onclick="window.navMobileTo('register')">
           <span class="mni-icon">⚡</span>
           <span class="mni-text">Event Registration</span>
         </button>
