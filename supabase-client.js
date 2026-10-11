@@ -132,8 +132,21 @@
         throw new Error('Supabase client is not available. Please check internet connection.');
       }
 
+      // Generate client-side UUID upfront to eliminate SELECT requirement under public RLS
+      const generateUUID = () => {
+        if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+          return crypto.randomUUID();
+        }
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+          const r = Math.random() * 16 | 0;
+          return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+        });
+      };
+
       try {
+        const regId = generateUUID();
         let bookingId = null;
+        let teamId = null;
         const isLodging = !!regData.lodgingRequired;
         const isFooding = !!regData.foodingRequired;
         const needsServices = isLodging || isFooding;
@@ -142,79 +155,161 @@
 
         // 1. If accommodation or fooding is requested, create an accommodation booking record
         if (needsServices) {
+          bookingId = generateUUID();
           const lodgingSubtotal = isLodging ? (50 * serviceDays * teamSize) : 0;
           const foodingSubtotal = isFooding ? (125 * serviceDays * teamSize) : 0;
           const serviceTotal = lodgingSubtotal + foodingSubtotal;
           const dailyRate = (isLodging ? 50 : 0) + (isFooding ? 125 : 0);
 
-          const { data: accomData, error: accomErr } = await sb
-            .from('accommodation_bookings')
-            .insert({
-              full_name: regData.fullName,
-              email: regData.email,
-              phone: regData.phone,
-              college: regData.college,
-              gender: regData.gender || 'male',
-              hostel_block: (regData.gender === 'female') ? 'Girls Hostel Block' : 'Boys Hostel Block',
-              days_count: serviceDays,
-              members_count: teamSize,
-              daily_rate: dailyRate,
-              total_fee: regData.accommodationFee || serviceTotal,
-              status: 'requested',
-              admin_notes: `Linked Event: ${regData.eventTitle} | Services: [Lodging: ${isLodging ? 'YES' : 'NO'} | Fooding: ${isFooding ? 'YES' : 'NO'}]`
-            })
-            .select('id')
-            .single();
+          const accomPayload = {
+            id: bookingId,
+            full_name: (regData.fullName || '').trim(),
+            email: (regData.email || '').trim().toLowerCase(),
+            phone: (regData.phone || '').trim(),
+            college: (regData.college || '').trim(),
+            gender: regData.gender || 'male',
+            hostel_block: (regData.gender === 'female') ? 'Girls Hostel Block' : 'Boys Hostel Block',
+            days_count: serviceDays,
+            members_count: teamSize,
+            daily_rate: dailyRate,
+            total_fee: regData.accommodationFee || serviceTotal,
+            status: 'requested',
+            admin_notes: `Linked Event: ${regData.eventTitle} | Services: [Lodging: ${isLodging ? 'YES' : 'NO'} | Fooding: ${isFooding ? 'YES' : 'NO'}]`
+          };
 
-          if (!accomErr && accomData) {
-            bookingId = accomData.id;
+          const { error: accomErr } = await sb
+            .from('accommodation_bookings')
+            .insert(accomPayload);
+
+          if (accomErr) {
+            console.warn('[Technoriti Supabase] Accommodation booking note:', accomErr.message);
           }
         }
 
-        // 2. Insert into central registrations table
-        const { data: registration, error: regErr } = await sb
-          .from('registrations')
-          .insert({
-            full_name: regData.fullName,
-            email: regData.email,
-            phone: regData.phone,
-            college: regData.college,
+        // 2. If it's a team registration, create team record
+        if (teamSize > 1) {
+          teamId = generateUUID();
+          const teamPayload = {
+            id: teamId,
+            team_name: `${(regData.fullName || 'Participant').trim()}'s Team`,
             event_id: regData.eventId,
-            event_title: regData.eventTitle,
-            team_size: teamSize,
-            needs_accommodation: needsServices,
-            accommodation_booking_id: bookingId,
-            event_fee: regData.eventFee || 0,
-            accommodation_fee: regData.accommodationFee || 0,
-            total_amount: regData.totalAmount || 0,
-            payment_status: 'pending',
-            payment_reference: regData.paymentReference || ''
-          })
-          .select('*')
-          .single();
+            college: (regData.college || '').trim(),
+            leader_name: (regData.fullName || '').trim(),
+            leader_email: (regData.email || '').trim().toLowerCase(),
+            leader_phone: (regData.phone || '').trim(),
+            team_size: teamSize
+          };
+
+          const { error: teamErr } = await sb.from('teams').insert(teamPayload);
+          if (teamErr) {
+            console.warn('[Technoriti Supabase] Team registration note:', teamErr.message);
+          }
+        }
+
+        // 3. Insert into central registrations table (pure insert without .select('*') to bypass RLS SELECT restriction)
+        const regPayload = {
+          id: regId,
+          full_name: (regData.fullName || '').trim(),
+          email: (regData.email || '').trim().toLowerCase(),
+          phone: (regData.phone || '').trim(),
+          college: (regData.college || '').trim(),
+          event_id: regData.eventId,
+          event_title: regData.eventTitle,
+          team_id: teamId,
+          team_size: teamSize,
+          needs_accommodation: needsServices,
+          accommodation_booking_id: bookingId,
+          event_fee: regData.eventFee || 0,
+          accommodation_fee: regData.accommodationFee || 0,
+          total_amount: regData.totalAmount || 0,
+          payment_status: 'pending',
+          payment_reference: regData.paymentReference || '',
+          admin_notes: `Portal Submission | Ref: ${regData.refId || regId.slice(0, 8).toUpperCase()}`
+        };
+
+        const { error: regErr } = await sb
+          .from('registrations')
+          .insert(regPayload);
 
         if (regErr) {
+          console.error('[Technoriti Supabase] Registration insert failed:', regErr);
           throw new Error(regErr.message || 'Failed to record registration in database.');
         }
 
-        // 3. If it's a team registration, create team record
-        if (regData.teamSize > 1) {
-          await sb.from('teams').insert({
-            team_name: `${regData.fullName}'s Team`,
-            event_id: regData.eventId,
-            college: regData.college,
-            leader_name: regData.fullName,
-            leader_email: regData.email,
-            leader_phone: regData.phone,
-            team_size: regData.teamSize
+        // 4. Log transaction in payments audit table
+        try {
+          await sb.from('payments').insert({
+            registration_id: regId,
+            amount: regData.totalAmount || 0,
+            currency: 'INR',
+            payment_method: 'upi_manual',
+            transaction_reference: regData.paymentReference || `UTR-${Date.now()}`,
+            status: 'pending'
           });
+        } catch (payErr) {
+          console.warn('[Technoriti Supabase] Payment audit note:', payErr.message);
         }
 
-        return { success: true, registration };
+        return { success: true, id: regId, registration: regPayload };
       } catch (err) {
         console.error('[Technoriti Supabase] Registration submission failed:', err);
         throw err;
       }
+    },
+
+    /**
+     * Fetch all registrations for authenticated Admin panel
+     */
+    async getRegistrationsAdmin() {
+      const sb = getSupabase();
+      if (!sb) return { data: [], error: new Error('Supabase client unavailable') };
+
+      try {
+        let res = await sb
+          .from('registrations')
+          .select(`
+            *,
+            events:event_id (id, title, registration_fee, prize_pool),
+            accommodation:accommodation_booking_id (id, hostel_block, days_count, members_count, daily_rate, total_fee, status, admin_notes)
+          `)
+          .order('created_at', { ascending: false });
+
+        if (res.error) {
+          console.warn('[TechnoritiDB] Full query error, falling back to base select:', res.error.message);
+          res = await sb
+            .from('registrations')
+            .select('*')
+            .order('created_at', { ascending: false });
+        }
+        return { data: res.data || [], error: res.error };
+      } catch (err) {
+        console.error('[TechnoritiDB] Failed to fetch registrations:', err);
+        return { data: [], error: err };
+      }
+    },
+
+    /**
+     * Update participant registration payment status and admin notes
+     */
+    async updateRegistrationStatus(id, status, adminNotes = null) {
+      const sb = getSupabase();
+      if (!sb) throw new Error('Supabase client unavailable');
+      const payload = {
+        payment_status: status,
+        updated_at: new Date().toISOString()
+      };
+      if (adminNotes !== null) {
+        payload.admin_notes = adminNotes;
+      }
+
+      const { data, error } = await sb
+        .from('registrations')
+        .update(payload)
+        .eq('id', id)
+        .select('*');
+
+      if (error) throw error;
+      return data;
     },
 
     /**
@@ -296,11 +391,10 @@
     async updateContentSection(id, updates) {
       const sb = getSupabase();
       if (!sb) throw new Error('Supabase client unavailable');
-      const payload = { ...updates, updated_at: new Date().toISOString() };
+      const payload = { id, ...updates, updated_at: new Date().toISOString() };
       const { data, error } = await sb
         .from('content_sections')
-        .update(payload)
-        .eq('id', id)
+        .upsert(payload, { onConflict: 'id' })
         .select('*')
         .single();
       if (error) throw error;

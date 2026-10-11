@@ -412,16 +412,25 @@
       </div>
 
       <div class="drawer-body">
-        <!-- New Principal Card -->
+        <!-- Bihar Government & Institutional Affiliation Banner -->
+        <div class="institutional-support-strip">
+          <div class="iss-emblem-badge">🏛️ GOVT. OF BIHAR</div>
+          <div class="iss-info">
+            <h4 class="iss-dept">Department of Science, Technology and Technical Education</h4>
+            <p class="iss-sub">Government of Bihar • Bhagalpur College of Engineering (Estd. 1960)</p>
+          </div>
+        </div>
+
+        <!-- 1. Principal Spotlight Card -->
         <div class="principal-spotlight-card">
           <div class="principal-photo-wrap">
-            <img src="principal-portrait.png" alt="Dr. Bimlesh Kumar, Principal BCE Bhagalpur" class="principal-img">
+            <img id="about-principal-img" src="principal-office-portrait.png" alt="Dr. Bimlesh Kumar, Principal BCE Bhagalpur" class="principal-img">
             <span class="principal-tag">HEAD OF INSTITUTION</span>
           </div>
           <div class="principal-text-content">
-            <h3 class="principal-name">Dr. Bimlesh Kumar</h3>
-            <p class="principal-title">Principal, Bhagalpur College of Engineering</p>
-            <div class="principal-quote-box">
+            <h3 id="about-principal-name" class="principal-name">Dr. Bimlesh Kumar</h3>
+            <p id="about-principal-title" class="principal-title">Principal, Bhagalpur College of Engineering</p>
+            <div id="about-principal-quote" class="principal-quote-box">
               <p>
                 "Education prepares a person to meet new challenges, scale fresh heights and lead a successful life. We, therefore, at BCE Bhagalpur, would like to encourage all students to strive for the best and achieve excellence by way of inclusiveness, integrity, innovation and creativity."
               </p>
@@ -432,31 +441,42 @@
           </div>
         </div>
 
-        <!-- Convenors & Institution Grid -->
-        <div class="drawer-two-col">
-          <div class="drawer-subcard">
-            <h4 class="subcard-title">FEST CONVENORS</h4>
-            <div class="convenor-row">
-              <div class="c-avatar">RM</div>
-              <div>
-                <strong>Prof. Ranjan Kumar Mishra</strong>
-                <span>HOD, Department of Chemistry</span>
-              </div>
+        <!-- 2. Leadership & Campus Grid -->
+        <div class="drawer-two-col about-leadership-grid">
+          <!-- Convener Spotlight Card -->
+          <div class="convener-spotlight-card">
+            <div class="convener-photo-wrap">
+              <img id="about-convener-img" src="convener-portrait.jpg" alt="Convener, TECHNORITI '26" class="convener-img">
+              <span class="convener-tag">FEST CONVENER</span>
             </div>
-            <div class="convenor-row">
-              <div class="c-avatar">SS</div>
-              <div>
-                <strong>Prof. Shashank Shekhar</strong>
-                <span>HOD, Department of Humanities</span>
+            <div class="convener-text-content">
+              <h3 id="about-convener-name" class="convener-name">Convener, TECHNORITI '26</h3>
+              <p id="about-convener-title" class="convener-title">Bhagalpur College of Engineering</p>
+              <div id="about-convener-quote" class="convener-quote-box">
+                <p>
+                  "Welcome to TECHNORITI '26 — Eastern India's defining confluence of cutting-edge technology, robotics, and academic innovation. Our steering committee is proud to host talented technocrats from across the nation at BCE Bhagalpur."
+                </p>
+              </div>
+              <div class="convenor-faculty-row">
+                <span class="cfr-label">FACULTY CONVENORS:</span>
+                <p id="about-convenors-faculty-list" class="cfr-list">Prof. Ranjan Kumar Mishra (HOD, Chemistry) • Prof. Shashank Shekhar (HOD, Humanities)</p>
               </div>
             </div>
           </div>
 
-          <div class="drawer-subcard">
-            <h4 class="subcard-title">BCE LEGACY (ESTD. 1960)</h4>
-            <p style="color:var(--text-secondary); font-size:0.9rem; line-height:1.6;">
-              Bhagalpur College of Engineering is one of the premier technical colleges in Bihar. Technoriti brings together over 1,500 innovators across robotics, coding, cyber forensics, aerospace design, and core engineering branches.
-            </p>
+          <!-- Institution & Campus Heritage Card -->
+          <div class="institution-spotlight-card">
+            <div class="institution-photo-wrap">
+              <img id="about-institution-img" src="bce-campus-building.jpg" alt="Bhagalpur College of Engineering Campus Building" class="institution-img">
+              <span class="institution-tag">CAMPUS &amp; HERITAGE (ESTD. 1960)</span>
+            </div>
+            <div class="institution-text-content">
+              <h3 id="about-institution-heading" class="institution-heading">Bhagalpur College of Engineering</h3>
+              <p id="about-institution-dept" class="institution-dept">Department of Science, Technology and Technical Education, Govt. of Bihar</p>
+              <p id="about-institution-desc" class="institution-desc">
+                Estd. 1960, Bhagalpur College of Engineering (BCE Bhagalpur) is one of the premier technical institutions in Eastern India. Affiliated with Bihar Engineering University (BEU) and approved by AICTE, BCE has nurtured generations of visionary engineers and technocrats. TECHNORITI '26 brings together over 1,500 innovators across robotics, coding, cyber forensics, aerospace design, and core engineering disciplines.
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -909,35 +929,35 @@
               <label for="reg-event">Primary Competition / Arena *</label>
               <select id="reg-event" required onchange="window.updateFeeSummary()">
                 <option value="" disabled selected>Select Primary Competition</option>
-                <option value="RoboWar" data-fee="50" data-type="member">RoboWar (₹50 / member)</option>
-                <option value="RoboSoccer" data-fee="50" data-type="member">RoboSoccer (₹50 / member)</option>
-                <option value="Dhanush - LFR" data-fee="50" data-type="member">Dhanush - Line Following Robot (₹50 / member)</option>
-                <option value="Matsya - AquaBot" data-fee="200" data-type="team">Matsya - AquaBot (₹200 / team)</option>
-                <option value="36-Hour Hackathon" data-fee="50" data-type="member">36-Hour Hackathon (₹50 / member)</option>
-                <option value="Forensic Hackathon" data-fee="50" data-type="member">Forensic Hackathon (₹50 / member)</option>
-                <option value="Competitive Programming" data-fee="50" data-type="member">Competitive Programming (₹50 / member)</option>
-                <option value="Blind Coding" data-fee="100" data-type="person">Blind Coding (₹100 / person)</option>
-                <option value="Bug Hunting" data-fee="50" data-type="member">Bug Hunting (₹50 / member)</option>
-                <option value="Free-Fire Clash Squad" data-fee="300" data-type="team">Free-Fire Clash Squad (₹300 / squad)</option>
-                <option value="Free-Fire Battle Royale" data-fee="200" data-type="team">Free-Fire Battle Royale (₹200 / squad)</option>
-                <option value="E-Chess Tournament" data-fee="100" data-type="person">E-Chess Tournament (₹100 / person)</option>
-                <option value="Bridge Making" data-fee="50" data-type="member">Bridge Making (₹50 / member)</option>
-                <option value="Survey King" data-fee="50" data-type="person">Survey King (₹50 / head)</option>
-                <option value="AutoCAD Design" data-fee="100" data-type="person">AutoCAD Design (₹100 / person)</option>
-                <option value="SolidWorks Challenge" data-fee="50" data-type="member">SolidWorks Challenge (₹50 / member)</option>
-                <option value="Boat Making" data-fee="50" data-type="member">Boat Making (₹50 / member)</option>
-                <option value="ElectroTechnovation" data-fee="50" data-type="member">ElectroTechnovation (₹50 / member)</option>
-                <option value="Arduino Effect" data-fee="50" data-type="member">Arduino Effect (₹50 / member)</option>
-                <option value="Zero Carbon Debate" data-fee="50" data-type="member">Zero Carbon Debate (₹50 / member)</option>
-                <option value="MeMe Circuit" data-fee="100" data-type="person">MeMe Circuit (₹100 / person)</option>
-                <option value="MATLAB Simulation" data-fee="50" data-type="member">MATLAB Simulation (₹50 / member)</option>
-                <option value="Cinematography" data-fee="50" data-type="member">Cinematography (₹50 / member)</option>
-                <option value="Photography Contest" data-fee="50" data-type="member">Photography Contest (₹50 / member)</option>
-                <option value="ElectroMania Quiz" data-fee="200" data-type="team">ElectroMania Quiz (₹200 / team)</option>
-                <option value="Nukkad (Street Play)" data-fee="200" data-type="team">Nukkad Street Play (₹200 / team)</option>
-                <option value="General Quiz" data-fee="100" data-type="team">General Quiz (₹100 / team)</option>
-                <option value="Electronics Project Exhibition" data-fee="50" data-type="member">Electronics Project Exhibition (₹50 / member)</option>
-                <option value="Project Presentation" data-fee="50" data-type="member">Project Presentation (₹50 / member)</option>
+                <option value="RoboWar" data-id="robowar" data-fee="50" data-type="member">RoboWar (₹50 / member)</option>
+                <option value="RoboSoccer" data-id="robosoccer" data-fee="50" data-type="member">RoboSoccer (₹50 / member)</option>
+                <option value="Dhanush - LFR" data-id="dhanush" data-fee="50" data-type="member">Dhanush - Line Following Robot (₹50 / member)</option>
+                <option value="Matsya - AquaBot" data-id="matsya" data-fee="200" data-type="team">Matsya - AquaBot (₹200 / team)</option>
+                <option value="36-Hour Hackathon" data-id="hackathon" data-fee="50" data-type="member">36-Hour Hackathon (₹50 / member)</option>
+                <option value="Forensic Hackathon" data-id="forensic" data-fee="50" data-type="member">Forensic Hackathon (₹50 / member)</option>
+                <option value="Competitive Programming" data-id="competitive" data-fee="50" data-type="member">Competitive Programming (₹50 / member)</option>
+                <option value="Blind Coding" data-id="blindcoding" data-fee="100" data-type="person">Blind Coding (₹100 / person)</option>
+                <option value="Bug Hunting" data-id="bughunting" data-fee="50" data-type="member">Bug Hunting (₹50 / member)</option>
+                <option value="Free-Fire Clash Squad" data-id="freefire" data-fee="300" data-type="team">Free-Fire Clash Squad (₹300 / squad)</option>
+                <option value="Free-Fire Battle Royale" data-id="freefire" data-fee="200" data-type="team">Free-Fire Battle Royale (₹200 / squad)</option>
+                <option value="E-Chess Tournament" data-id="echess" data-fee="100" data-type="person">E-Chess Tournament (₹100 / person)</option>
+                <option value="Bridge Making" data-id="bridgemaking" data-fee="50" data-type="member">Bridge Making (₹50 / member)</option>
+                <option value="Survey King" data-id="surveyking" data-fee="50" data-type="person">Survey King (₹50 / head)</option>
+                <option value="AutoCAD Design" data-id="autocad" data-fee="100" data-type="person">AutoCAD Design (₹100 / person)</option>
+                <option value="SolidWorks Challenge" data-id="solidworks" data-fee="50" data-type="member">SolidWorks Challenge (₹50 / member)</option>
+                <option value="Boat Making" data-id="boatmaking" data-fee="50" data-type="member">Boat Making (₹50 / member)</option>
+                <option value="ElectroTechnovation" data-id="electrotechnovation" data-fee="50" data-type="member">ElectroTechnovation (₹50 / member)</option>
+                <option value="Arduino Effect" data-id="arduino" data-fee="50" data-type="member">Arduino Effect (₹50 / member)</option>
+                <option value="Zero Carbon Debate" data-id="zerocarbon" data-fee="50" data-type="member">Zero Carbon Debate (₹50 / member)</option>
+                <option value="MeMe Circuit" data-id="memecircuit" data-fee="100" data-type="person">MeMe Circuit (₹100 / person)</option>
+                <option value="MATLAB Simulation" data-id="matlab" data-fee="50" data-type="member">MATLAB Simulation (₹50 / member)</option>
+                <option value="Cinematography" data-id="cinematography" data-fee="50" data-type="member">Cinematography (₹50 / member)</option>
+                <option value="Photography Contest" data-id="photography" data-fee="50" data-type="member">Photography Contest (₹50 / member)</option>
+                <option value="ElectroMania Quiz" data-id="electromania" data-fee="200" data-type="team">ElectroMania Quiz (₹200 / team)</option>
+                <option value="Nukkad (Street Play)" data-id="nukkad" data-fee="200" data-type="team">Nukkad Street Play (₹200 / team)</option>
+                <option value="General Quiz" data-id="generalquiz" data-fee="100" data-type="team">General Quiz (₹100 / team)</option>
+                <option value="Electronics Project Exhibition" data-id="electronicsproject" data-fee="50" data-type="member">Electronics Project Exhibition (₹50 / member)</option>
+                <option value="Project Presentation" data-id="projectpresentation" data-fee="50" data-type="member">Project Presentation (₹50 / member)</option>
               </select>
             </div>
 

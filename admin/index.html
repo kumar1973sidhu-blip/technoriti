@@ -550,12 +550,12 @@
 
       <!-- TAB 3: CMS - ABOUT BCE & LEADERSHIP -->
       <section id="pane-cms-about" class="admin-tab-pane">
-        <!-- Principal Message -->
+        <!-- 1. Principal Message & Spotlight -->
         <div class="cms-card">
           <div class="cms-card-header">
             <div>
-              <h2 class="cms-card-title">🎓 Principal's Address & Spotlight</h2>
-              <p class="cms-card-sub">Manage the message from the Head of Institution (Dr. Bimlesh Kumar)</p>
+              <h2 class="cms-card-title">🎓 Principal's Address &amp; Spotlight</h2>
+              <p class="cms-card-sub">Manage the message and official portrait from the Head of Institution (Dr. Bimlesh Kumar)</p>
             </div>
             <button class="btn-primary" onclick="savePrincipalSection()">
               <span>💾</span> Save Principal Section
@@ -580,35 +580,96 @@
 
           <div class="cms-form-group">
             <label class="cms-label">
-              <span>Portrait Image URL</span>
+              <span>Portrait Image URL (with Bihar Govt Plaque)</span>
               <button type="button" class="btn-action-icon" onclick="openMediaPickerFor('cfgPrincipalPortrait')">🖼️ Choose from Media Library</button>
             </label>
             <div class="cms-input-with-btn">
-              <input type="text" id="cfgPrincipalPortrait" class="cms-input" placeholder="principal-portrait.png or Supabase Storage URL">
+              <input type="text" id="cfgPrincipalPortrait" class="cms-input" placeholder="principal-office-portrait.png or Supabase Storage URL">
             </div>
           </div>
         </div>
 
-        <!-- Fest Convenors & Legacy -->
+        <!-- 2. Fest Convener Spotlight -->
         <div class="cms-card">
           <div class="cms-card-header">
             <div>
-              <h2 class="cms-card-title">🏛️ Fest Convenors & BCE Legacy</h2>
-              <p class="cms-card-sub">Department leadership and historical background of BCE Bhagalpur</p>
+              <h2 class="cms-card-title">🏆 Fest Convener Spotlight</h2>
+              <p class="cms-card-sub">Manage the official message and portrait for the Convener of TECHNORITI '26</p>
             </div>
-            <button class="btn-primary" onclick="saveConvenorsAndLegacy()">
-              <span>💾</span> Save Leadership & Legacy
+            <button class="btn-primary" onclick="saveConvenerSection()">
+              <span>💾</span> Save Convener Section
             </button>
           </div>
 
-          <div class="cms-form-group">
-            <label class="cms-label">Fest Convenors Copy</label>
-            <textarea id="cfgConvenorsText" class="cms-textarea" rows="2" placeholder="Prof. Ranjan Kumar Mishra (HOD, Chemistry) & Prof. Shashank Shekhar (HOD, Humanities)"></textarea>
+          <div class="cms-grid-2">
+            <div class="cms-form-group">
+              <label class="cms-label">Convener Title / Name</label>
+              <input type="text" id="cfgConvenerName" class="cms-input" placeholder="Convener, TECHNORITI '26">
+            </div>
+            <div class="cms-form-group">
+              <label class="cms-label">Designation / Department</label>
+              <input type="text" id="cfgConvenerSubtitle" class="cms-input" placeholder="Bhagalpur College of Engineering">
+            </div>
           </div>
 
           <div class="cms-form-group">
-            <label class="cms-label">BCE Legacy / Historical Heritage</label>
-            <textarea id="cfgLegacyText" class="cms-textarea" rows="3" placeholder="Bhagalpur College of Engineering is one of the premier technical colleges in Bihar, established in 1960..."></textarea>
+            <label class="cms-label">Convener Welcome Address</label>
+            <textarea id="cfgConvenerQuote" class="cms-textarea" rows="3" placeholder="Welcome to TECHNORITI '26 — Eastern India's defining confluence of cutting-edge technology..."></textarea>
+          </div>
+
+          <div class="cms-grid-2">
+            <div class="cms-form-group">
+              <label class="cms-label">
+                <span>Convener Portrait Image URL</span>
+                <button type="button" class="btn-action-icon" onclick="openMediaPickerFor('cfgConvenerPortrait')">🖼️ Media Library</button>
+              </label>
+              <div class="cms-input-with-btn">
+                <input type="text" id="cfgConvenerPortrait" class="cms-input" placeholder="convener-portrait.jpg or Supabase Storage URL">
+              </div>
+            </div>
+            <div class="cms-form-group">
+              <label class="cms-label">Faculty Convenors Roster</label>
+              <input type="text" id="cfgConvenorsText" class="cms-input" placeholder="Prof. Ranjan Kumar Mishra (HOD, Chemistry) &amp; Prof. Shashank Shekhar (HOD, Humanities)">
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. BCE Institution & Bihar Government Presentation -->
+        <div class="cms-card">
+          <div class="cms-card-header">
+            <div>
+              <h2 class="cms-card-title">🏛️ Bhagalpur College of Engineering &amp; Bihar Govt.</h2>
+              <p class="cms-card-sub">Institutional heritage, department affiliation, and campus building showcase</p>
+            </div>
+            <button class="btn-primary" onclick="saveInstitutionSection()">
+              <span>💾</span> Save Institution Section
+            </button>
+          </div>
+
+          <div class="cms-grid-2">
+            <div class="cms-form-group">
+              <label class="cms-label">Institution Heading</label>
+              <input type="text" id="cfgInstitutionHeading" class="cms-input" placeholder="Bhagalpur College of Engineering">
+            </div>
+            <div class="cms-form-group">
+              <label class="cms-label">Government Department Subtitle</label>
+              <input type="text" id="cfgInstitutionDept" class="cms-input" placeholder="Department of Science, Technology and Technical Education, Govt. of Bihar">
+            </div>
+          </div>
+
+          <div class="cms-form-group">
+            <label class="cms-label">
+              <span>Official Campus Building Photo URL</span>
+              <button type="button" class="btn-action-icon" onclick="openMediaPickerFor('cfgInstitutionPhoto')">🖼️ Choose from Media Library</button>
+            </label>
+            <div class="cms-input-with-btn">
+              <input type="text" id="cfgInstitutionPhoto" class="cms-input" placeholder="bce-campus-building.jpg or Supabase Storage URL">
+            </div>
+          </div>
+
+          <div class="cms-form-group">
+            <label class="cms-label">BCE Legacy / Historical Heritage Description</label>
+            <textarea id="cfgLegacyText" class="cms-textarea" rows="4" placeholder="Estd. 1960, Bhagalpur College of Engineering (BCE Bhagalpur) is one of the premier technical colleges in Bihar..."></textarea>
           </div>
         </div>
       </section>
@@ -1118,27 +1179,31 @@
           <div class="table-toolbar">
             <div class="table-search">
               <span class="table-search-icon">🔍</span>
-              <input type="text" id="regSearchInput" placeholder="Search by name, email, phone, college, or event...">
+              <input type="text" id="regSearchInput" placeholder="Search by name, email, phone, college, event, or UTR..." oninput="renderRegistrationsTable()">
             </div>
 
             <div class="table-filters">
-              <select id="regEventFilter" class="filter-select">
+              <select id="regEventFilter" class="filter-select" onchange="renderRegistrationsTable()">
                 <option value="">All Events (29)</option>
               </select>
 
-              <select id="regStatusFilter" class="filter-select">
-                <option value="">All Statuses</option>
-                <option value="confirmed">Confirmed / Verified</option>
+              <select id="regStatusFilter" class="filter-select" onchange="renderRegistrationsTable()">
+                <option value="">All Verification Statuses</option>
+                <option value="verified">Verified / Approved</option>
                 <option value="pending">Pending Verification</option>
-                <option value="cancelled">Cancelled</option>
+                <option value="rejected">Rejected</option>
               </select>
 
-              <select id="regPaymentFilter" class="filter-select">
+              <select id="regPaymentFilter" class="filter-select" onchange="renderRegistrationsTable()">
                 <option value="">Payment: All</option>
-                <option value="completed">Paid / Verified</option>
-                <option value="pending">Payment Pending</option>
-                <option value="free">Free / None</option>
+                <option value="verified">Paid / Verified</option>
+                <option value="pending">Pending Review</option>
+                <option value="rejected">Payment Rejected</option>
               </select>
+
+              <button class="btn-primary" id="btnRefreshRegistrations" onclick="loadRegistrationsTable(true)" style="padding: 7px 14px; font-size: 0.8rem; white-space:nowrap;">
+                <span>🔄</span> Refresh Desk
+              </button>
             </div>
           </div>
 
@@ -1147,12 +1212,12 @@
               <thead>
                 <tr>
                   <th>Reg #</th>
-                  <th>Participant / Leader</th>
-                  <th>Event</th>
+                  <th>Participant</th>
+                  <th>Event / Arena</th>
                   <th>College</th>
-                  <th>Contact</th>
                   <th>Team</th>
-                  <th>Payment</th>
+                  <th>Services &amp; Fee</th>
+                  <th>UTR / Ref</th>
                   <th>Status</th>
                   <th style="text-align: right;">Actions</th>
                 </tr>
@@ -1161,7 +1226,7 @@
                 <tr>
                   <td colspan="9" class="table-empty-state">
                     <div class="table-empty-icon">⏳</div>
-                    <div>Connecting to Supabase...</div>
+                    <div>Loading participant registrations from Supabase...</div>
                   </td>
                 </tr>
               </tbody>

@@ -983,6 +983,51 @@ html, body {
   margin-top: 24px;
 }
 
+/* Institutional Affiliation & Government Patronage Strip */
+.institutional-support-strip {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 20px;
+  margin-bottom: 20px;
+  background: linear-gradient(135deg, rgba(234, 179, 8, 0.12) 0%, rgba(0, 240, 255, 0.08) 100%);
+  border: 1px solid rgba(234, 179, 8, 0.35);
+  border-radius: 14px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+}
+
+.iss-emblem-badge {
+  font-family: var(--font-orbitron);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #fbbf24;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(234, 179, 8, 0.4);
+  white-space: nowrap;
+}
+
+.iss-info {
+  flex: 1;
+}
+
+.iss-dept {
+  font-family: var(--font-heading);
+  font-size: 0.96rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 2px 0;
+  letter-spacing: 0.5px;
+}
+
+.iss-sub {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
 /* Principal Spotlight Card */
 .principal-spotlight-card {
   display: flex;
@@ -1038,6 +1083,163 @@ html, body {
   font-size: 0.92rem;
   line-height: 1.6;
   margin-bottom: 10px;
+}
+
+/* Convener Spotlight Card */
+.convener-spotlight-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 22px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid var(--border-glass);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.convener-photo-wrap {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.convener-img {
+  width: 90px;
+  height: 105px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 2px solid var(--accent-cyan);
+  box-shadow: 0 0 16px rgba(0, 240, 255, 0.3);
+  flex-shrink: 0;
+}
+
+.convener-tag {
+  font-family: var(--font-orbitron);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--accent-cyan);
+  background: rgba(0, 240, 255, 0.1);
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(0, 240, 255, 0.25);
+  display: inline-block;
+  margin-bottom: 6px;
+}
+
+.convener-name {
+  font-family: var(--font-heading);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 2px;
+}
+
+.convener-title {
+  color: var(--accent-cyan);
+  font-size: 0.82rem;
+  font-weight: 600;
+  margin-bottom: 0;
+}
+
+.convener-quote-box p {
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+  line-height: 1.55;
+  margin: 0 0 10px 0;
+}
+
+.convenor-faculty-row {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 10px;
+  margin-top: 4px;
+}
+
+.cfr-label {
+  font-family: var(--font-orbitron);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--accent-gold);
+  display: block;
+  margin-bottom: 4px;
+}
+
+.cfr-list {
+  color: var(--text-main);
+  font-size: 0.82rem;
+  margin: 0;
+  line-height: 1.45;
+}
+
+/* Institution Spotlight Card */
+.institution-spotlight-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 22px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid var(--border-glass);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.institution-photo-wrap {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 240, 255, 0.25);
+  box-shadow: 0 0 18px rgba(0, 0, 0, 0.4);
+}
+
+.institution-img {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s ease;
+}
+
+.institution-photo-wrap:hover .institution-img {
+  transform: scale(1.03);
+}
+
+.institution-tag {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  font-family: var(--font-orbitron);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #fff;
+  background: rgba(10, 15, 28, 0.85);
+  backdrop-filter: blur(4px);
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(234, 179, 8, 0.4);
+}
+
+.institution-heading {
+  font-family: var(--font-heading);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 2px;
+}
+
+.institution-dept {
+  color: var(--accent-gold);
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.institution-desc {
+  color: var(--text-secondary);
+  font-size: 0.86rem;
+  line-height: 1.55;
+  margin: 0;
 }
 
 .convenor-row {
@@ -1861,7 +2063,10 @@ html, body {
   .slide-panel-drawer, .wide-drawer { width: 100vw; }
   .principal-spotlight-card { flex-direction: column; text-align: center; }
   .principal-photo-wrap { margin: 0 auto; }
-  .drawer-two-col, .price-cards-wrap-drawer, .coord-drawer-row, .partners-grid-dr { grid-template-columns: 1fr; }
+  .institutional-support-strip { flex-direction: column; text-align: center; gap: 10px; }
+  .convener-photo-wrap { flex-direction: column; text-align: center; }
+  .convener-img { margin: 0 auto; }
+  .drawer-two-col, .about-leadership-grid, .price-cards-wrap-drawer, .coord-drawer-row, .partners-grid-dr { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 640px) {

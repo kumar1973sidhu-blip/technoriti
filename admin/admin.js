@@ -129,6 +129,13 @@
     // Close mobile drawer if open
     const sidebar = document.getElementById('adminSidebar');
     if (sidebar) sidebar.classList.remove('open');
+
+    // Trigger tab-specific refresh
+    if (tabName === 'registrations') {
+      window.loadRegistrationsTable();
+    } else if (tabName === 'cms-about') {
+      populateCmsAbout();
+    }
   };
 
   // =========================================================================
@@ -218,15 +225,7 @@
       if (accData) state.accommodations = accData;
 
       // 7. Registrations
-      const { data: regData } = await client
-        .from('registrations')
-        .select(`
-          *,
-          events:event_id (id, title, registration_fee, prize_pool),
-          teams:team_id (id, team_name, members:team_members(*))
-        `)
-        .order('created_at', { ascending: false });
-      if (regData) state.registrations = regData;
+      state.registrations = await TechnoritiDB.getRegistrationsAdmin();
 
       // 8. Payments
       const { data: payData } = await client
@@ -611,9 +610,10 @@
   // =========================================================================
   function populateCmsAbout() {
     const secPrincipal = state.contentSections.find(s => s.id === 'about_principal') || {};
-    const secConvenors = state.contentSections.find(s => s.id === 'about_convenors') || {};
-    const secLegacy = state.contentSections.find(s => s.id === 'about_legacy') || {};
+    const secConvenors = state.contentSections.find(s => s.id === 'about_convenor' || s.id === 'about_convenors') || {};
+    const secLegacy = state.contentSections.find(s => s.id === 'about_legacy' || s.id === 'institution_bce') || {};
 
+    // 1. Principal Spotlight
     const pName = document.getElementById('cfgPrincipalName');
     if (pName) pName.value = secPrincipal.title || 'Dr. Bimlesh Kumar';
 
@@ -621,52 +621,114 @@
     if (pSub) pSub.value = secPrincipal.subtitle || 'Principal, Bhagalpur College of Engineering';
 
     const pQuote = document.getElementById('cfgPrincipalQuote');
-    if (pQuote) pQuote.value = secPrincipal.content || 'Education prepares a person to meet new challenges...';
+    if (pQuote) pQuote.value = secPrincipal.content || 'Education prepares a person to meet new challenges, scale fresh heights and lead a successful life. We, therefore, at BCE Bhagalpur, would like to encourage all students to strive for the best and achieve excellence by way of inclusiveness, integrity, innovation and creativity.\n\nInstitution is not only for academic brilliance but also for an ambience where our ancient cultural heritage and human skills are enhanced. Our constant endeavour is to create a climate for the dissemination of knowledge and technical skills wherein the products of this Institution compete with the best in the country. I wish my students have a glorious academic career and splendid future as confident and successful technocrats.';
 
     const pPort = document.getElementById('cfgPrincipalPortrait');
-    if (pPort) pPort.value = secPrincipal.metadata?.portrait_src || 'principal-portrait.png';
+    if (pPort) pPort.value = secPrincipal.metadata?.portrait_src || 'principal-office-portrait.png';
 
-    const convText = document.getElementById('cfgConvenorsText');
-    if (convText) convText.value = secConvenors.content || 'Prof. Ranjan Kumar Mishra (HOD, Chemistry) & Prof. Shashank Shekhar (HOD, Humanities)';
+    // 2. Convener Spotlight
+    const cName = document.getElementById('cfgConvenerName');
+    if (cName) cName.value = secConvenors.title || "Convener, TECHNORITI '26";
+
+    const cSub = document.getElementById('cfgConvenerSubtitle');
+    if (cSub) cSub.value = secConvenors.subtitle || 'Bhagalpur College of Engineering';
+
+    const cQuote = document.getElementById('cfgConvenerQuote');
+    if (cQuote) cQuote.value = secConvenors.content || "Welcome to TECHNORITI '26 — Eastern India's defining confluence of cutting-edge technology, robotics, and academic innovation. Our steering committee is proud to host talented technocrats from across the nation at BCE Bhagalpur.";
+
+    const cPort = document.getElementById('cfgConvenerPortrait');
+    if (cPort) cPort.value = secConvenors.metadata?.portrait_src || 'convener-portrait.jpg';
+
+    const convFaculty = document.getElementById('cfgConvenorsText');
+    if (convFaculty) convFaculty.value = secConvenors.metadata?.faculty_roster || secConvenors.content || 'Prof. Ranjan Kumar Mishra (HOD, Chemistry) & Prof. Shashank Shekhar (HOD, Humanities)';
+
+    // 3. Institution & Campus Presentation
+    const instHeading = document.getElementById('cfgInstitutionHeading');
+    if (instHeading) instHeading.value = secLegacy.title || 'Bhagalpur College of Engineering';
+
+    const instDept = document.getElementById('cfgInstitutionDept');
+    if (instDept) instDept.value = secLegacy.subtitle || 'Department of Science, Technology and Technical Education, Govt. of Bihar';
+
+    const instPhoto = document.getElementById('cfgInstitutionPhoto');
+    if (instPhoto) instPhoto.value = secLegacy.metadata?.building_img || 'bce-campus-building.jpg';
 
     const legText = document.getElementById('cfgLegacyText');
-    if (legText) legText.value = secLegacy.content || 'Bhagalpur College of Engineering is one of the premier technical colleges in Bihar...';
+    if (legText) legText.value = secLegacy.content || 'Estd. 1960, Bhagalpur College of Engineering (BCE Bhagalpur) is one of the premier technical institutions in Eastern India. Affiliated with Bihar Engineering University (BEU) and approved by AICTE, BCE has nurtured generations of visionary engineers and technocrats. TECHNORITI \'26 brings together over 1,500 innovators across robotics, coding, cyber forensics, aerospace design, and core engineering disciplines.';
   }
 
   window.savePrincipalSection = async function () {
     try {
       const updates = {
-        title: document.getElementById('cfgPrincipalName').value.trim(),
-        subtitle: document.getElementById('cfgPrincipalSubtitle').value.trim(),
-        content: document.getElementById('cfgPrincipalQuote').value.trim(),
+        title: document.getElementById('cfgPrincipalName')?.value.trim() || 'Dr. Bimlesh Kumar',
+        subtitle: document.getElementById('cfgPrincipalSubtitle')?.value.trim() || 'Principal, Bhagalpur College of Engineering',
+        content: document.getElementById('cfgPrincipalQuote')?.value.trim() || '',
         metadata: {
           designation: 'HEAD OF INSTITUTION',
-          portrait_src: document.getElementById('cfgPrincipalPortrait').value.trim()
+          portrait_src: document.getElementById('cfgPrincipalPortrait')?.value.trim() || 'principal-office-portrait.png'
         }
       };
       await TechnoritiDB.updateContentSection('about_principal', updates);
-      showToast("Principal's section updated and published!", 'success');
+      
+      const idx = state.contentSections.findIndex(s => s.id === 'about_principal');
+      if (idx >= 0) state.contentSections[idx] = { ...state.contentSections[idx], ...updates };
+      else state.contentSections.push({ id: 'about_principal', ...updates });
+
+      showToast("Principal's section saved and published to public site!", 'success');
     } catch (err) {
-      showToast('Update failed: ' + err.message, 'error');
+      showToast('Principal update failed: ' + err.message, 'error');
+    }
+  };
+
+  window.saveConvenerSection = async function () {
+    try {
+      const updates = {
+        title: document.getElementById('cfgConvenerName')?.value.trim() || "Convener, TECHNORITI '26",
+        subtitle: document.getElementById('cfgConvenerSubtitle')?.value.trim() || 'Bhagalpur College of Engineering',
+        content: document.getElementById('cfgConvenerQuote')?.value.trim() || '',
+        metadata: {
+          portrait_src: document.getElementById('cfgConvenerPortrait')?.value.trim() || 'convener-portrait.jpg',
+          faculty_roster: document.getElementById('cfgConvenorsText')?.value.trim() || 'Prof. Ranjan Kumar Mishra (HOD, Chemistry) & Prof. Shashank Shekhar (HOD, Humanities)'
+        }
+      };
+      await TechnoritiDB.updateContentSection('about_convenors', updates);
+
+      const idx = state.contentSections.findIndex(s => s.id === 'about_convenors');
+      if (idx >= 0) state.contentSections[idx] = { ...state.contentSections[idx], ...updates };
+      else state.contentSections.push({ id: 'about_convenors', ...updates });
+
+      showToast("Fest Convener section saved and published to public site!", 'success');
+    } catch (err) {
+      showToast('Convener update failed: ' + err.message, 'error');
+    }
+  };
+
+  window.saveInstitutionSection = async function () {
+    try {
+      const updates = {
+        title: document.getElementById('cfgInstitutionHeading')?.value.trim() || 'Bhagalpur College of Engineering',
+        subtitle: document.getElementById('cfgInstitutionDept')?.value.trim() || 'Department of Science, Technology and Technical Education, Govt. of Bihar',
+        content: document.getElementById('cfgLegacyText')?.value.trim() || '',
+        metadata: {
+          location: 'Bhagalpur, Bihar',
+          established: 1960,
+          building_img: document.getElementById('cfgInstitutionPhoto')?.value.trim() || 'bce-campus-building.jpg'
+        }
+      };
+      await TechnoritiDB.updateContentSection('about_legacy', updates);
+
+      const idx = state.contentSections.findIndex(s => s.id === 'about_legacy');
+      if (idx >= 0) state.contentSections[idx] = { ...state.contentSections[idx], ...updates };
+      else state.contentSections.push({ id: 'about_legacy', ...updates });
+
+      showToast('BCE Institution and Campus presentation saved and published!', 'success');
+    } catch (err) {
+      showToast('Institution update failed: ' + err.message, 'error');
     }
   };
 
   window.saveConvenorsAndLegacy = async function () {
-    try {
-      const convUpdates = {
-        content: document.getElementById('cfgConvenorsText').value.trim()
-      };
-      await TechnoritiDB.updateContentSection('about_convenors', convUpdates);
-
-      const legUpdates = {
-        content: document.getElementById('cfgLegacyText').value.trim()
-      };
-      await TechnoritiDB.updateContentSection('about_legacy', legUpdates);
-
-      showToast('Leadership and Legacy copy saved successfully!', 'success');
-    } catch (err) {
-      showToast('Update failed: ' + err.message, 'error');
-    }
+    await window.saveConvenerSection();
+    await window.saveInstitutionSection();
   };
 
   // =========================================================================
@@ -1805,6 +1867,37 @@
     select.value = current;
   }
 
+  window.loadRegistrationsTable = async function (forceRefresh = false) {
+    const btn = document.getElementById('btnRefreshRegistrations');
+    const originalText = btn ? btn.innerHTML : '';
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = '<span>⏳</span> Refreshing...';
+    }
+
+    try {
+      const regs = await TechnoritiDB.getRegistrationsAdmin();
+      if (regs) {
+        state.registrations = regs;
+        renderRegistrationsTable();
+        updateDashboardStats();
+        if (forceRefresh) {
+          showToast(`Registrations synchronized! (${regs.length} records)`, 'success');
+        }
+      }
+    } catch (err) {
+      console.error('Error refreshing registrations:', err);
+      if (forceRefresh) {
+        showToast('Failed to refresh registrations: ' + err.message, 'error');
+      }
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = originalText || '<span>🔄</span> Refresh Desk';
+      }
+    }
+  };
+
   function renderRegistrationsTable() {
     const tbody = document.getElementById('registrationsTableBody');
     if (!tbody) return;
@@ -1820,9 +1913,17 @@
       const pPhone = (reg.phone || '').toLowerCase();
       const pCollege = (reg.college || '').toLowerCase();
       const eTitle = (reg.events?.title || reg.event_title || '').toLowerCase();
+      const refId = (reg.ref_id || reg.id || '').toLowerCase();
+      const utrRef = (reg.payment_reference || '').toLowerCase();
 
       if (searchVal) {
-        const matches = pName.includes(searchVal) || pEmail.includes(searchVal) || pPhone.includes(searchVal) || pCollege.includes(searchVal) || eTitle.includes(searchVal);
+        const matches = pName.includes(searchVal) || 
+                        pEmail.includes(searchVal) || 
+                        pPhone.includes(searchVal) || 
+                        pCollege.includes(searchVal) || 
+                        eTitle.includes(searchVal) || 
+                        refId.includes(searchVal) || 
+                        utrRef.includes(searchVal);
         if (!matches) return false;
       }
       if (eventFilter && (reg.events?.title || reg.event_title) !== eventFilter) return false;
@@ -1836,44 +1937,66 @@
         <tr>
           <td colspan="9" class="table-empty-state">
             <div class="table-empty-icon">🔍</div>
-            <div>No matching registrations found for current filters.</div>
+            <div>No matching registrations found for current filters. (${state.registrations.length} total records in DB)</div>
           </td>
         </tr>
       `;
       return;
     }
 
-    tbody.innerHTML = filtered.map((reg, index) => {
-      const regId = `REG-${1000 + index}`;
+    tbody.innerHTML = filtered.map((reg) => {
+      const displayRef = reg.ref_id || ('REG-' + reg.id.slice(0, 8).toUpperCase());
       const pName = reg.full_name || reg.participant_name || 'Participant';
       const email = reg.email || '—';
       const phone = reg.phone || '—';
       const eventTitle = reg.events?.title || reg.event_title || 'General Event';
       const college = reg.college || 'BCE Bhagalpur';
-      const teamName = reg.teams?.team_name || (reg.team_size > 1 ? `Team of ${reg.team_size}` : 'Individual');
-      const isPaid = reg.payment_status === 'completed' || reg.payment_status === 'verified';
+      const teamSize = reg.team_size || 1;
+      const teamLabel = teamSize === 1 ? '1 (Solo)' : `${teamSize} Members`;
+      const isPaid = reg.payment_status === 'verified';
+      const isRejected = reg.payment_status === 'rejected';
+
+      // Services text
+      const services = [];
+      const hasLodging = reg.lodging_required || reg.needs_accommodation || (reg.admin_notes && reg.admin_notes.includes('Lodging: YES'));
+      const hasFooding = reg.fooding_required || (reg.admin_notes && reg.admin_notes.includes('Fooding: YES'));
+      if (hasLodging) services.push('Hostel');
+      if (hasFooding) services.push('Mess');
+      const servicesText = services.length > 0 ? `${services.join('+')} (${reg.service_days || 2}d)` : 'Event Only';
 
       return `
         <tr>
-          <td style="font-family:var(--font-orbitron); font-size:0.78rem; color:var(--accent-cyan);">${regId}</td>
+          <td style="font-family:var(--font-orbitron); font-size:0.78rem; color:var(--accent-cyan); font-weight:700;">${escapeHtml(displayRef)}</td>
           <td>
             <div style="font-weight:700; color:#fff;">${escapeHtml(pName)}</div>
-            <div style="font-size:0.75rem; color:var(--text-dim);">${escapeHtml(email)}</div>
+            <div style="font-size:0.75rem; color:var(--text-dim);">${escapeHtml(email)} • ${escapeHtml(phone)}</div>
           </td>
           <td><span style="color:var(--accent-cyan); font-weight:600;">${escapeHtml(eventTitle)}</span></td>
           <td>${escapeHtml(college)}</td>
-          <td>${escapeHtml(phone)}</td>
-          <td><span style="font-size:0.8rem; color:var(--text-muted);">${escapeHtml(teamName)}</span></td>
-          <td><span class="badge-status ${isPaid ? 'badge-verified' : 'badge-pending'}">${isPaid ? 'PAID' : 'PENDING'}</span></td>
-          <td><span class="badge-status ${isPaid ? 'badge-verified' : 'badge-pending'}">${escapeHtml(reg.payment_status || 'pending')}</span></td>
+          <td><span style="font-size:0.8rem; color:var(--text-muted);">${escapeHtml(teamLabel)}</span></td>
+          <td>
+            <div style="font-weight:700; color:var(--accent-yellow);">₹${reg.total_amount || 0}</div>
+            <div style="font-size:0.72rem; color:var(--text-dim);">${escapeHtml(servicesText)}</div>
+          </td>
+          <td>
+            <div style="font-family:monospace; font-size:0.75rem; color:var(--text-main); max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${escapeHtml(reg.payment_reference || 'N/A')}">
+              ${escapeHtml(reg.payment_reference || '—')}
+            </div>
+          </td>
+          <td>
+            <span class="badge-status ${isPaid ? 'badge-verified' : (isRejected ? 'badge-rejected' : 'badge-pending')}">
+              ${escapeHtml((reg.payment_status || 'pending').toUpperCase())}
+            </span>
+          </td>
           <td style="text-align:right;">
             <div style="display:inline-flex; gap:6px;">
-              <button class="btn-action-icon" onclick="viewRegistrationDetail('${reg.id}')" title="Inspect">👁️ View</button>
+              <button class="btn-action-icon" onclick="viewRegistrationDetail('${reg.id}')" title="Inspect Full Record">👁️</button>
               ${!isPaid ? `
-                <button class="btn-action-icon verify" onclick="updateRegistrationStatus('${reg.id}', 'verified')" title="Verify">✓</button>
-              ` : `
-                <button class="btn-action-icon reject" onclick="updateRegistrationStatus('${reg.id}', 'rejected')" title="Reject">✕</button>
-              `}
+                <button class="btn-action-icon verify" onclick="updateRegistrationStatus('${reg.id}', 'verified')" title="Verify Payment">✓</button>
+              ` : ''}
+              ${!isRejected ? `
+                <button class="btn-action-icon reject" onclick="updateRegistrationStatus('${reg.id}', 'rejected')" title="Reject Payment">✕</button>
+              ` : ''}
             </div>
           </td>
         </tr>
@@ -1887,7 +2010,8 @@
 
     const modalBody = document.getElementById('modalRegBody');
     const modalTitle = document.getElementById('modalRegTitle');
-    modalTitle.textContent = `Registration Details`;
+    const displayRef = reg.ref_id || ('REG-' + reg.id.slice(0, 8).toUpperCase());
+    modalTitle.textContent = `Registration Details: ${displayRef}`;
 
     const membersHtml = (reg.teams?.members && reg.teams.members.length > 0)
       ? reg.teams.members.map((m, idx) => `
@@ -1895,16 +2019,27 @@
             <strong>#${idx + 1}:</strong> ${escapeHtml(m.full_name || m.name)} (${escapeHtml(m.email || '')} - ${escapeHtml(m.phone || '')})
           </div>
         `).join('')
-      : '<div style="font-size:0.82rem; color:var(--text-dim);">Solo entry / No team members listed</div>';
+      : `<div style="font-size:0.82rem; color:var(--text-dim);">${reg.team_size > 1 ? `Contingent of ${reg.team_size} members` : 'Solo entry / Individual participant'}</div>`;
+
+    const services = [];
+    const hasLodging = reg.lodging_required || reg.needs_accommodation || (reg.admin_notes && reg.admin_notes.includes('Lodging: YES'));
+    const hasFooding = reg.fooding_required || (reg.admin_notes && reg.admin_notes.includes('Fooding: YES'));
+    if (hasLodging) services.push(`Campus Hostel Lodging (${reg.service_days || 2} days)`);
+    if (hasFooding) services.push(`Campus Mess Food Pass (${reg.service_days || 2} days)`);
+    const servicesDesc = services.length > 0 ? services.join(' + ') : 'None (Competition Registration Only)';
 
     modalBody.innerHTML = `
       <div id="printableSlipArea">
         <div style="border-bottom:2px solid var(--admin-border); padding-bottom:12px; margin-bottom:16px;">
           <h2 style="font-family:var(--font-orbitron); color:var(--accent-cyan); font-size:1.3rem;">TECHNORITI '26 OFFICIAL PASS</h2>
-          <div style="font-size:0.75rem; color:var(--text-dim);">Bhagalpur College of Engineering Annual Techfest</div>
+          <div style="font-size:0.75rem; color:var(--text-dim);">Bhagalpur College of Engineering • Dept. of Science, Technology &amp; Technical Education, Govt. of Bihar</div>
         </div>
 
         <div class="detail-grid">
+          <div class="detail-item">
+            <span class="detail-label">Reference ID</span>
+            <span class="detail-val" style="font-family:var(--font-orbitron); color:var(--accent-cyan);">${escapeHtml(displayRef)}</span>
+          </div>
           <div class="detail-item">
             <span class="detail-label">Participant / Leader</span>
             <span class="detail-val">${escapeHtml(reg.full_name || reg.participant_name || 'N/A')}</span>
@@ -1926,8 +2061,16 @@
             <span class="detail-val">${escapeHtml(reg.college || 'N/A')}</span>
           </div>
           <div class="detail-item">
-            <span class="detail-label">Payment Status</span>
-            <span class="detail-val" style="text-transform:uppercase; color:var(--accent-green);">${escapeHtml(reg.payment_status || 'pending')}</span>
+            <span class="detail-label">Total Amount Paid / Due</span>
+            <span class="detail-val" style="color:var(--accent-yellow); font-weight:700;">₹${reg.total_amount || 0}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Payment &amp; UTR Details</span>
+            <span class="detail-val" style="font-family:monospace; color:var(--accent-cyan);">${escapeHtml(reg.payment_reference || 'N/A')}</span>
+          </div>
+          <div class="detail-item full-width">
+            <span class="detail-label">Campus Services Booked</span>
+            <span class="detail-val">${escapeHtml(servicesDesc)}</span>
           </div>
           <div class="detail-item full-width">
             <span class="detail-label">Team Members</span>
@@ -1944,7 +2087,8 @@
         <button class="btn-secondary" onclick="window.print()">🖨️ Print Slip</button>
         <div style="display:flex; gap:10px;">
           <button class="btn-secondary" onclick="saveAdminNote('${reg.id}')">Save Notes</button>
-          <button class="btn-primary" onclick="updateRegistrationStatus('${reg.id}', 'verified'); closeModal('regDetailModal');">✓ Verify</button>
+          <button class="btn-primary" onclick="updateRegistrationStatus('${reg.id}', 'verified'); closeModal('regDetailModal');">✓ Verify Payment</button>
+          <button class="btn-secondary" style="border-color:#ef4444; color:#ef4444;" onclick="updateRegistrationStatus('${reg.id}', 'rejected'); closeModal('regDetailModal');">✕ Reject</button>
         </div>
       </div>
     `;

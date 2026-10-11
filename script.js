@@ -1016,6 +1016,8 @@
       target.classList.add('open');
       if (panelName === 'accommodation') {
         window.rotateRoomTo(0);
+      } else if (panelName === 'about') {
+        hydrateDynamicCmsContent();
       }
     }
 
@@ -1477,6 +1479,97 @@
     };
   };
 
+  // Authoritative Competition Event Slug & ID Mapping
+  const EVENT_SLUG_MAP = {
+    'robowar': 'robowar',
+    'robosoccer': 'robosoccer',
+    'dhanush': 'dhanush',
+    'dhanush - lfr': 'dhanush',
+    'dhanush – lfr': 'dhanush',
+    'dhanush - line following robot': 'dhanush',
+    'dhanush – line following robot': 'dhanush',
+    'matsya': 'matsya',
+    'matsya - aquabot': 'matsya',
+    'matsya – aquabot': 'matsya',
+    'electrotechnovation': 'electrotechnovation',
+    'arduino': 'arduino',
+    'arduino effect': 'arduino',
+    'boatmaking': 'boatmaking',
+    'boat making': 'boatmaking',
+    'boat making challenge': 'boatmaking',
+    'electronicsproject': 'electronicsproject',
+    'electronics project exhibition': 'electronicsproject',
+    'hackathon': 'hackathon',
+    '36-hour hackathon': 'hackathon',
+    'forensic': 'forensic',
+    'forensic hackathon': 'forensic',
+    'competitive': 'competitive',
+    'competitive programming': 'competitive',
+    'blindcoding': 'blindcoding',
+    'blind coding': 'blindcoding',
+    'bughunting': 'bughunting',
+    'bug hunting': 'bughunting',
+    'memecircuit': 'memecircuit',
+    'meme circuit': 'memecircuit',
+    'matlab': 'matlab',
+    'matlab simulation': 'matlab',
+    'matlab simulation challenge': 'matlab',
+    'freefire': 'freefire',
+    'free-fire clash squad': 'freefire',
+    'free-fire battle royale': 'freefire',
+    'free-fire championship': 'freefire',
+    'freefire clash squad': 'freefire',
+    'freefire battle royale': 'freefire',
+    'echess': 'echess',
+    'e-chess tournament': 'echess',
+    'bridgemaking': 'bridgemaking',
+    'bridge making': 'bridgemaking',
+    'bridge making challenge': 'bridgemaking',
+    'surveyking': 'surveyking',
+    'survey king': 'surveyking',
+    'autocad': 'autocad',
+    'autocad design': 'autocad',
+    'autocad design clash': 'autocad',
+    'solidworks': 'solidworks',
+    'solidworks challenge': 'solidworks',
+    'solidworks 3d challenge': 'solidworks',
+    'projectpresentation': 'projectpresentation',
+    'project presentation': 'projectpresentation',
+    'zerocarbon': 'zerocarbon',
+    'zero carbon debate': 'zerocarbon',
+    'cinematography': 'cinematography',
+    'cinematography contest': 'cinematography',
+    'photography': 'photography',
+    'photography contest': 'photography',
+    'electromania': 'electromania',
+    'electromania quiz': 'electromania',
+    'nukkad': 'nukkad',
+    'nukkad (street play)': 'nukkad',
+    'nukkad street play': 'nukkad',
+    'generalquiz': 'generalquiz',
+    'general quiz': 'generalquiz',
+    'general quiz challenge': 'generalquiz',
+    'scitechquiz': 'scitechquiz',
+    'scitech grand quiz': 'scitechquiz'
+  };
+
+  function resolveEventId(titleOrId) {
+    if (!titleOrId) return 'robowar';
+    const clean = String(titleOrId).trim().toLowerCase().replace(/[\u2013\u2014]/g, '-');
+    if (EVENT_SLUG_MAP[clean]) return EVENT_SLUG_MAP[clean];
+    const stripped = clean.replace(/[^a-z0-9]/g, '');
+    if (EVENT_SLUG_MAP[stripped]) return EVENT_SLUG_MAP[stripped];
+
+    const found = COMPETITIONS_DATA.find(c => 
+      c.id.toLowerCase() === clean || 
+      c.title.toLowerCase().replace(/[\u2013\u2014]/g, '-') === clean ||
+      clean.includes(c.id.toLowerCase())
+    );
+    if (found) return found.id;
+
+    return 'robowar';
+  }
+
   // State for pending registration during payment verification
   let pendingRegistrationData = null;
 
@@ -1641,39 +1734,36 @@
     try {
       const data = pendingRegistrationData;
       const allEventsTitles = data.events.map(e => e.title).join(', ');
-      const matchedComp = COMPETITIONS_DATA.find(c => c.title.toLowerCase() === data.primaryEvent.title.toLowerCase());
-      const eventId = matchedComp ? matchedComp.id : data.primaryEvent.title.toLowerCase().replace(/[^a-z0-9]/g, '');
+      const eventId = resolveEventId(data.primaryEvent.title);
 
-      let dbSaved = false;
-      if (window.TechnoritiDB) {
-        try {
-          await window.TechnoritiDB.submitRegistration({
-            fullName: data.fullName,
-            email: data.email,
-            phone: data.phone,
-            college: data.college,
-            eventId: eventId,
-            eventTitle: allEventsTitles,
-            teamSize: data.teamSize,
-            lodgingRequired: data.lodgingRequired,
-            foodingRequired: data.foodingRequired,
-            serviceDays: data.serviceDays,
-            eventFee: data.eventFee,
-            accommodationFee: data.accommodationFee,
-            totalAmount: data.totalAmount,
-            paymentStatus: 'pending_verification',
-            paymentReference: `UTR: ${utrVal} | Ref: ${data.refId}`
-          });
-          dbSaved = true;
-        } catch (err) {
-          console.warn('[Technoriti Supabase] Sync notice:', err.message);
-        }
+      if (!window.TechnoritiDB) {
+        throw new Error('Database service is currently unreachable. Please check your connection and retry.');
       }
 
-      // Close Payment Gateway
+      // 1. Submit to Supabase - throws real error if insert fails
+      const regResponse = await window.TechnoritiDB.submitRegistration({
+        fullName: data.fullName,
+        email: data.email,
+        phone: data.phone,
+        college: data.college,
+        eventId: eventId,
+        eventTitle: allEventsTitles,
+        teamSize: data.teamSize,
+        lodgingRequired: data.lodgingRequired,
+        foodingRequired: data.foodingRequired,
+        serviceDays: data.serviceDays,
+        eventFee: data.eventFee,
+        accommodationFee: data.accommodationFee,
+        totalAmount: data.totalAmount,
+        paymentStatus: 'pending',
+        paymentReference: `UTR: ${utrVal} | Ref: ${data.refId}`,
+        refId: data.refId
+      });
+
+      // 2. Close Payment Gateway only after confirmed database persistence
       window.closePaymentGateway();
 
-      // Open Success Modal
+      // 3. Open Success Modal
       const successModal = document.getElementById('success-modal');
       const refEl = document.getElementById('reg-success-ref');
       const msgEl = document.getElementById('success-msg');
@@ -1683,7 +1773,7 @@
         const eventsCount = data.events.length;
         const eventsDesc = eventsCount > 1 ? `${data.primaryEvent.title} + ${eventsCount - 1} more competition(s) [${allEventsTitles}]` : data.primaryEvent.title;
         const servicesDesc = (data.lodgingRequired && data.foodingRequired) ? ' + Hostel Lodging & Campus Mess' : (data.lodgingRequired ? ' + Hostel Lodging' : (data.foodingRequired ? ' + Campus Mess Food' : ''));
-        msgEl.textContent = `Welcome, ${data.fullName}! Your registration for ${eventsDesc}${servicesDesc} has been securely recorded ${dbSaved ? 'in the Technoriti database' : ''} (UTR: ${utrVal}, Total Paid: ₹${data.totalAmount}). Please present this reference ID (${data.refId}) and college ID upon arrival at BCE Bhagalpur in December 2026.`;
+        msgEl.textContent = `Welcome, ${data.fullName}! Your registration for ${eventsDesc}${servicesDesc} has been securely recorded in the official TECHNORITI '26 database (Payment Status: Pending Verification, UTR: ${utrVal}, Total: ₹${data.totalAmount}). Please present this reference ID (${data.refId}) and valid college ID upon arrival at BCE Bhagalpur in December 2026.`;
       }
 
       if (successModal) successModal.classList.add('open');
@@ -1697,9 +1787,9 @@
 
       pendingRegistrationData = null;
     } catch (err) {
-      console.error('Registration completion error:', err);
+      console.error('[Technoriti] Registration submission error:', err);
       if (errBanner) {
-        errBanner.textContent = `Error: ${err.message || 'Failed to complete registration.'}`;
+        errBanner.textContent = `Submission Error: ${err.message || 'Failed to record registration in database. Please check details and retry.'}`;
         errBanner.style.display = 'block';
       }
     } finally {
@@ -2438,17 +2528,70 @@
         }
       }
 
-      // 3. Hydrate Leadership & Content Sections
+      // 3. Hydrate Leadership, Convener & Institutional Content Sections
       const sections = await window.TechnoritiDB.getContentSections();
       if (sections && sections.length > 0) {
+        // A. Principal Spotlight
         const principal = sections.find(s => s.id === 'about_principal');
         if (principal) {
-          const pName = document.querySelector('.principal-name, .spotlight-title');
+          const pName = document.getElementById('about-principal-name') || document.querySelector('.principal-name, .spotlight-title');
           if (pName && principal.title) pName.textContent = principal.title;
-          const pQuote = document.querySelector('.principal-quote, .spotlight-quote');
-          if (pQuote && principal.content) pQuote.textContent = `"${principal.content}"`;
-          const pPort = document.querySelector('.principal-portrait');
-          if (pPort && principal.metadata?.portrait_src) pPort.src = principal.metadata.portrait_src;
+
+          const pTitle = document.getElementById('about-principal-title') || document.querySelector('.principal-title');
+          if (pTitle && principal.subtitle) pTitle.textContent = principal.subtitle;
+
+          const pQuoteBox = document.getElementById('about-principal-quote') || document.querySelector('.principal-quote-box');
+          if (pQuoteBox && principal.content) {
+            pQuoteBox.innerHTML = `<p>"${escapeHtml(principal.content)}"</p>`;
+          }
+
+          const pPort = document.getElementById('about-principal-img') || document.querySelector('.principal-img, .principal-portrait');
+          if (pPort && principal.metadata?.portrait_src) {
+            pPort.src = principal.metadata.portrait_src;
+          }
+        }
+
+        // B. Convener Spotlight
+        const convenor = sections.find(s => s.id === 'about_convenor' || s.id === 'about_convenors');
+        if (convenor) {
+          const cName = document.getElementById('about-convener-name') || document.querySelector('.convener-name');
+          if (cName && convenor.title) cName.textContent = convenor.title;
+
+          const cTitle = document.getElementById('about-convener-title') || document.querySelector('.convener-title');
+          if (cTitle && convenor.subtitle) cTitle.textContent = convenor.subtitle;
+
+          const cQuoteBox = document.getElementById('about-convener-quote') || document.querySelector('.convener-quote-box');
+          if (cQuoteBox && convenor.content) {
+            cQuoteBox.innerHTML = `<p>"${escapeHtml(convenor.content)}"</p>`;
+          }
+
+          const cPort = document.getElementById('about-convener-img') || document.querySelector('.convener-img');
+          if (cPort && convenor.metadata?.portrait_src) {
+            cPort.src = convenor.metadata.portrait_src;
+          }
+
+          const cFaculty = document.getElementById('about-convenors-faculty-list');
+          if (cFaculty && convenor.metadata?.faculty_roster) {
+            cFaculty.textContent = convenor.metadata.faculty_roster;
+          }
+        }
+
+        // C. BCE Institution & Campus Building Photo
+        const legacy = sections.find(s => s.id === 'about_legacy' || s.id === 'institution_bce');
+        if (legacy) {
+          const instHeading = document.getElementById('about-institution-heading');
+          if (instHeading && legacy.title) instHeading.textContent = legacy.title;
+
+          const instDept = document.getElementById('about-institution-dept');
+          if (instDept && legacy.subtitle) instDept.textContent = legacy.subtitle;
+
+          const instDesc = document.getElementById('about-institution-desc');
+          if (instDesc && legacy.content) instDesc.textContent = legacy.content;
+
+          const instImg = document.getElementById('about-institution-img');
+          if (instImg && legacy.metadata?.building_img) {
+            instImg.src = legacy.metadata.building_img;
+          }
         }
       }
 

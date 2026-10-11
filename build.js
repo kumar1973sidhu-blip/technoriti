@@ -61,6 +61,9 @@ const rootFilesToCopy = [
   'supabase-client.js',
   'principal-portrait.png',
   'principal.png',
+  'principal-office-portrait.png',
+  'bce-campus-building.jpg',
+  'convener-portrait.jpg',
   'cosmic-hero-bg.jpg'
 ];
 
