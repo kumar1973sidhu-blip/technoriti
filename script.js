@@ -2617,6 +2617,17 @@
           document.title = seo.site_title;
         }
 
+        // Social & Footer Links (Twitter/X, etc.)
+        if (settings.footer_info && settings.footer_info.twitter_url) {
+          let twitterUrl = settings.footer_info.twitter_url.trim();
+          if (twitterUrl && !/^https?:\/\//i.test(twitterUrl)) twitterUrl = 'https://' + twitterUrl;
+          if (twitterUrl) {
+            document.querySelectorAll('#social-link-x, #mdf-social-x').forEach(el => {
+              el.href = twitterUrl;
+            });
+          }
+        }
+
         // Mobile Hero Visibility Controls
         applyMobileHeroVisibility(settings.mobile_hero_visibility);
       }
@@ -2626,17 +2637,12 @@
       if (navItems && navItems.length > 0) {
         const navList = document.querySelector('.nav-links');
         if (navList) {
-          const hasDev = navItems.some(i => i.destination_url === 'developers' || (i.label && i.label.toLowerCase().includes('developer')));
-          let renderedItems = [...navItems];
-          if (!hasDev) {
-            renderedItems.push({
-              label: 'DEVELOPERS',
-              destination_url: 'developers',
-              is_external: false,
-              open_in_new_tab: false
-            });
-          }
-          navList.innerHTML = renderedItems.map(item => {
+          // Developers is accessible via the left floating dock and mobile drawer - keep desktop header uncluttered
+          const headerNavItems = navItems.filter(i => 
+            i.destination_url !== 'developers' && 
+            !(i.label && i.label.toLowerCase().includes('developer'))
+          );
+          navList.innerHTML = headerNavItems.map(item => {
             if (item.is_external) {
               return `<li><a href="${escapeHtml(item.destination_url)}" class="nav-item" ${item.open_in_new_tab ? 'target="_blank" rel="noopener"' : ''} style="text-decoration:none;">${escapeHtml(item.label)}</a></li>`;
             } else {

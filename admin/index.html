@@ -903,10 +903,56 @@
             </div>
           </div>
 
-          <div class="cms-form-group">
-            <label class="cms-label">Profile Photograph (Asset Path or Public Image URL)</label>
-            <input type="text" id="cfgDev1Photo" class="cms-input" placeholder="/developer-1.jpg">
-            <small style="color:var(--text-dim); font-size:0.75rem; margin-top:4px; display:block;">Default: /developer-1.jpg (Headshot verified from student records)</small>
+          <!-- Direct PNG/JPG Profile Photo Upload Control (Developer 1) -->
+          <div class="cms-photo-upload-section" style="background:rgba(0, 240, 255, 0.035); border:1px solid rgba(0, 240, 255, 0.22); border-radius:14px; padding:16px; margin-bottom:18px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+              <label class="cms-label" style="margin:0; font-weight:700; color:#fff;">📸 Profile Photograph &amp; Direct Upload</label>
+              <span class="badge" style="background:rgba(0,240,255,0.12); color:#00ffff; border:1px solid rgba(0,240,255,0.3); font-size:0.7rem; padding:3px 8px; border-radius:10px;">PNG / JPG / JPEG (Max 5MB)</span>
+            </div>
+            
+            <div style="display:flex; gap:18px; align-items:flex-start; flex-wrap:wrap;">
+              <!-- Current/New Photo Portrait Preview -->
+              <div style="width:110px; height:135px; border-radius:12px; overflow:hidden; border:2px solid rgba(0,240,255,0.5); box-shadow:0 0 16px rgba(0,240,255,0.22); background:#060d1a; flex-shrink:0; position:relative;">
+                <img id="dev1PhotoPreview" src="/developer-1.jpg" alt="Developer 1 Photo Preview" style="width:100%; height:100%; object-fit:cover; object-position:center top; display:block;" onerror="this.src='/developer-1.jpg'">
+                <div id="dev1UploadingSpinner" style="display:none; position:absolute; inset:0; background:rgba(6,13,26,0.85); flex-direction:column; align-items:center; justify-content:center; gap:6px;">
+                  <span style="font-size:1.3rem;">⚡</span>
+                  <span style="font-size:0.65rem; color:#00ffff; font-weight:700; letter-spacing:0.5px;">UPLOADING...</span>
+                </div>
+              </div>
+
+              <!-- Upload Buttons & Actions -->
+              <div style="flex:1; min-width:220px;">
+                <input type="file" id="dev1FileInput" accept="image/png, image/jpeg, image/jpg" style="display:none;" onchange="handleDevPhotoFileSelect(1, this.files)">
+                
+                <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px;">
+                  <button type="button" class="btn-secondary" onclick="document.getElementById('dev1FileInput').click()" style="padding:6px 12px; font-size:0.8rem;">
+                    <span>📁</span> Choose Photo
+                  </button>
+                  <button type="button" class="btn-primary" id="dev1UploadBtn" onclick="uploadDevPhoto(1)" style="padding:6px 14px; font-size:0.8rem; display:none;">
+                    <span>⬆️</span> Upload to Storage
+                  </button>
+                  <button type="button" class="btn-secondary" id="dev1CancelBtn" onclick="cancelDevPhotoSelect(1)" style="padding:6px 10px; font-size:0.8rem; display:none;" title="Cancel selection">
+                    ✕ Cancel
+                  </button>
+                </div>
+
+                <!-- Status & Validation Message -->
+                <div id="dev1UploadStatus" style="font-size:0.75rem; margin-bottom:8px; min-height:18px; line-height:1.4;">
+                  <span style="color:var(--text-dim);">Select a local PNG or JPG file from your device. Face remains centered.</span>
+                </div>
+
+                <!-- Progress Bar -->
+                <div id="dev1ProgressBarWrap" style="display:none; width:100%; height:4px; background:rgba(255,255,255,0.1); border-radius:2px; overflow:hidden; margin-bottom:8px;">
+                  <div id="dev1ProgressBar" style="width:0%; height:100%; background:linear-gradient(90deg, #00ffff, #00ff88); transition:width 0.2s ease;"></div>
+                </div>
+
+                <!-- Saved Image URL / Path (Editable fallback) -->
+                <div>
+                  <label class="cms-label" style="font-size:0.7rem; color:var(--text-dim); margin-bottom:3px;">Saved Photo URL or Storage Path:</label>
+                  <input type="text" id="cfgDev1Photo" class="cms-input" placeholder="/developer-1.jpg" style="font-size:0.8rem; padding:6px 10px;" oninput="updateDevPhotoPreviewFromInput(1, this.value)">
+                </div>
+              </div>
+            </div>
           </div>
 
           <div class="cms-form-group">
@@ -947,10 +993,56 @@
             </div>
           </div>
 
-          <div class="cms-form-group">
-            <label class="cms-label">Profile Photograph (Asset Path or Public Image URL)</label>
-            <input type="text" id="cfgDev2Photo" class="cms-input" placeholder="/developer-2.jpg">
-            <small style="color:var(--text-dim); font-size:0.75rem; margin-top:4px; display:block;">Default: /developer-2.jpg (Partner portrait from uploaded archives)</small>
+          <!-- Direct PNG/JPG Profile Photo Upload Control (Developer 2) -->
+          <div class="cms-photo-upload-section" style="background:rgba(255, 184, 0, 0.035); border:1px solid rgba(255, 184, 0, 0.22); border-radius:14px; padding:16px; margin-bottom:18px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+              <label class="cms-label" style="margin:0; font-weight:700; color:#fff;">📸 Profile Photograph &amp; Direct Upload</label>
+              <span class="badge" style="background:rgba(255,184,0,0.12); color:#ffb800; border:1px solid rgba(255,184,0,0.3); font-size:0.7rem; padding:3px 8px; border-radius:10px;">PNG / JPG / JPEG (Max 5MB)</span>
+            </div>
+            
+            <div style="display:flex; gap:18px; align-items:flex-start; flex-wrap:wrap;">
+              <!-- Current/New Photo Portrait Preview -->
+              <div style="width:110px; height:135px; border-radius:12px; overflow:hidden; border:2px solid rgba(255,184,0,0.5); box-shadow:0 0 16px rgba(255,184,0,0.22); background:#060d1a; flex-shrink:0; position:relative;">
+                <img id="dev2PhotoPreview" src="/developer-2.jpg" alt="Developer 2 Photo Preview" style="width:100%; height:100%; object-fit:cover; object-position:center top; display:block;" onerror="this.src='/developer-2.jpg'">
+                <div id="dev2UploadingSpinner" style="display:none; position:absolute; inset:0; background:rgba(6,13,26,0.85); flex-direction:column; align-items:center; justify-content:center; gap:6px;">
+                  <span style="font-size:1.3rem;">⚡</span>
+                  <span style="font-size:0.65rem; color:#ffb800; font-weight:700; letter-spacing:0.5px;">UPLOADING...</span>
+                </div>
+              </div>
+
+              <!-- Upload Buttons & Actions -->
+              <div style="flex:1; min-width:220px;">
+                <input type="file" id="dev2FileInput" accept="image/png, image/jpeg, image/jpg" style="display:none;" onchange="handleDevPhotoFileSelect(2, this.files)">
+                
+                <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px;">
+                  <button type="button" class="btn-secondary" onclick="document.getElementById('dev2FileInput').click()" style="padding:6px 12px; font-size:0.8rem;">
+                    <span>📁</span> Choose Photo
+                  </button>
+                  <button type="button" class="btn-primary" id="dev2UploadBtn" onclick="uploadDevPhoto(2)" style="padding:6px 14px; font-size:0.8rem; display:none;">
+                    <span>⬆️</span> Upload to Storage
+                  </button>
+                  <button type="button" class="btn-secondary" id="dev2CancelBtn" onclick="cancelDevPhotoSelect(2)" style="padding:6px 10px; font-size:0.8rem; display:none;" title="Cancel selection">
+                    ✕ Cancel
+                  </button>
+                </div>
+
+                <!-- Status & Validation Message -->
+                <div id="dev2UploadStatus" style="font-size:0.75rem; margin-bottom:8px; min-height:18px; line-height:1.4;">
+                  <span style="color:var(--text-dim);">Select a local PNG or JPG file from your device. Face remains centered.</span>
+                </div>
+
+                <!-- Progress Bar -->
+                <div id="dev2ProgressBarWrap" style="display:none; width:100%; height:4px; background:rgba(255,255,255,0.1); border-radius:2px; overflow:hidden; margin-bottom:8px;">
+                  <div id="dev2ProgressBar" style="width:0%; height:100%; background:linear-gradient(90deg, #ffb800, #ff8800); transition:width 0.2s ease;"></div>
+                </div>
+
+                <!-- Saved Image URL / Path (Editable fallback) -->
+                <div>
+                  <label class="cms-label" style="font-size:0.7rem; color:var(--text-dim); margin-bottom:3px;">Saved Photo URL or Storage Path:</label>
+                  <input type="text" id="cfgDev2Photo" class="cms-input" placeholder="/developer-2.jpg" style="font-size:0.8rem; padding:6px 10px;" oninput="updateDevPhotoPreviewFromInput(2, this.value)">
+                </div>
+              </div>
+            </div>
           </div>
 
           <div class="cms-form-group">

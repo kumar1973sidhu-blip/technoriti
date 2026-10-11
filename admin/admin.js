@@ -1136,6 +1136,9 @@
     return DEFAULT_ADMIN_DEV_SETTINGS;
   }
 
+  // State for pending developer photo uploads
+  state.pendingDevPhotos = { 1: null, 2: null };
+
   function populateCmsDevelopers() {
     const data = getDevelopersData();
     const d1 = data.developer1 || DEFAULT_ADMIN_DEV_SETTINGS.developer1;
@@ -1152,6 +1155,8 @@
     setVal('cfgDev1Session', d1.session);
     setVal('cfgDev1Photo', d1.photo);
     setVal('cfgDev1Bio', d1.bio);
+    const p1Preview = document.getElementById('dev1PhotoPreview');
+    if (p1Preview) p1Preview.src = d1.photo || '/developer-1.jpg';
 
     setVal('cfgDev2Name', d2.name);
     setVal('cfgDev2Role', d2.role);
@@ -1159,11 +1164,229 @@
     setVal('cfgDev2Session', d2.session);
     setVal('cfgDev2Photo', d2.photo);
     setVal('cfgDev2Bio', d2.bio);
+    const p2Preview = document.getElementById('dev2PhotoPreview');
+    if (p2Preview) p2Preview.src = d2.photo || '/developer-2.jpg';
 
     setVal('cfgCoordIntro', data.coordinators_intro || DEFAULT_ADMIN_DEV_SETTINGS.coordinators_intro);
 
     renderCoordinatorsAdminTable();
   }
+
+  window.updateDevPhotoPreviewFromInput = function (profileNum, val) {
+    const preview = document.getElementById(`dev${profileNum}PhotoPreview`);
+    if (preview) {
+      preview.src = val ? val.trim() : `/developer-${profileNum}.jpg`;
+    }
+  };
+
+  window.handleDevPhotoFileSelect = function (profileNum, files) {
+    const statusEl = document.getElementById(`dev${profileNum}UploadStatus`);
+    const uploadBtn = document.getElementById(`dev${profileNum}UploadBtn`);
+    const cancelBtn = document.getElementById(`dev${profileNum}CancelBtn`);
+    const fileInput = document.getElementById(`dev${profileNum}FileInput`);
+    const previewEl = document.getElementById(`dev${profileNum}PhotoPreview`);
+
+    if (!files || files.length === 0) return;
+    const file = files[0];
+
+    // File Validation: Accept image/png, image/jpeg, image/jpg
+    const validMimes = ['image/png', 'image/jpeg', 'image/jpg'];
+    const validExts = ['.png', '.jpg', '.jpeg'];
+    const fileNameLower = file.name.toLowerCase();
+    const hasValidExt = validExts.some(ext => fileNameLower.endsWith(ext));
+    const hasValidMime = validMimes.includes(file.type);
+
+    if (!hasValidMime && !hasValidExt) {
+      if (statusEl) {
+        statusEl.innerHTML = `<span style="color:#ef4444; font-weight:600;">❌ Unsupported file format. Please select a PNG or JPG/JPEG image.</span>`;
+      }
+      if (fileInput) fileInput.value = '';
+      if (uploadBtn) uploadBtn.style.display = 'none';
+      if (cancelBtn) cancelBtn.style.display = 'none';
+      showToast('Unsupported format: Please upload PNG or JPG only', 'error');
+      return;
+    }
+
+    // File Validation: Max 5MB
+    const MAX_SIZE = 5 * 1024 * 1024; // 5 MB
+    if (file.size > MAX_SIZE) {
+      if (statusEl) {
+        const sizeMb = (file.size / (1024 * 1024)).toFixed(2);
+        statusEl.innerHTML = `<span style="color:#ef4444; font-weight:600;">❌ File too large (${sizeMb} MB). Maximum allowed size is 5.00 MB.</span>`;
+      }
+      if (fileInput) fileInput.value = '';
+      if (uploadBtn) uploadBtn.style.display = 'none';
+      if (cancelBtn) cancelBtn.style.display = 'none';
+      showToast('File too large: Maximum allowed size is 5MB', 'error');
+      return;
+    }
+
+    // File Validation: Non-empty
+    if (file.size === 0) {
+      if (statusEl) {
+        statusEl.innerHTML = `<span style="color:#ef4444; font-weight:600;">❌ Empty file selected. Please select a valid image.</span>`;
+      }
+      if (fileInput) fileInput.value = '';
+      return;
+    }
+
+    // Validation passed: Store pending file & show live preview
+    state.pendingDevPhotos[profileNum] = file;
+    const objectUrl = URL.createObjectURL(file);
+    if (previewEl) previewEl.src = objectUrl;
+
+    const sizeStr = file.size > 1024 * 1024 
+      ? (file.size / (1024 * 1024)).toFixed(2) + ' MB' 
+      : (file.size / 1024).toFixed(1) + ' KB';
+
+    if (statusEl) {
+      statusEl.innerHTML = `<span style="color:#00ffff; font-weight:600;">Ready to upload: ${escapeHtml(file.name)} (${sizeStr})</span>`;
+    }
+
+    if (uploadBtn) uploadBtn.style.display = 'inline-flex';
+    if (cancelBtn) cancelBtn.style.display = 'inline-flex';
+  };
+
+  window.cancelDevPhotoSelect = function (profileNum) {
+    state.pendingDevPhotos[profileNum] = null;
+    const fileInput = document.getElementById(`dev${profileNum}FileInput`);
+    if (fileInput) fileInput.value = '';
+
+    const uploadBtn = document.getElementById(`dev${profileNum}UploadBtn`);
+    if (uploadBtn) uploadBtn.style.display = 'none';
+
+    const cancelBtn = document.getElementById(`dev${profileNum}CancelBtn`);
+    if (cancelBtn) cancelBtn.style.display = 'none';
+
+    const progressWrap = document.getElementById(`dev${profileNum}ProgressBarWrap`);
+    if (progressWrap) progressWrap.style.display = 'none';
+
+    // Restore saved preview
+    const savedPath = document.getElementById(`cfgDev${profileNum}Photo`)?.value;
+    const previewEl = document.getElementById(`dev${profileNum}PhotoPreview`);
+    if (previewEl) previewEl.src = savedPath || `/developer-${profileNum}.jpg`;
+
+    const statusEl = document.getElementById(`dev${profileNum}UploadStatus`);
+    if (statusEl) {
+      statusEl.innerHTML = `<span style="color:var(--text-dim);">Selection cancelled. Current photograph retained.</span>`;
+    }
+  };
+
+  window.uploadDevPhoto = async function (profileNum) {
+    const file = state.pendingDevPhotos ? state.pendingDevPhotos[profileNum] : null;
+    if (!file) {
+      showToast('Please choose a photo file first', 'warning');
+      return;
+    }
+
+    const spinner = document.getElementById(`dev${profileNum}UploadingSpinner`);
+    const progressWrap = document.getElementById(`dev${profileNum}ProgressBarWrap`);
+    const progressBar = document.getElementById(`dev${profileNum}ProgressBar`);
+    const uploadBtn = document.getElementById(`dev${profileNum}UploadBtn`);
+    const cancelBtn = document.getElementById(`dev${profileNum}CancelBtn`);
+    const statusEl = document.getElementById(`dev${profileNum}UploadStatus`);
+    const photoInput = document.getElementById(`cfgDev${profileNum}Photo`);
+    const previewEl = document.getElementById(`dev${profileNum}PhotoPreview`);
+
+    if (spinner) spinner.style.display = 'flex';
+    if (progressWrap) progressWrap.style.display = 'block';
+    if (progressBar) progressBar.style.width = '35%';
+    if (uploadBtn) uploadBtn.disabled = true;
+
+    try {
+      const client = TechnoritiDB.getClient();
+      if (!client) throw new Error('Supabase client unavailable');
+
+      const ext = file.name.split('.').pop().toLowerCase() || 'jpg';
+      const safeFileName = `developer_${profileNum}_${Date.now()}.${ext}`;
+      const bucketName = 'developer-photos';
+      let publicUrl = '';
+
+      if (progressBar) progressBar.style.width = '65%';
+
+      // 1. Try uploading to dedicated bucket 'developer-photos'
+      let uploadRes = await client.storage
+        .from(bucketName)
+        .upload(safeFileName, file, {
+          cacheControl: '3600',
+          upsert: true
+        });
+
+      // If bucket does not exist, try creating it with public access
+      if (uploadRes.error && (uploadRes.error.message.includes('not found') || uploadRes.error.statusCode === '404')) {
+        try {
+          await client.storage.createBucket(bucketName, {
+            public: true,
+            fileSizeLimit: 5242880,
+            allowedMimeTypes: ['image/jpeg', 'image/png']
+          });
+          // Retry upload
+          uploadRes = await client.storage
+            .from(bucketName)
+            .upload(safeFileName, file, { cacheControl: '3600', upsert: true });
+        } catch (bucketErr) {
+          console.warn('[Admin Storage] Could not auto-create bucket:', bucketErr);
+        }
+      }
+
+      // If dedicated bucket still had an error, try 'festival-media' bucket
+      if (uploadRes.error) {
+        console.warn('[Admin Storage] developer-photos upload failed, trying festival-media:', uploadRes.error.message);
+        const fbRes = await client.storage
+          .from('festival-media')
+          .upload(`developers/${safeFileName}`, file, { cacheControl: '3600', upsert: true });
+
+        if (!fbRes.error && fbRes.data) {
+          const { data: { publicUrl: pUrl } } = client.storage.from('festival-media').getPublicUrl(`developers/${safeFileName}`);
+          publicUrl = pUrl;
+        }
+      } else if (uploadRes.data) {
+        const { data: { publicUrl: pUrl } } = client.storage.from(bucketName).getPublicUrl(safeFileName);
+        publicUrl = pUrl;
+      }
+
+      // 2. High-reliability fallback: If Storage returned RLS error or bucket creation is restricted,
+      // convert to optimized Base64 Data URL so the photo is 100% saved and live immediately
+      if (!publicUrl) {
+        console.warn('[Admin Storage] Falling back to Data URL encoding for instant deployment');
+        publicUrl = await fileToBase64(file);
+      }
+
+      if (progressBar) progressBar.style.width = '100%';
+
+      // 3. Update photo input and preview
+      if (photoInput) photoInput.value = publicUrl;
+      if (previewEl) previewEl.src = publicUrl;
+
+      // 4. Update status display
+      if (statusEl) {
+        statusEl.innerHTML = `<span style="color:#00ff88; font-weight:700;">✅ Photo uploaded successfully! Click "Save All Developers &amp; Coordinators" below to publish.</span>`;
+      }
+
+      // Clear pending file
+      state.pendingDevPhotos[profileNum] = null;
+      if (uploadBtn) {
+        uploadBtn.style.display = 'none';
+        uploadBtn.disabled = false;
+      }
+      if (cancelBtn) cancelBtn.style.display = 'none';
+
+      showToast(`Developer ${profileNum} photo uploaded! Remember to click "Save All Developers & Coordinators" to publish.`, 'success');
+    } catch (err) {
+      console.error('[Admin] Photo upload error:', err);
+      if (statusEl) {
+        statusEl.innerHTML = `<span style="color:#ef4444; font-weight:600;">❌ Upload failed: ${escapeHtml(err.message)}. Please try again.</span>`;
+      }
+      if (uploadBtn) uploadBtn.disabled = false;
+      showToast('Upload failed: ' + err.message, 'error');
+    } finally {
+      if (spinner) spinner.style.display = 'none';
+      setTimeout(() => {
+        if (progressWrap) progressWrap.style.display = 'none';
+        if (progressBar) progressBar.style.width = '0%';
+      }, 1000);
+    }
+  };
 
   function renderCoordinatorsAdminTable() {
     const data = getDevelopersData();
