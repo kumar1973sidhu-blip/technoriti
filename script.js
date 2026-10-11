@@ -1334,38 +1334,54 @@
   window.updateFeeSummary = function () {
     const eventSelect = document.getElementById('reg-event');
     const teamSizeSelect = document.getElementById('reg-team-size');
-    const accomCheckbox = document.getElementById('reg-accom-opt');
-    const accomRow = document.getElementById('accom-fee-row');
+    const lodgingCheck = document.getElementById('reg-opt-lodging');
+    const foodingCheck = document.getElementById('reg-opt-fooding');
+    const daysSelect = document.getElementById('reg-service-days');
+    const daysGroup = document.getElementById('reg-service-days-group');
 
     const summaryEventFee = document.getElementById('summary-event-fee');
-    const summaryAccomFee = document.getElementById('summary-accom-fee');
+    const lodgingRow = document.getElementById('reg-lodging-row');
+    const summaryLodgingFee = document.getElementById('summary-lodging-fee');
+    const lodgingCalcDesc = document.getElementById('reg-lodging-calc-desc');
+    const foodingRow = document.getElementById('reg-fooding-row');
+    const summaryFoodingFee = document.getElementById('summary-fooding-fee');
+    const foodingCalcDesc = document.getElementById('reg-fooding-calc-desc');
     const summaryTotalFee = document.getElementById('summary-total-fee');
 
-    if (!eventSelect.selectedIndex || eventSelect.selectedIndex === 0) return;
+    if (!eventSelect || !teamSizeSelect) return;
 
     const selectedOption = eventSelect.options[eventSelect.selectedIndex];
-    const unitFee = parseInt(selectedOption.dataset.fee, 10) || 50;
-    const feeType = selectedOption.dataset.type || 'member';
+    const unitFee = parseInt(selectedOption?.dataset?.fee, 10) || 50;
+    const feeType = selectedOption?.dataset?.type || 'member';
     const teamSize = parseInt(teamSizeSelect.value, 10) || 1;
 
-    let eventCost = 0;
-    if (feeType === 'member') {
-      eventCost = unitFee * teamSize;
-    } else {
-      eventCost = unitFee;
+    let eventCost = feeType === 'member' ? unitFee * teamSize : unitFee;
+
+    const isLodging = lodgingCheck ? lodgingCheck.checked : false;
+    const isFooding = foodingCheck ? foodingCheck.checked : false;
+
+    if (daysGroup) {
+      daysGroup.style.display = (isLodging || isFooding) ? 'block' : 'none';
     }
 
-    let accomCost = 0;
-    if (accomCheckbox.checked) {
-      accomRow.style.display = 'flex';
-      accomCost = 175 * teamSize; // Rs 50 hostel + Rs 125 food
-      summaryAccomFee.textContent = `₹${accomCost} (${teamSize} pers.)`;
-    } else {
-      accomRow.style.display = 'none';
+    const serviceDays = parseInt(daysSelect?.value, 10) || 2;
+    const lodgingCost = isLodging ? (50 * serviceDays * teamSize) : 0;
+    const foodingCost = isFooding ? (125 * serviceDays * teamSize) : 0;
+
+    if (lodgingRow) {
+      lodgingRow.style.display = isLodging ? 'flex' : 'none';
+      if (summaryLodgingFee) summaryLodgingFee.textContent = `₹${lodgingCost}`;
+      if (lodgingCalcDesc) lodgingCalcDesc.textContent = `₹50 × ${serviceDays}d × ${teamSize}p`;
     }
 
-    summaryEventFee.textContent = `₹${eventCost}`;
-    summaryTotalFee.textContent = `₹${eventCost + accomCost}`;
+    if (foodingRow) {
+      foodingRow.style.display = isFooding ? 'flex' : 'none';
+      if (summaryFoodingFee) summaryFoodingFee.textContent = `₹${foodingCost}`;
+      if (foodingCalcDesc) foodingCalcDesc.textContent = `₹125 × ${serviceDays}d × ${teamSize}p`;
+    }
+
+    if (summaryEventFee) summaryEventFee.textContent = `₹${eventCost}`;
+    if (summaryTotalFee) summaryTotalFee.textContent = `₹${eventCost + lodgingCost + foodingCost}`;
   };
 
   window.handleRegistration = async function (form) {
@@ -1383,14 +1399,18 @@
     const eventSelect = document.getElementById('reg-event');
     const eventTitle = eventSelect.value;
     const selectedOption = eventSelect.options[eventSelect.selectedIndex];
-    const unitFee = parseInt(selectedOption.dataset.fee, 10) || 50;
-    const feeType = selectedOption.dataset.type || 'member';
+    const unitFee = parseInt(selectedOption?.dataset?.fee, 10) || 50;
+    const feeType = selectedOption?.dataset?.type || 'member';
     const teamSize = parseInt(document.getElementById('reg-team-size').value, 10) || 1;
-    const needsAccom = document.getElementById('reg-accom-opt').checked;
+    const isLodging = document.getElementById('reg-opt-lodging')?.checked || false;
+    const isFooding = document.getElementById('reg-opt-fooding')?.checked || false;
+    const serviceDays = parseInt(document.getElementById('reg-service-days')?.value, 10) || 2;
 
     let eventCost = feeType === 'member' ? unitFee * teamSize : unitFee;
-    let accomCost = needsAccom ? 175 * teamSize : 0;
-    let totalCost = eventCost + accomCost;
+    let lodgingCost = isLodging ? (50 * serviceDays * teamSize) : 0;
+    let foodingCost = isFooding ? (125 * serviceDays * teamSize) : 0;
+    let totalServicesCost = lodgingCost + foodingCost;
+    let totalCost = eventCost + totalServicesCost;
 
     // Find eventId slug
     const matchedComp = COMPETITIONS_DATA.find(c => c.title.toLowerCase() === eventTitle.toLowerCase());
@@ -1407,9 +1427,11 @@
           eventId: eventId,
           eventTitle: eventTitle,
           teamSize: teamSize,
-          needsAccommodation: needsAccom,
+          lodgingRequired: isLodging,
+          foodingRequired: isFooding,
+          serviceDays: serviceDays,
           eventFee: eventCost,
-          accommodationFee: accomCost,
+          accommodationFee: totalServicesCost,
           totalAmount: totalCost
         });
         dbSaved = true;
@@ -1418,8 +1440,11 @@
       }
     }
 
+    const servicesDesc = (isLodging && isFooding) ? ' + Hostel Lodging & Campus Mess' : (isLodging ? ' + Hostel Lodging' : (isFooding ? ' + Campus Mess Food' : ''));
     const successMsg = document.getElementById('success-msg');
-    successMsg.textContent = `Welcome, ${name}! Your entry for ${eventTitle} has been securely recorded ${dbSaved ? 'in the Technoriti database' : ''} (Total: ₹${totalCost}). Please carry your payment slip and college NOC to the registration desk at BCE Bhagalpur in December 2026.`;
+    if (successMsg) {
+      successMsg.textContent = `Welcome, ${name}! Your registration for ${eventTitle}${servicesDesc} has been securely recorded ${dbSaved ? 'in the Technoriti database' : ''} (Total: ₹${totalCost}). Please carry your verification slip and college NOC to BCE Bhagalpur in December 2026.`;
+    }
 
     document.getElementById('success-modal').classList.add('open');
     form.reset();
@@ -1432,14 +1457,34 @@
   };
 
   // =====================================================================
-  // 5B. DEDICATED ACCOMMODATION BOOKING ENGINE
+  // 5B. DEDICATED ACCOMMODATION BOOKING ENGINE (INDEPENDENT SERVICES)
   // =====================================================================
-  window.openAccomBookingModal = function () {
+  window.openAccomBookingModal = function (serviceType) {
     const modal = document.getElementById('accom-booking-modal');
-    if (modal) {
-      modal.classList.add('open');
-      window.updateAccomFeeSummary();
+    if (!modal) return;
+
+    const lodgingCheck = document.getElementById('accom-opt-lodging');
+    const foodingCheck = document.getElementById('accom-opt-fooding');
+    const errorBanner = document.getElementById('accom-error-banner');
+
+    if (errorBanner) {
+      errorBanner.style.display = 'none';
+      errorBanner.textContent = '';
     }
+
+    if (serviceType === 'lodging') {
+      if (lodgingCheck) lodgingCheck.checked = true;
+      if (foodingCheck) foodingCheck.checked = false;
+    } else if (serviceType === 'fooding') {
+      if (lodgingCheck) lodgingCheck.checked = false;
+      if (foodingCheck) foodingCheck.checked = true;
+    } else {
+      if (lodgingCheck) lodgingCheck.checked = true;
+      if (foodingCheck) foodingCheck.checked = true;
+    }
+
+    modal.classList.add('open');
+    window.updateAccomFeeSummary();
   };
 
   window.closeAccomBookingModal = function (e) {
@@ -1481,22 +1526,26 @@
   window.updateAccomFeeSummary = function () {
     const daysSel = document.getElementById('accom-days');
     const membersSel = document.getElementById('accom-members');
-    const foodCheckbox = document.getElementById('accom-include-food');
+    const lodgingCheck = document.getElementById('accom-opt-lodging');
+    const foodingCheck = document.getElementById('accom-opt-fooding');
 
     const days = parseInt(daysSel?.value, 10) || 2;
     const members = parseInt(membersSel?.value, 10) || 1;
-    const includeFood = foodCheckbox ? foodCheckbox.checked : true;
+    const isLodging = lodgingCheck ? lodgingCheck.checked : false;
+    const isFooding = foodingCheck ? foodingCheck.checked : false;
 
-    const lodgingTotal = 50 * days * members;
-    const foodTotal = includeFood ? (125 * days * members) : 0;
+    const lodgingTotal = isLodging ? (50 * days * members) : 0;
+    const foodTotal = isFooding ? (125 * days * members) : 0;
     const subtotal = lodgingTotal + foodTotal;
 
-    // Group discounts: flat Rs 150 off on 4+ members; flat Rs 250 off on 12+ members
+    // Group discounts: flat Rs 150 off on 4+ members; flat Rs 250 off on 12+ members (if lodging is booked)
     let discount = 0;
-    if (members >= 12) {
-      discount = 250;
-    } else if (members >= 4) {
-      discount = 150;
+    if (isLodging) {
+      if (members >= 12) {
+        discount = 250;
+      } else if (members >= 4) {
+        discount = 150;
+      }
     }
 
     const grandTotal = Math.max(0, subtotal - discount);
@@ -1504,6 +1553,7 @@
     // Update DOM elements
     const calcDays = document.getElementById('af-calc-days');
     const calcMembers = document.getElementById('af-calc-members');
+    const lodgingRow = document.getElementById('af-lodging-row');
     const lodgingTotalEl = document.getElementById('af-lodging-total');
     const foodRow = document.getElementById('af-food-row');
     const foodDays = document.getElementById('af-food-days');
@@ -1515,9 +1565,10 @@
 
     if (calcDays) calcDays.textContent = days;
     if (calcMembers) calcMembers.textContent = members;
+    if (lodgingRow) lodgingRow.style.display = isLodging ? 'flex' : 'none';
     if (lodgingTotalEl) lodgingTotalEl.textContent = `₹${lodgingTotal}`;
 
-    if (foodRow) foodRow.style.display = includeFood ? 'flex' : 'none';
+    if (foodRow) foodRow.style.display = isFooding ? 'flex' : 'none';
     if (foodDays) foodDays.textContent = days;
     if (foodMembers) foodMembers.textContent = members;
     if (foodTotalEl) foodTotalEl.textContent = `₹${foodTotal}`;
@@ -1535,12 +1586,14 @@
   };
 
   window.handleAccomBookingSubmit = async function (form) {
+    const errorBanner = document.getElementById('accom-error-banner');
+    if (errorBanner) {
+      errorBanner.style.display = 'none';
+      errorBanner.textContent = '';
+    }
+
     const btn = document.getElementById('accom-submit-btn');
     const originalText = btn ? btn.innerHTML : '';
-    if (btn) {
-      btn.disabled = true;
-      btn.innerHTML = `<span>RECORDING IN SUPABASE...</span>`;
-    }
 
     const name = document.getElementById('accom-name').value.trim();
     const roll = document.getElementById('accom-roll')?.value.trim() || 'N/A';
@@ -1553,72 +1606,119 @@
     const hostel = document.getElementById('accom-hostel').value;
     const days = parseInt(document.getElementById('accom-days').value, 10) || 2;
     const members = parseInt(document.getElementById('accom-members').value, 10) || 1;
-    const includeFood = document.getElementById('accom-include-food').checked;
+    const isLodging = document.getElementById('accom-opt-lodging')?.checked || false;
+    const isFooding = document.getElementById('accom-opt-fooding')?.checked || false;
     const arrival = document.getElementById('accom-arrival').value.trim();
     const notes = document.getElementById('accom-notes').value.trim();
+
+    // Must select at least one service
+    if (!isLodging && !isFooding) {
+      const msg = 'Please select at least one service: Lodging / Hostel or Fooding / Campus Mess.';
+      if (errorBanner) {
+        errorBanner.textContent = msg;
+        errorBanner.style.display = 'block';
+      } else {
+        alert(msg);
+      }
+      return;
+    }
 
     // Strict 10-digit phone validation
     const cleanPhone = phone.replace(/\D/g, '').slice(-10);
     if (!/^[6-9]\d{9}$/.test(cleanPhone)) {
-      alert('Please enter a valid 10-digit Indian mobile number starting with 6, 7, 8, or 9.');
-      if (btn) { btn.disabled = false; btn.innerHTML = originalText; }
+      const msg = 'Please enter a valid 10-digit Indian mobile number starting with 6, 7, 8, or 9.';
+      if (errorBanner) {
+        errorBanner.textContent = msg;
+        errorBanner.style.display = 'block';
+      } else {
+        alert(msg);
+      }
       return;
     }
 
-    const lodgingTotal = 50 * days * members;
-    const foodTotal = includeFood ? (125 * days * members) : 0;
-    let discount = members >= 12 ? 250 : (members >= 4 ? 150 : 0);
-    const totalAmount = Math.max(0, lodgingTotal + foodTotal - discount);
-    const dailyRate = includeFood ? 175 : 50;
-
-    const bookingRef = `ACCOM-BCE-${Math.floor(1000 + Math.random() * 9000)}`;
-
-    let savedInDB = false;
-    if (window.TechnoritiDB) {
-      try {
-        await window.TechnoritiDB.submitAccommodationBooking({
-          fullName: name,
-          rollNumber: roll,
-          college: college,
-          branch: branch,
-          phone: cleanPhone,
-          email: email,
-          gender: gender,
-          bookingType: bookingType === 'group' ? `Group (${members} members)` : 'Solo',
-          hostelBlock: hostel,
-          daysCount: days,
-          occupants: members,
-          dailyRate: dailyRate,
-          totalFee: totalAmount,
-          foodRequired: includeFood,
-          preferences: `Roll: ${roll} | Branch: ${branch} | Type: ${bookingType} | Arrival: ${arrival || 'Dec 2026'} | Notes: ${notes || 'None'}`
-        });
-        savedInDB = true;
-      } catch (err) {
-        console.warn('[Technoriti Supabase] Accommodation booking sync note:', err.message);
-      }
-    }
-
-    // Close booking modal
-    window.closeAccomBookingModal();
-
-    // Populate and open success modal
-    const refEl = document.getElementById('accom-success-ref');
-    const summaryEl = document.getElementById('accom-success-summary');
-    if (refEl) refEl.textContent = bookingRef;
-    if (summaryEl) {
-      summaryEl.textContent = `Hello ${name} (Roll: ${roll}, Branch: ${branch})! Your ${bookingType.toUpperCase()} reservation for ${members} person(s) for ${days} days at ${hostel} has been successfully recorded ${savedInDB ? 'in the Technoriti database' : ''}. Total estimated tariff: ₹${totalAmount}.`;
-    }
-
-    const successModal = document.getElementById('accom-success-modal');
-    if (successModal) successModal.classList.add('open');
-
-    form.reset();
-    window.updateAccomFeeSummary();
-
     if (btn) {
-      btn.disabled = false;
-      btn.innerHTML = originalText;
+      btn.disabled = true;
+      btn.innerHTML = `<span>VERIFYING & RECORDING IN SUPABASE...</span>`;
+    }
+
+    const lodgingTotal = isLodging ? (50 * days * members) : 0;
+    const foodTotal = isFooding ? (125 * days * members) : 0;
+    let discount = (isLodging && members >= 12) ? 250 : ((isLodging && members >= 4) ? 150 : 0);
+    const totalAmount = Math.max(0, lodgingTotal + foodTotal - discount);
+    const dailyRate = (isLodging ? 50 : 0) + (isFooding ? 125 : 0);
+
+    if (!window.TechnoritiDB) {
+      if (btn) { btn.disabled = false; btn.innerHTML = originalText; }
+      const errMsg = 'Technoriti database connection is unavailable. Please check your internet connection.';
+      if (errorBanner) {
+        errorBanner.textContent = errMsg;
+        errorBanner.style.display = 'block';
+      } else {
+        alert(errMsg);
+      }
+      return;
+    }
+
+    try {
+      const res = await window.TechnoritiDB.submitAccommodationBooking({
+        fullName: name,
+        rollNumber: roll,
+        college: college,
+        branch: branch,
+        phone: cleanPhone,
+        email: email,
+        gender: gender,
+        bookingType: bookingType === 'group' ? `Group (${members} members)` : 'Solo',
+        hostelBlock: hostel,
+        daysCount: days,
+        occupants: members,
+        dailyRate: dailyRate,
+        totalFee: totalAmount,
+        lodgingRequired: isLodging,
+        foodRequired: isFooding,
+        arrival: arrival,
+        preferences: `Roll: ${roll} | Branch: ${branch} | Type: ${bookingType} | Arrival: ${arrival || 'Dec 2026'} | Notes: ${notes || 'None'}`
+      });
+
+      // ONLY show success if Supabase confirmed success!
+      if (!res || !res.success || !res.booking) {
+        throw new Error('Supabase did not confirm the booking record.');
+      }
+
+      const realBookingId = res.booking.id ? (res.booking.id.length > 8 ? res.booking.id.slice(0, 8).toUpperCase() : res.booking.id) : `BCE-${Date.now().toString().slice(-4)}`;
+      const bookingRef = `ACCOM-BCE-${realBookingId}`;
+
+      // Close booking modal
+      window.closeAccomBookingModal();
+
+      // Populate and open success modal
+      const refEl = document.getElementById('accom-success-ref');
+      const summaryEl = document.getElementById('accom-success-summary');
+      if (refEl) refEl.textContent = bookingRef;
+      if (summaryEl) {
+        const servicesText = isLodging && isFooding ? 'Lodging + Mess Food' : (isLodging ? 'Hostel Lodging Only' : 'Campus Mess Food Only');
+        summaryEl.textContent = `Hello ${name} (Roll: ${roll}, Branch: ${branch})! Your ${bookingType.toUpperCase()} reservation [${servicesText}] for ${members} person(s) for ${days} days at ${hostel} has been successfully recorded in the Technoriti database. Total verified tariff: ₹${totalAmount}.`;
+      }
+
+      const successModal = document.getElementById('accom-success-modal');
+      if (successModal) successModal.classList.add('open');
+
+      form.reset();
+      window.updateAccomFeeSummary();
+    } catch (err) {
+      console.error('[Technoriti Supabase] Accommodation booking error:', err);
+      const errMsg = `Database Error: ${err.message || 'Failed to submit accommodation booking to Supabase.'}`;
+      if (errorBanner) {
+        errorBanner.textContent = errMsg;
+        errorBanner.style.display = 'block';
+      } else {
+        alert(errMsg);
+      }
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+      }
     }
   };
 
@@ -1632,15 +1732,28 @@
   window.toggleMobileDrawer = function () {
     const overlay = document.getElementById('mobile-nav-overlay');
     const btn = document.getElementById('mobile-menu-btn');
-    if (overlay) overlay.classList.toggle('open');
-    if (btn) btn.classList.toggle('active');
+    const isOpen = overlay && overlay.classList.contains('open');
+    if (isOpen) {
+      window.closeMobileDrawer();
+    } else {
+      if (overlay) overlay.classList.add('open');
+      if (btn) {
+        btn.classList.add('active');
+        btn.setAttribute('aria-expanded', 'true');
+      }
+      document.body.classList.add('mobile-drawer-open');
+    }
   };
 
   window.closeMobileDrawer = function () {
     const overlay = document.getElementById('mobile-nav-overlay');
     const btn = document.getElementById('mobile-menu-btn');
     if (overlay) overlay.classList.remove('open');
-    if (btn) btn.classList.remove('active');
+    if (btn) {
+      btn.classList.remove('active');
+      btn.setAttribute('aria-expanded', 'false');
+    }
+    document.body.classList.remove('mobile-drawer-open');
   };
 
   // =====================================================================
@@ -1745,6 +1858,66 @@
 
     startBtn.addEventListener('click', dismissLoader);
     audioToggle.addEventListener('click', toggleAudio);
+
+    // Mobile Hamburger Button & Drawer Event Listeners
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    if (mobileMenuBtn) {
+      mobileMenuBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        window.toggleMobileDrawer();
+      });
+    }
+
+    const drawerCloseBtn = document.getElementById('mobile-drawer-close');
+    if (drawerCloseBtn) {
+      drawerCloseBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        window.closeMobileDrawer();
+      });
+    }
+
+    const mobileNavOverlay = document.getElementById('mobile-nav-overlay');
+    if (mobileNavOverlay) {
+      mobileNavOverlay.addEventListener('click', (e) => {
+        if (e.target === mobileNavOverlay) {
+          window.closeMobileDrawer();
+        }
+      });
+    }
+
+    document.querySelectorAll('.mobile-nav-item').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const action = btn.getAttribute('data-action');
+        window.closeMobileDrawer();
+        if (action === 'home') {
+          window.closeAllPanels();
+        } else if (action === 'competitions' || action === 'accommodation' || action === 'about' || action === 'sponsors' || action === 'register') {
+          window.openPanel(action);
+        } else if (action === 'lodging') {
+          window.openAccomBookingModal('lodging');
+        } else if (action === 'fooding') {
+          window.openAccomBookingModal('fooding');
+        }
+      });
+    });
+
+    // Accommodation Booking Buttons (Front Wall, Logistics Strip, FAQs, and secondary triggers)
+    document.querySelectorAll('#accom-book-btn-front, #accom-book-btn-strip, #accom-book-btn-faq, .screenshot60-book-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        window.openAccomBookingModal();
+      });
+      btn.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        window.openAccomBookingModal();
+      });
+    });
 
     setupScrollInteractions();
 

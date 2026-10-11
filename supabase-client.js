@@ -134,9 +134,19 @@
 
       try {
         let bookingId = null;
+        const isLodging = !!regData.lodgingRequired;
+        const isFooding = !!regData.foodingRequired;
+        const needsServices = isLodging || isFooding;
+        const serviceDays = parseInt(regData.serviceDays, 10) || 2;
+        const teamSize = parseInt(regData.teamSize, 10) || 1;
 
-        // 1. If accommodation is requested, create an accommodation booking record
-        if (regData.needsAccommodation) {
+        // 1. If accommodation or fooding is requested, create an accommodation booking record
+        if (needsServices) {
+          const lodgingSubtotal = isLodging ? (50 * serviceDays * teamSize) : 0;
+          const foodingSubtotal = isFooding ? (125 * serviceDays * teamSize) : 0;
+          const serviceTotal = lodgingSubtotal + foodingSubtotal;
+          const dailyRate = (isLodging ? 50 : 0) + (isFooding ? 125 : 0);
+
           const { data: accomData, error: accomErr } = await sb
             .from('accommodation_bookings')
             .insert({
@@ -145,10 +155,13 @@
               phone: regData.phone,
               college: regData.college,
               gender: regData.gender || 'male',
-              members_count: regData.teamSize || 1,
+              hostel_block: (regData.gender === 'female') ? 'Girls Hostel Block' : 'Boys Hostel Block',
+              days_count: serviceDays,
+              members_count: teamSize,
+              daily_rate: dailyRate,
+              total_fee: regData.accommodationFee || serviceTotal,
               status: 'requested',
-              daily_rate: 175,
-              total_fee: regData.accommodationFee || 175
+              admin_notes: `Linked Event: ${regData.eventTitle} | Services: [Lodging: ${isLodging ? 'YES' : 'NO'} | Fooding: ${isFooding ? 'YES' : 'NO'}]`
             })
             .select('id')
             .single();
@@ -168,8 +181,8 @@
             college: regData.college,
             event_id: regData.eventId,
             event_title: regData.eventTitle,
-            team_size: regData.teamSize || 1,
-            needs_accommodation: !!regData.needsAccommodation,
+            team_size: teamSize,
+            needs_accommodation: needsServices,
             accommodation_booking_id: bookingId,
             event_fee: regData.eventFee || 0,
             accommodation_fee: regData.accommodationFee || 0,
@@ -485,16 +498,28 @@
       const hostelBlock = normalizedGender === 'female' ? 'Girls Hostel Block' : 'Boys Hostel Block';
 
       const membersCount = parseInt(booking.occupants, 10) || 1;
-      const dailyRate = parseInt(booking.dailyRate, 10) || 175;
       const daysCount = parseInt(booking.daysCount, 10) || 2;
-      const totalFee = parseInt(booking.totalFee, 10) || (dailyRate * membersCount * daysCount);
+      const isLodging = booking.lodgingRequired !== false;
+      const isFooding = booking.foodRequired === true;
+
+      if (!isLodging && !isFooding) {
+        throw new Error('Please select at least one service: Lodging / Hostel or Fooding / Campus Mess.');
+      }
+
+      const lodgingSubtotal = isLodging ? (50 * daysCount * membersCount) : 0;
+      const foodingSubtotal = isFooding ? (125 * daysCount * membersCount) : 0;
+      let discount = (isLodging && membersCount >= 12) ? 250 : ((isLodging && membersCount >= 4) ? 150 : 0);
+      const calculatedTotal = Math.max(0, lodgingSubtotal + foodingSubtotal - discount);
+      const totalFee = parseInt(booking.totalFee, 10) || calculatedTotal;
+      const dailyRate = (isLodging ? 50 : 0) + (isFooding ? 125 : 0);
 
       const notesArr = [
+        `Services: [Lodging: ${isLodging ? 'YES' : 'NO'} (₹${lodgingSubtotal}) | Fooding: ${isFooding ? 'YES' : 'NO'} (₹${foodingSubtotal})]`,
         `Branch: ${booking.branch || 'Not specified'}`,
         `Roll: ${booking.rollNumber || 'N/A'}`,
         `Type: ${booking.bookingType || 'Solo'}`,
-        `Food Required: ${booking.foodRequired ? 'Yes' : 'No'}`,
-        booking.preferences ? `Preferences: ${booking.preferences}` : ''
+        `Arrival: ${booking.arrival || 'Dec 2026'}`,
+        booking.preferences ? `Notes: ${booking.preferences}` : ''
       ].filter(Boolean);
 
       const payload = {

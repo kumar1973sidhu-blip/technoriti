@@ -1656,13 +1656,28 @@
       const room = acc.room_number || 'Unallotted';
       const statusClass = acc.status === 'checked_in' || acc.status === 'allotted' ? 'badge-verified' : acc.status === 'cancelled' ? 'badge-rejected' : 'badge-pending';
 
+      let serviceLabel = 'Lodging + Food';
+      let serviceStyle = 'color:#c084fc; border:1px solid rgba(192,132,252,0.35); background:rgba(192,132,252,0.1);';
+      if (acc.admin_notes) {
+        if (acc.admin_notes.includes('Lodging: YES') && acc.admin_notes.includes('Fooding: NO')) {
+          serviceLabel = 'Lodging Only';
+          serviceStyle = 'color:#38bdf8; border:1px solid rgba(56,189,248,0.35); background:rgba(56,189,248,0.1);';
+        } else if (acc.admin_notes.includes('Lodging: NO') && acc.admin_notes.includes('Fooding: YES')) {
+          serviceLabel = 'Mess Food Only';
+          serviceStyle = 'color:#fbbf24; border:1px solid rgba(251,191,36,0.35); background:rgba(251,191,36,0.1);';
+        }
+      }
+
       return `
         <tr>
           <td style="font-family:var(--font-orbitron); font-size:0.78rem; color:var(--accent-cyan);">${bookId}</td>
           <td style="font-weight:700; color:#fff;">${escapeHtml(name)}</td>
           <td>${escapeHtml(college)}</td>
           <td><span style="font-size:0.78rem; color:var(--text-dim);">${escapeHtml(block)}</span></td>
-          <td style="font-size:0.8rem; color:var(--text-muted);">${dates}</td>
+          <td style="font-size:0.8rem; color:var(--text-muted);">
+            <div>${dates}</div>
+            <span style="display:inline-block; margin-top:3px; font-size:0.68rem; padding:1px 6px; border-radius:4px; font-weight:700; ${serviceStyle}">${serviceLabel}</span>
+          </td>
           <td>${escapeHtml(acc.phone || '—')}</td>
           <td><strong style="color:var(--accent-yellow);">${escapeHtml(room)}</strong></td>
           <td><span class="badge-status ${statusClass}">${escapeHtml(acc.status || 'requested')}</span></td>
