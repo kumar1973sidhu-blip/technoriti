@@ -482,7 +482,58 @@
 
     const statColls = document.getElementById('cfgStatColleges');
     if (statColls) statColls.value = statsInfo.colleges_stat || '50+';
+
+    // Mobile Hero Visibility Toggles (Safe defaults: 6 specified items false, college tag & CTA buttons true)
+    const mobileHero = state.settings.mobile_hero_visibility || {};
+    const setCheck = (id, val) => {
+      const el = document.getElementById(id);
+      if (el) el.checked = !!val;
+    };
+    setCheck('cfgMobileShowTagline', mobileHero.show_tagline);
+    setCheck('cfgMobileShowTheme', mobileHero.show_theme);
+    setCheck('cfgMobileShowEventDate', mobileHero.show_event_date);
+    setCheck('cfgMobileShowEditionCard', mobileHero.show_edition_card);
+    setCheck('cfgMobileShowCompCount', mobileHero.show_competition_count);
+    setCheck('cfgMobileShowPrizePool', mobileHero.show_prize_pool);
+    setCheck('cfgMobileShowCollegeTag', mobileHero.show_college_tag !== false);
+    setCheck('cfgMobileShowCtaButtons', mobileHero.show_cta_buttons !== false);
   }
+
+  window.saveMobileHeroVisibility = async function () {
+    const saveBtn = document.getElementById('btnSaveMobileHero');
+    const originalText = saveBtn ? saveBtn.innerHTML : '';
+    if (saveBtn) {
+      saveBtn.disabled = true;
+      saveBtn.innerHTML = '<span>⏳</span> Saving...';
+    }
+
+    try {
+      const current = state.settings.mobile_hero_visibility || {};
+      const updated = {
+        show_tagline: document.getElementById('cfgMobileShowTagline')?.checked || false,
+        show_theme: document.getElementById('cfgMobileShowTheme')?.checked || false,
+        show_event_date: document.getElementById('cfgMobileShowEventDate')?.checked || false,
+        show_edition_card: document.getElementById('cfgMobileShowEditionCard')?.checked || false,
+        show_competition_count: document.getElementById('cfgMobileShowCompCount')?.checked || false,
+        show_prize_pool: document.getElementById('cfgMobileShowPrizePool')?.checked || false,
+        show_college_tag: document.getElementById('cfgMobileShowCollegeTag')?.checked !== false,
+        show_cta_buttons: document.getElementById('cfgMobileShowCtaButtons')?.checked !== false
+      };
+
+      await TechnoritiDB.updateSiteSetting('mobile_hero_visibility', updated, 'Mobile hero content visibility toggles');
+      state.settings.mobile_hero_visibility = updated;
+
+      await TechnoritiDB.logAdminAction('UPDATE_MOBILE_HERO_VISIBILITY', 'site_settings', 'mobile_hero_visibility', current, updated);
+      showToast('Mobile hero visibility settings saved and published!', 'success');
+    } catch (err) {
+      showToast('Failed to save mobile visibility settings: ' + err.message, 'error');
+    } finally {
+      if (saveBtn) {
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = originalText;
+      }
+    }
+  };
 
   window.saveHeroSectionSettings = async function () {
     try {

@@ -290,34 +290,34 @@
   <!-- ==================== CLEAN HERO STAGE ==================== -->
   <main class="clean-hero-viewport">
     <div class="hero-stage-content">
-      <div class="hero-badge">
+      <div class="hero-badge" id="hero-badge-tagline">
         <span class="pulsing-radar"></span>
         <span>EAST INDIA'S PREMIER TECHNICAL FESTIVAL</span>
       </div>
       
-      <h2 class="hero-college-tag">BHAGALPUR COLLEGE OF ENGINEERING</h2>
-      <h1 class="hero-main-title">TECHNORITI '26</h1>
-      <p class="hero-date-cue">COMING DECEMBER 2026</p>
-      <p class="hero-tagline">An Aetherial Confluence of Technology, Robotics & Pure Innovation</p>
+      <h2 class="hero-college-tag" id="hero-college-name">BHAGALPUR COLLEGE OF ENGINEERING</h2>
+      <h1 class="hero-main-title" id="hero-main-title">TECHNORITI '26</h1>
+      <p class="hero-date-cue" id="hero-date-text">COMING DECEMBER 2026</p>
+      <p class="hero-tagline" id="hero-theme-text">An Aetherial Confluence of Technology, Robotics & Pure Innovation</p>
 
-      <div class="hero-stats-bar">
-        <div class="stat-cell">
+      <div class="hero-stats-bar" id="hero-stats-container">
+        <div class="stat-cell" id="hero-stat-edition">
           <span class="sc-num">DEC 2026</span>
           <span class="sc-label">EDITION DATES</span>
         </div>
-        <div class="stat-sep">/</div>
-        <div class="stat-cell">
+        <div class="stat-sep" id="hero-stat-sep1">/</div>
+        <div class="stat-cell" id="hero-stat-comps">
           <span class="sc-num">29+</span>
           <span class="sc-label">TECH COMPETITIONS</span>
         </div>
-        <div class="stat-sep">/</div>
-        <div class="stat-cell">
+        <div class="stat-sep" id="hero-stat-sep2">/</div>
+        <div class="stat-cell" id="hero-stat-prize">
           <span class="sc-num">₹1,00,000+</span>
           <span class="sc-label">PRIZE POOL</span>
         </div>
       </div>
 
-      <div class="hero-cta-buttons">
+      <div class="hero-cta-buttons" id="hero-cta-group">
         <button class="primary-glow-btn" onclick="window.openPanel('competitions')">
           <span>EXPLORE COMPETITIONS</span>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
@@ -470,7 +470,6 @@
               <div class="screenshot60-tag">EARLY BIRD BOOKING LIVE NOW</div>
               <h2 class="screenshot60-title">BOOK YOUR STAY</h2>
               <h3 class="screenshot60-subtitle">Inside BCE Bhagalpur Campus</h3>
-              <p class="screenshot60-subtext">Get Free Access to all events & arenas at Technoriti '26</p>
 
               <!-- Clean Tariff Strip -->
               <div class="screenshot60-tariff-pill">
@@ -483,7 +482,7 @@
 
               <!-- Action Row: Prominent Clickable Red Button (Screenshot 60) -->
               <div class="screenshot60-action-row">
-                <button type="button" id="accom-book-btn-front" class="screenshot60-book-btn">
+                <button type="button" id="accom-book-btn-front" class="screenshot60-book-btn" onclick="window.openAccomServiceSelector()">
                   <span>BOOK NOW</span>
                 </button>
               </div>
@@ -632,7 +631,7 @@
                   <span class="cp-name">Prof. Sarika Kushwaha</span>
                   <a href="tel:7321018753" class="cp-phone">📞 7321018753</a>
                 </div>
-                <button type="button" id="accom-book-btn-strip" class="primary-glow-btn" onclick="window.openAccomBookingModal()" style="margin-left:12px;">
+                <button type="button" id="accom-book-btn-strip" class="primary-glow-btn" onclick="window.openAccomServiceSelector()" style="margin-left:12px;">
                   <span>BOOK NOW</span>
                 </button>
               </div>
@@ -710,7 +709,7 @@
               </div>
 
               <div style="margin-top:20px; text-align:center;">
-                <button type="button" id="accom-book-btn-faq" class="primary-glow-btn" onclick="window.openAccomBookingModal()">
+                <button type="button" id="accom-book-btn-faq" class="primary-glow-btn" onclick="window.openAccomServiceSelector()">
                   <span>PROCEED TO BOOK ACCOMMODATION</span>
                 </button>
               </div>
@@ -965,6 +964,94 @@
     </div>
   </div>
 
+  <!-- Dedicated Accommodation Service Selection Modal (Choose Your Services) -->
+  <div id="accom-service-selection-modal" class="modal-backdrop" onclick="window.closeAccomServiceSelector(event)">
+    <div class="modal-dialog glassmorphism-card service-selector-dialog" onclick="event.stopPropagation()">
+      <button class="modal-close-btn" onclick="window.closeAccomServiceSelector()" title="Close">✕</button>
+
+      <div class="modal-header-styled">
+        <div class="header-icon-badge">🏨</div>
+        <div>
+          <span class="panel-badge">BCE CAMPUS HOSPITALITY DESK</span>
+          <h2 class="modal-styled-title">CHOOSE YOUR SERVICES</h2>
+          <p class="modal-styled-desc">Select independent campus lodging, fooding mess pass, or combined package for Technoriti '26.</p>
+        </div>
+      </div>
+
+      <!-- Service Selection Cards Grid -->
+      <div class="service-selector-grid">
+        <!-- Card A: Lodging / Hostel -->
+        <div class="service-choice-card" id="choice-card-lodging" onclick="window.selectAccomServiceChoice('lodging')">
+          <div class="choice-card-header">
+            <span class="choice-card-icon">🛏️</span>
+            <span class="choice-card-badge">CAMPUS HOSTEL</span>
+          </div>
+          <div class="choice-card-body">
+            <h3 class="choice-card-title">Lodging / Hostel Booking</h3>
+            <p class="choice-card-desc">Secure campus hostel accommodation inside BCE Bhagalpur campus with 24/7 security, high-speed Wi-Fi, and clean bedding.</p>
+            <div class="choice-card-tariff">
+              <span class="tariff-amount">₹50</span>
+              <span class="tariff-unit">/ person / day</span>
+            </div>
+          </div>
+          <button type="button" class="choice-select-btn" onclick="event.stopPropagation(); window.selectAccomServiceChoice('lodging');">
+            <span class="btn-check-icon">✓</span>
+            <span class="btn-text">Select Lodging</span>
+          </button>
+        </div>
+
+        <!-- Card B: Fooding / Campus Mess -->
+        <div class="service-choice-card" id="choice-card-fooding" onclick="window.selectAccomServiceChoice('fooding')">
+          <div class="choice-card-header">
+            <span class="choice-card-icon">🍱</span>
+            <span class="choice-card-badge">CAMPUS MESS PASS</span>
+          </div>
+          <div class="choice-card-body">
+            <h3 class="choice-card-title">Fooding / Campus Mess</h3>
+            <p class="choice-card-desc">3 freshly prepared, hygienic campus mess meals daily (Breakfast, Lunch & Dinner). Can be booked with or without hostel stay.</p>
+            <div class="choice-card-tariff">
+              <span class="tariff-amount">₹125</span>
+              <span class="tariff-unit">/ person / day</span>
+            </div>
+          </div>
+          <button type="button" class="choice-select-btn" onclick="event.stopPropagation(); window.selectAccomServiceChoice('fooding');">
+            <span class="btn-check-icon">✓</span>
+            <span class="btn-text">Select Fooding</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Select Both Combo Card -->
+      <div class="service-both-option selected" id="choice-card-both" onclick="window.selectAccomServiceChoice('both')">
+        <div class="both-info">
+          <span class="both-tag">RECOMMENDED FESTIVAL COMBO</span>
+          <h4 class="both-title">Select Both Services (Lodging + Fooding)</h4>
+          <p class="both-desc">Complete festival package: campus hostel accommodation + 3 daily mess meals</p>
+        </div>
+        <div class="both-action">
+          <div class="both-tariff-box">
+            <span class="both-tariff">₹175</span>
+            <span class="both-tariff-unit">/ person / day</span>
+          </div>
+          <button type="button" class="choice-select-btn both-btn" onclick="event.stopPropagation(); window.selectAccomServiceChoice('both');">
+            <span class="btn-check-icon">✓</span>
+            <span>Select Both Services</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Modal Footer Controls -->
+      <div class="service-selector-footer">
+        <button type="button" class="btn-selector-back" onclick="window.closeAccomServiceSelector()">
+          <span>✕ Cancel</span>
+        </button>
+        <button type="button" class="btn-selector-continue" id="btn-selector-continue" onclick="window.proceedToAccomBookingForm()">
+          <span>Continue with Selected Services →</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Dedicated Accommodation Booking Modal -->
   <div id="accom-booking-modal" class="modal-backdrop" onclick="window.closeAccomBookingModal(event)">
     <div class="modal-dialog glassmorphism-card wide-dialog accom-dialog" onclick="event.stopPropagation()">
@@ -972,10 +1059,13 @@
       
       <div class="modal-header-styled">
         <div class="header-icon-badge">🏠</div>
-        <div>
-          <span class="panel-badge">BCE CAMPUS HOSTEL ALLOTMENT</span>
-          <h2 class="modal-styled-title">CAMPUS ACCOMMODATION BOOKING</h2>
-          <p class="modal-styled-desc">Lodging ₹50/day + Food ₹125/day (₹175 per head/day) inside BCE Bhagalpur Campus</p>
+        <div style="flex:1;">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+            <span class="panel-badge">BCE CAMPUS HOSTEL & MESS BOOKING</span>
+            <button type="button" class="btn-back-to-selector" onclick="window.returnToAccomServiceSelector()">← Change Services</button>
+          </div>
+          <h2 class="modal-styled-title" id="accom-modal-title">ACCOMMODATION & MESS BOOKING</h2>
+          <p class="modal-styled-desc" id="accom-modal-subtitle">Lodging ₹50/day + Food ₹125/day inside BCE Bhagalpur Campus</p>
         </div>
       </div>
 
@@ -1016,7 +1106,7 @@
           </div>
         </div>
 
-        <!-- Row 4: Booking Type, Gender & Hostel Block -->
+        <!-- Row 4: Booking Type, Gender, Hostel Block & Food Preference -->
         <div class="form-row three-col">
           <div class="form-group">
             <label for="accom-booking-type">Booking Type *</label>
@@ -1033,11 +1123,18 @@
               <option value="other">Other</option>
             </select>
           </div>
-          <div class="form-group">
-            <label for="accom-hostel">Hostel Block</label>
+          <div class="form-group" id="accom-hostel-group">
+            <label for="accom-hostel">Hostel Block *</label>
             <select id="accom-hostel" required>
               <option value="Boys Hostel Block" selected>Boys Hostel Block</option>
               <option value="Girls Hostel Block">Girls Hostel Block</option>
+            </select>
+          </div>
+          <div class="form-group" id="accom-food-pref-group" style="display:none;">
+            <label for="accom-food-pref">Mess Meal Diet</label>
+            <select id="accom-food-pref">
+              <option value="veg" selected>Vegetarian (Fresh Mess)</option>
+              <option value="nonveg">Non-Vegetarian (Where Available)</option>
             </select>
           </div>
         </div>
@@ -1078,7 +1175,7 @@
           <label class="section-subheading">SERVICES REQUIRED (SELECT AT LEAST ONE)</label>
           <div class="services-grid">
             <label class="service-selection-card" for="accom-opt-lodging">
-              <input type="checkbox" id="accom-opt-lodging" checked onchange="window.updateAccomFeeSummary()">
+              <input type="checkbox" id="accom-opt-lodging" checked onchange="window.updateAccomServiceVisibility(); window.updateAccomFeeSummary()">
               <div class="service-card-content">
                 <div class="svc-header">
                   <span class="svc-title">🛏️ LODGING / HOSTEL</span>
@@ -1089,7 +1186,7 @@
             </label>
 
             <label class="service-selection-card" for="accom-opt-fooding">
-              <input type="checkbox" id="accom-opt-fooding" checked onchange="window.updateAccomFeeSummary()">
+              <input type="checkbox" id="accom-opt-fooding" checked onchange="window.updateAccomServiceVisibility(); window.updateAccomFeeSummary()">
               <div class="service-card-content">
                 <div class="svc-header">
                   <span class="svc-title">🍱 FOODING / CAMPUS MESS</span>

@@ -897,8 +897,8 @@
     let initialAngle = 0;
 
     stage.addEventListener('mousedown', (e) => {
-      // Don't drag if clicking buttons or inputs
-      if (e.target.closest('button, a, input, select, .faq-item')) return;
+      // Don't drag if clicking buttons, inputs, links, pills, cards, or modals
+      if (e.target.closest('button, a, input, select, label, .room-pill, .room-top-bar, .modal-backdrop, .service-choice-card, .service-both-option, .screenshot60-book-btn, .clickable')) return;
       isDragging = true;
       dragStartX = e.clientX;
       initialAngle = targetRoomAngle;
@@ -931,11 +931,15 @@
 
     // Mobile touch swipe to rotate
     let touchStartY = 0;
+    let touchStartX = 0;
     stage.addEventListener('touchstart', (e) => {
+      if (e.target.closest('button, a, input, select, label, .room-pill, .room-top-bar, .modal-backdrop, .service-choice-card, .service-both-option, .screenshot60-book-btn, .clickable')) return;
       touchStartY = e.touches[0].clientY;
+      touchStartX = e.touches[0].clientX;
     }, { passive: true });
 
     stage.addEventListener('touchend', (e) => {
+      if (e.target.closest('button, a, input, select, label, .room-pill, .room-top-bar, .modal-backdrop, .service-choice-card, .service-both-option, .screenshot60-book-btn, .clickable')) return;
       const touchEndY = e.changedTouches[0].clientY;
       const dy = touchStartY - touchEndY;
       if (Math.abs(dy) > 45) {
@@ -1457,25 +1461,68 @@
   };
 
   // =====================================================================
-  // 5B. DEDICATED ACCOMMODATION BOOKING ENGINE (INDEPENDENT SERVICES)
+  // 5B. CHOOSE YOUR SERVICES & ACCOMMODATION BOOKING FLOW
   // =====================================================================
-  window.openAccomBookingModal = function (serviceType) {
-    const modal = document.getElementById('accom-booking-modal');
-    if (!modal) return;
+  let selectedServiceChoice = 'both'; // 'lodging', 'fooding', or 'both'
+
+  window.openAccomServiceSelector = function (presetChoice) {
+    if (typeof window.closeMobileDrawer === 'function') {
+      window.closeMobileDrawer();
+    }
+
+    const selectorModal = document.getElementById('accom-service-selection-modal');
+    if (!selectorModal) {
+      window.openAccomBookingModal(presetChoice);
+      return;
+    }
+
+    selectorModal.classList.add('open');
+    window.selectAccomServiceChoice(presetChoice || selectedServiceChoice || 'both');
+  };
+
+  window.closeAccomServiceSelector = function (e) {
+    if (e && e.target && e.target.classList.contains('service-selector-dialog')) return;
+    const modal = document.getElementById('accom-service-selection-modal');
+    if (modal) modal.classList.remove('open');
+  };
+
+  window.selectAccomServiceChoice = function (choice) {
+    selectedServiceChoice = choice || 'both';
+
+    const cardLodging = document.getElementById('choice-card-lodging');
+    const cardFooding = document.getElementById('choice-card-fooding');
+    const cardBoth = document.getElementById('choice-card-both');
+    const continueBtn = document.getElementById('btn-selector-continue');
+
+    if (cardLodging) cardLodging.classList.toggle('selected', selectedServiceChoice === 'lodging');
+    if (cardFooding) cardFooding.classList.toggle('selected', selectedServiceChoice === 'fooding');
+    if (cardBoth) cardBoth.classList.toggle('selected', selectedServiceChoice === 'both');
+
+    if (continueBtn) {
+      if (selectedServiceChoice === 'lodging') {
+        continueBtn.innerHTML = `<span>Continue with Lodging Only (₹50/day) →</span>`;
+      } else if (selectedServiceChoice === 'fooding') {
+        continueBtn.innerHTML = `<span>Continue with Fooding Only (₹125/day) →</span>`;
+      } else {
+        continueBtn.innerHTML = `<span>Continue with Both Services (₹175/day) →</span>`;
+      }
+    }
+  };
+
+  window.proceedToAccomBookingForm = function () {
+    const selectorModal = document.getElementById('accom-service-selection-modal');
+    if (selectorModal) selectorModal.classList.remove('open');
+
+    const bookingModal = document.getElementById('accom-booking-modal');
+    if (!bookingModal) return;
 
     const lodgingCheck = document.getElementById('accom-opt-lodging');
     const foodingCheck = document.getElementById('accom-opt-fooding');
-    const errorBanner = document.getElementById('accom-error-banner');
 
-    if (errorBanner) {
-      errorBanner.style.display = 'none';
-      errorBanner.textContent = '';
-    }
-
-    if (serviceType === 'lodging') {
+    if (selectedServiceChoice === 'lodging') {
       if (lodgingCheck) lodgingCheck.checked = true;
       if (foodingCheck) foodingCheck.checked = false;
-    } else if (serviceType === 'fooding') {
+    } else if (selectedServiceChoice === 'fooding') {
       if (lodgingCheck) lodgingCheck.checked = false;
       if (foodingCheck) foodingCheck.checked = true;
     } else {
@@ -1483,14 +1530,69 @@
       if (foodingCheck) foodingCheck.checked = true;
     }
 
-    modal.classList.add('open');
+    bookingModal.classList.add('open');
+    window.updateAccomServiceVisibility();
     window.updateAccomFeeSummary();
+  };
+
+  window.returnToAccomServiceSelector = function () {
+    const bookingModal = document.getElementById('accom-booking-modal');
+    if (bookingModal) bookingModal.classList.remove('open');
+
+    window.openAccomServiceSelector(selectedServiceChoice);
+  };
+
+  window.openAccomBookingModal = function (serviceType) {
+    window.openAccomServiceSelector(serviceType);
   };
 
   window.closeAccomBookingModal = function (e) {
     if (e && e.target && e.target.classList.contains('modal-dialog')) return;
     const modal = document.getElementById('accom-booking-modal');
     if (modal) modal.classList.remove('open');
+  };
+
+  window.updateAccomServiceVisibility = function () {
+    const lodgingCheck = document.getElementById('accom-opt-lodging');
+    const foodingCheck = document.getElementById('accom-opt-fooding');
+    const hostelGroup = document.getElementById('accom-hostel-group');
+    const hostelSelect = document.getElementById('accom-hostel');
+    const foodPrefGroup = document.getElementById('accom-food-pref-group');
+    const modalTitle = document.getElementById('accom-modal-title');
+    const modalSubtitle = document.getElementById('accom-modal-subtitle');
+
+    const isLodging = lodgingCheck ? lodgingCheck.checked : false;
+    const isFooding = foodingCheck ? foodingCheck.checked : false;
+
+    if (hostelGroup && hostelSelect) {
+      if (isLodging) {
+        hostelGroup.style.display = 'block';
+        hostelSelect.required = true;
+      } else {
+        hostelGroup.style.display = 'none';
+        hostelSelect.required = false;
+      }
+    }
+
+    if (foodPrefGroup) {
+      foodPrefGroup.style.display = isFooding ? 'block' : 'none';
+    }
+
+    if (modalTitle && modalSubtitle) {
+      if (isLodging && isFooding) {
+        modalTitle.textContent = 'CAMPUS HOSTEL & MESS BOOKING';
+        modalSubtitle.textContent = 'Lodging ₹50/day + Food ₹125/day inside BCE Bhagalpur Campus';
+      } else if (isLodging) {
+        modalTitle.textContent = 'CAMPUS HOSTEL LODGING BOOKING';
+        modalSubtitle.textContent = 'Secure campus hostel accommodation (₹50/day) inside BCE Bhagalpur Campus';
+      } else if (isFooding) {
+        modalTitle.textContent = 'CAMPUS MESS FOODING PASS';
+        modalSubtitle.textContent = '3 hygienic daily meals (₹125/day) at BCE Bhagalpur Campus Mess';
+      } else {
+        modalTitle.textContent = 'CAMPUS ACCOMMODATION & MESS';
+        modalSubtitle.textContent = 'Please select at least one service below';
+      }
+    }
   };
 
   window.updateAccomBookingType = function () {
@@ -1669,7 +1771,7 @@
         email: email,
         gender: gender,
         bookingType: bookingType === 'group' ? `Group (${members} members)` : 'Solo',
-        hostelBlock: hostel,
+        hostelBlock: isLodging ? hostel : 'Not Applicable (Campus Mess Pass)',
         daysCount: days,
         occupants: members,
         dailyRate: dailyRate,
@@ -1677,7 +1779,7 @@
         lodgingRequired: isLodging,
         foodRequired: isFooding,
         arrival: arrival,
-        preferences: `Roll: ${roll} | Branch: ${branch} | Type: ${bookingType} | Arrival: ${arrival || 'Dec 2026'} | Notes: ${notes || 'None'}`
+        preferences: `Roll: ${roll} | Branch: ${branch} | Type: ${bookingType} | Diet: ${isFooding ? (document.getElementById('accom-food-pref')?.value || 'veg') : 'N/A'} | Arrival: ${arrival || 'Dec 2026'} | Notes: ${notes || 'None'}`
       });
 
       // ONLY show success if Supabase confirmed success!
@@ -1696,8 +1798,16 @@
       const summaryEl = document.getElementById('accom-success-summary');
       if (refEl) refEl.textContent = bookingRef;
       if (summaryEl) {
-        const servicesText = isLodging && isFooding ? 'Lodging + Mess Food' : (isLodging ? 'Hostel Lodging Only' : 'Campus Mess Food Only');
-        summaryEl.textContent = `Hello ${name} (Roll: ${roll}, Branch: ${branch})! Your ${bookingType.toUpperCase()} reservation [${servicesText}] for ${members} person(s) for ${days} days at ${hostel} has been successfully recorded in the Technoriti database. Total verified tariff: ₹${totalAmount}.`;
+        let servicesText = '';
+        if (isLodging && isFooding) {
+          servicesText = 'Hostel Lodging + Campus Mess Food';
+        } else if (isLodging) {
+          servicesText = 'Hostel Lodging Only';
+        } else {
+          servicesText = 'Campus Mess Dining Pass Only';
+        }
+        const locationText = isLodging ? `at ${hostel}` : 'at Campus Dining Hall';
+        summaryEl.textContent = `Hello ${name} (Roll: ${roll}, Branch: ${branch})! Your reservation for [${servicesText}] for ${members} person(s) for ${days} days ${locationText} has been verified and recorded in the Technoriti database. Total confirmed tariff: ₹${totalAmount}.`;
       }
 
       const successModal = document.getElementById('accom-success-modal');
@@ -1898,9 +2008,9 @@
         } else if (action === 'competitions' || action === 'accommodation' || action === 'about' || action === 'sponsors' || action === 'register') {
           window.openPanel(action);
         } else if (action === 'lodging') {
-          window.openAccomBookingModal('lodging');
+          window.openAccomServiceSelector('lodging');
         } else if (action === 'fooding') {
-          window.openAccomBookingModal('fooding');
+          window.openAccomServiceSelector('fooding');
         }
       });
     });
@@ -1910,12 +2020,12 @@
       btn.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
-        window.openAccomBookingModal();
+        window.openAccomServiceSelector();
       });
       btn.addEventListener('touchend', (e) => {
         e.preventDefault();
         e.stopPropagation();
-        window.openAccomBookingModal();
+        window.openAccomServiceSelector();
       });
     });
 
@@ -1927,6 +2037,7 @@
         window.closeAllPanels();
         window.closeCompModal();
         if (typeof window.closeMobileDrawer === 'function') window.closeMobileDrawer();
+        if (typeof window.closeAccomServiceSelector === 'function') window.closeAccomServiceSelector();
         if (typeof window.closeAccomBookingModal === 'function') window.closeAccomBookingModal();
         const successModal = document.getElementById('success-modal');
         if (successModal) successModal.classList.remove('open');
@@ -2021,6 +2132,9 @@
         if (seo && seo.site_title) {
           document.title = seo.site_title;
         }
+
+        // Mobile Hero Visibility Controls
+        applyMobileHeroVisibility(settings.mobile_hero_visibility);
       }
 
       // 2. Hydrate Navigation Items
@@ -2097,7 +2211,51 @@
     }
   }
 
+  function applyMobileHeroVisibility(cfg) {
+    const m = cfg || {
+      show_tagline: false,
+      show_theme: false,
+      show_event_date: false,
+      show_edition_card: false,
+      show_competition_count: false,
+      show_prize_pool: false,
+      show_college_tag: true,
+      show_cta_buttons: true
+    };
+
+    const badge = document.getElementById('hero-badge-tagline');
+    if (badge) badge.classList.toggle('mobile-forced-show', !!m.show_tagline);
+
+    const theme = document.getElementById('hero-theme-text');
+    if (theme) theme.classList.toggle('mobile-forced-show', !!m.show_theme);
+
+    const dateCue = document.getElementById('hero-date-text');
+    if (dateCue) dateCue.classList.toggle('mobile-forced-show', !!m.show_event_date);
+
+    const statEdition = document.getElementById('hero-stat-edition');
+    if (statEdition) statEdition.classList.toggle('mobile-forced-show', !!m.show_edition_card);
+
+    const statComps = document.getElementById('hero-stat-comps');
+    if (statComps) statComps.classList.toggle('mobile-forced-show', !!m.show_competition_count);
+
+    const statPrize = document.getElementById('hero-stat-prize');
+    if (statPrize) statPrize.classList.toggle('mobile-forced-show', !!m.show_prize_pool);
+
+    const collegeTag = document.getElementById('hero-college-name');
+    if (collegeTag) collegeTag.classList.toggle('mobile-forced-hide', m.show_college_tag === false);
+
+    const ctaGroup = document.getElementById('hero-cta-group');
+    if (ctaGroup) ctaGroup.classList.toggle('mobile-forced-hide', m.show_cta_buttons === false);
+
+    const statsContainer = document.getElementById('hero-stats-container');
+    const hasVisibleStats = !!(m.show_edition_card || m.show_competition_count || m.show_prize_pool);
+    if (statsContainer) {
+      statsContainer.classList.toggle('mobile-has-visible-stats', hasVisibleStats);
+    }
+  }
+
   function init() {
+    applyMobileHeroVisibility();
     resizeCanvas();
     attachEventListeners();
     renderCompetitions('all');
