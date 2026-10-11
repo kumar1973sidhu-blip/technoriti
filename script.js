@@ -2171,7 +2171,7 @@
       // Check if hovering over clickable or interactive elements
       const target = e.target;
       const isInteractive = target && target.closest(
-        'button, a, input, select, .dock-link, .nav-item, .event-card, .price-box-card, .filter-btn, .partner-cell, .coord-box-dr, .drawer-close-btn, .action-btn, [role="button"]'
+        'button, a, input, select, .dock-link, .nav-item, .event-card, .price-box-card, .filter-btn, .partner-cell, .coord-box-dr, .drawer-close-btn, .action-btn, [role="button"], .service-choice-card, .service-both-option, .choice-select-btn, .both-btn, .faq-item, .btn-selector-back, .btn-selector-continue, .btn-back-to-selector, .screenshot60-book-btn, #accom-book-btn-front'
       );
 
       if (isInteractive) {
@@ -2510,12 +2510,11 @@
   }
 
   // =====================================================================
-  // 7. 3D INTERACTIVE MOUSE & COSMIC PARALLAX ENGINE
+  // 7. 3D INTERACTIVE MOUSE PARALLAX ENGINE
   // =====================================================================
   function setup3DMouseParallax() {
     const heroContent = document.querySelector('.hero-stage-content');
     const canvasWrapper = document.getElementById('canvas-wrapper');
-    const cosmicBg = document.querySelector('.cosmic-bg-image');
     if (!heroContent) return;
 
     const prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -2596,10 +2595,6 @@
 
       if (canvasWrapper) {
         canvasWrapper.style.transform = `scale(1.03) translate3d(${(-curTransX * 0.25).toFixed(1)}px, ${(-curTransY * 0.25).toFixed(1)}px, 0)`;
-      }
-
-      if (cosmicBg) {
-        cosmicBg.style.transform = `scale(1.04) translate3d(${(-curTransX * 0.35).toFixed(1)}px, ${(-curTransY * 0.35).toFixed(1)}px, 0)`;
       }
 
       requestAnimationFrame(updateParallax);

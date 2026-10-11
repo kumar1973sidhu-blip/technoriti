@@ -59,7 +59,7 @@ html, body {
   width: 34px;
   height: 34px;
   pointer-events: none;
-  z-index: 10000;
+  z-index: 9999999 !important;
   will-change: transform;
   transform: translate3d(-100px, -100px, 0);
   opacity: 0;
@@ -96,7 +96,7 @@ html, body {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: 9998;
+  z-index: 9999998 !important;
   overflow: hidden;
 }
 
@@ -132,7 +132,7 @@ html, body {
   pointer-events: none;
   background: radial-gradient(circle, rgba(0, 255, 136, 0.08) 0%, rgba(0, 240, 255, 0.04) 45%, transparent 70%);
   transform: translate(-50%, -50%);
-  z-index: 999;
+  z-index: 9999997 !important;
   mix-blend-mode: screen;
 }
 
@@ -1951,7 +1951,7 @@ html, body {
     border-radius: 2px !important;
   }
 
-  /* Mobile Cosmic Viewport */
+  /* Mobile Viewport with Restored Canvas Scroll Sequence Background Animation */
   .clean-hero-viewport {
     position: relative !important;
     min-height: 100vh !important;
@@ -1962,55 +1962,11 @@ html, body {
     align-items: center !important;
     justify-content: space-between !important;
     overflow: hidden !important;
-    background: #01040d !important;
+    background: radial-gradient(circle at 50% 40%, rgba(0, 240, 255, 0.08) 0%, rgba(3, 7, 18, 0.85) 75%) !important;
   }
 
-  /* Cosmic 3D Atmospheric Backdrop */
   .mobile-cosmic-backdrop {
-    display: block !important;
-    position: absolute !important;
-    inset: 0 !important;
-    z-index: 1 !important;
-    overflow: hidden !important;
-    pointer-events: none !important;
-  }
-
-  .cosmic-bg-image {
-    position: absolute !important;
-    inset: 0 !important;
-    background: #01040d url('cosmic-hero-bg.jpg') no-repeat center top / cover !important;
-    will-change: transform !important;
-    transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
-  }
-
-  .cosmic-planet-glow {
-    position: absolute !important;
-    top: 16% !important;
-    left: 50% !important;
-    transform: translate(-50%, -50%) !important;
-    width: 88vw !important;
-    height: 88vw !important;
-    max-width: 440px !important;
-    max-height: 440px !important;
-    border-radius: 50% !important;
-    background: radial-gradient(circle, rgba(0, 240, 255, 0.22) 0%, rgba(0, 240, 255, 0.06) 50%, transparent 70%) !important;
-    pointer-events: none !important;
-    animation: planetAtmosphereBreath 6s ease-in-out infinite alternate !important;
-  }
-
-  .cosmic-starfield {
-    position: absolute !important;
-    inset: 0 !important;
-    background-image: 
-      radial-gradient(1px 1px at 20px 30px, #ffffff, rgba(0,0,0,0)),
-      radial-gradient(1.5px 1.5px at 140px 80px, rgba(0,240,255,0.9), rgba(0,0,0,0)),
-      radial-gradient(1px 1px at 240px 180px, #ffffff, rgba(0,0,0,0)),
-      radial-gradient(1.5px 1.5px at 320px 120px, rgba(168,85,247,0.8), rgba(0,0,0,0)),
-      radial-gradient(1px 1px at 80px 240px, #ffffff, rgba(0,0,0,0)) !important;
-    background-repeat: repeat !important;
-    background-size: 340px 340px !important;
-    opacity: 0.65 !important;
-    pointer-events: none !important;
+    display: none !important;
   }
 
   /* Stage Content & Minimalist Typography */
