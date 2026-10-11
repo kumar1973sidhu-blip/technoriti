@@ -64,7 +64,9 @@ const rootFilesToCopy = [
   'principal-office-portrait.png',
   'bce-campus-building.jpg',
   'convener-portrait.jpg',
-  'cosmic-hero-bg.jpg'
+  'cosmic-hero-bg.jpg',
+  'developer-1.jpg',
+  'developer-2.jpg'
 ];
 
 for (const file of rootFilesToCopy) {

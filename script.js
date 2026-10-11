@@ -1025,6 +1025,8 @@
         window.rotateRoomTo(0);
       } else if (panelName === 'about') {
         hydrateDynamicCmsContent();
+      } else if (panelName === 'developers') {
+        hydrateDevelopersContent();
       }
     }
 
@@ -2624,7 +2626,17 @@
       if (navItems && navItems.length > 0) {
         const navList = document.querySelector('.nav-links');
         if (navList) {
-          navList.innerHTML = navItems.map(item => {
+          const hasDev = navItems.some(i => i.destination_url === 'developers' || (i.label && i.label.toLowerCase().includes('developer')));
+          let renderedItems = [...navItems];
+          if (!hasDev) {
+            renderedItems.push({
+              label: 'DEVELOPERS',
+              destination_url: 'developers',
+              is_external: false,
+              open_in_new_tab: false
+            });
+          }
+          navList.innerHTML = renderedItems.map(item => {
             if (item.is_external) {
               return `<li><a href="${escapeHtml(item.destination_url)}" class="nav-item" ${item.open_in_new_tab ? 'target="_blank" rel="noopener"' : ''} style="text-decoration:none;">${escapeHtml(item.label)}</a></li>`;
             } else {
@@ -2751,9 +2763,147 @@
           partnerGrids.forEach(g => g.innerHTML = cellsHtml);
         }
       }
+
+      // 4. Hydrate Web Developers & Coordinators
+      await hydrateDevelopersContent();
     } catch (err) {
       console.warn('Hydration note:', err.message);
     }
+  }
+
+  // =========================================================================
+  // WEB DEVELOPERS & COORDINATORS SECTION DYNAMIC HYDRATION & 3D TILT
+  // =========================================================================
+  const DEFAULT_DEV_DATA = {
+    developer1: {
+      name: 'Siddharth Bhushan',
+      role: 'Web Developer',
+      branch: 'Mechanical Engineering',
+      session: 'Session: 2024–2028',
+      photo: '/developer-1.jpg',
+      bio: 'Architected the digital frontend, interactive 3D portal engine, responsive design, and festival system workflows for TECHNORITI ’26.'
+    },
+    developer2: {
+      name: 'Web Developer Partner',
+      role: 'Web Developer',
+      branch: 'Engineering & Technology',
+      session: 'Session: 2024–2028',
+      photo: '/developer-2.jpg',
+      bio: 'Contributed to website architecture, responsive mobile layouts, dynamic database synchronization, and seamless user interaction.'
+    },
+    coordinators_intro: 'Student leadership steering technical challenges, logistics, and participant experience for TECHNORITI \'26.',
+    coordinators: [
+      { name: 'Shubham Thakur', designation: 'Lead Coordinator', department: 'BCE Bhagalpur' },
+      { name: 'Vinit Kumar', designation: 'Event Coordinator', department: 'BCE Bhagalpur' },
+      { name: 'Md. Aman Ansari', designation: 'Technical Coordinator', department: 'BCE Bhagalpur' },
+      { name: 'Madan Kumar Jha', designation: 'Logistics Coordinator', department: 'BCE Bhagalpur' },
+      { name: 'Manish Kumar', designation: 'Hospitality Coordinator', department: 'BCE Bhagalpur' },
+      { name: 'Saurav Singh', designation: 'Arena Coordinator', department: 'BCE Bhagalpur' },
+      { name: 'Varun Singh', designation: 'Public Relations', department: 'BCE Bhagalpur' },
+      { name: 'Deepankar Pandey', designation: 'Operations Coordinator', department: 'BCE Bhagalpur' },
+      { name: 'Himanshu Vishwas', designation: 'Security & Flow', department: 'BCE Bhagalpur' },
+      { name: 'Dev Raj Dev', designation: 'Sponsorship Coordinator', department: 'BCE Bhagalpur' }
+    ]
+  };
+
+  async function hydrateDevelopersContent() {
+    try {
+      let devData = DEFAULT_DEV_DATA;
+      if (window.TechnoritiDB) {
+        const settings = await window.TechnoritiDB.getSiteSettings();
+        if (settings && settings.web_developers_and_coordinators) {
+          devData = Object.assign({}, DEFAULT_DEV_DATA, settings.web_developers_and_coordinators);
+        }
+      }
+
+      // 1. Developer 1
+      const d1 = devData.developer1 || DEFAULT_DEV_DATA.developer1;
+      const elD1Name = document.getElementById('dev1-name');
+      if (elD1Name && d1.name) elD1Name.textContent = d1.name;
+      const elD1Role = document.getElementById('dev1-role');
+      if (elD1Role && d1.role) elD1Role.textContent = d1.role;
+      const elD1Branch = document.getElementById('dev1-branch');
+      if (elD1Branch && d1.branch) elD1Branch.textContent = d1.branch;
+      const elD1Session = document.getElementById('dev1-session');
+      if (elD1Session && d1.session) {
+        elD1Session.textContent = d1.session.startsWith('Session') ? d1.session : `Session: ${d1.session}`;
+      }
+      const elD1Bio = document.getElementById('dev1-bio');
+      if (elD1Bio && d1.bio) elD1Bio.textContent = d1.bio;
+      const elD1Photo = document.getElementById('dev1-photo');
+      if (elD1Photo && d1.photo) elD1Photo.src = d1.photo;
+
+      // 2. Developer 2
+      const d2 = devData.developer2 || DEFAULT_DEV_DATA.developer2;
+      const elD2Name = document.getElementById('dev2-name');
+      if (elD2Name && d2.name) elD2Name.textContent = d2.name;
+      const elD2Role = document.getElementById('dev2-role');
+      if (elD2Role && d2.role) elD2Role.textContent = d2.role;
+      const elD2Branch = document.getElementById('dev2-branch');
+      if (elD2Branch && d2.branch) elD2Branch.textContent = d2.branch;
+      const elD2Session = document.getElementById('dev2-session');
+      if (elD2Session && d2.session) {
+        elD2Session.textContent = d2.session.startsWith('Session') ? d2.session : `Session: ${d2.session}`;
+      }
+      const elD2Bio = document.getElementById('dev2-bio');
+      if (elD2Bio && d2.bio) elD2Bio.textContent = d2.bio;
+      const elD2Photo = document.getElementById('dev2-photo');
+      if (elD2Photo && d2.photo) elD2Photo.src = d2.photo;
+
+      // 3. Coordinators Intro Subtitle
+      const elCoordIntro = document.getElementById('coord-intro-text');
+      if (elCoordIntro && devData.coordinators_intro) {
+        elCoordIntro.textContent = devData.coordinators_intro;
+      }
+
+      // 4. Coordinators List (strictly names, designations, and departments - NO photos, phones, or emails)
+      const elCoordGrid = document.getElementById('coordinators-grid');
+      const coords = Array.isArray(devData.coordinators) && devData.coordinators.length > 0
+        ? devData.coordinators
+        : DEFAULT_DEV_DATA.coordinators;
+
+      if (elCoordGrid && coords) {
+        elCoordGrid.innerHTML = coords.map(c => `
+          <div class="coord-card">
+            <div class="coord-name">${escapeHtml(c.name)}</div>
+            ${c.designation ? `<div class="coord-designation">${escapeHtml(c.designation)}</div>` : ''}
+            ${c.department ? `<div class="coord-dept">${escapeHtml(c.department)}</div>` : ''}
+          </div>
+        `).join('');
+      }
+
+      // Setup 3D tilt interaction for cards
+      setupDeveloperCard3DTilt();
+    } catch (err) {
+      console.warn('[Technoriti] Error hydrating developers section:', err);
+    }
+  }
+
+  function setupDeveloperCard3DTilt() {
+    const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+    if (isTouch || window.innerWidth <= 768) return;
+
+    const cards = document.querySelectorAll('.developer-card');
+    cards.forEach(card => {
+      // Remove existing listeners if any
+      if (card.__hasTiltListener) return;
+      card.__hasTiltListener = true;
+
+      card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        const rotateX = ((y - centerY) / centerY) * -6.5; // Restrained tilt
+        const rotateY = ((x - centerX) / centerX) * 6.5;
+        card.style.transform = `perspective(1000px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) translateY(-8px)`;
+      });
+
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = '';
+      });
+    });
   }
 
   function applyMobileHeroVisibility(cfg) {

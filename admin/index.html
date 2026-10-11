@@ -52,6 +52,9 @@
         <button class="nav-tab-btn" data-tab="cms-seo">
           <span>🔍</span> SEO & Metadata
         </button>
+        <button class="nav-tab-btn" data-tab="cms-developers">
+          <span>💻</span> Web Developers & Coordinators
+        </button>
 
         <!-- 3. COMPETITIONS -->
         <div class="nav-section-label">Festival Events</div>
@@ -849,6 +852,176 @@
                 Official portal for TECHNORITI '26...
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 7B: CMS - WEB DEVELOPERS & EVENT COORDINATORS -->
+      <section id="pane-cms-developers" class="admin-tab-pane">
+        <!-- 1. Header & Quick Actions -->
+        <div class="cms-card">
+          <div class="cms-card-header">
+            <div>
+              <h2 class="cms-card-title">💻 Web Developers &amp; Event Coordinators CMS</h2>
+              <p class="cms-card-sub">Manage student developer profile cards, academic credentials, portrait images, and festival coordinators list</p>
+            </div>
+            <button class="btn-primary" onclick="saveCmsDevelopers()">
+              <span>💾</span> Save All Developers &amp; Coordinators
+            </button>
+          </div>
+        </div>
+
+        <!-- 2. Developer 1 Profile Card (Siddharth Bhushan) -->
+        <div class="cms-card">
+          <div class="cms-card-header">
+            <div>
+              <h3 class="cms-card-title">👤 Developer 1 (Lead Developer)</h3>
+              <p class="cms-card-sub">Primary profile displayed on the public website</p>
+            </div>
+            <span class="badge" style="background:rgba(0,240,255,0.15); color:#00ffff; border:1px solid rgba(0,240,255,0.4); padding:4px 10px; border-radius:12px; font-size:0.75rem;">Profile 1</span>
+          </div>
+
+          <div class="cms-grid-2">
+            <div class="cms-form-group">
+              <label class="cms-label">Full Name</label>
+              <input type="text" id="cfgDev1Name" class="cms-input" placeholder="Siddharth Bhushan">
+            </div>
+            <div class="cms-form-group">
+              <label class="cms-label">Role Title</label>
+              <input type="text" id="cfgDev1Role" class="cms-input" placeholder="Web Developer">
+            </div>
+          </div>
+
+          <div class="cms-grid-2">
+            <div class="cms-form-group">
+              <label class="cms-label">Branch / Department</label>
+              <input type="text" id="cfgDev1Branch" class="cms-input" placeholder="Mechanical Engineering">
+            </div>
+            <div class="cms-form-group">
+              <label class="cms-label">Academic Session</label>
+              <input type="text" id="cfgDev1Session" class="cms-input" placeholder="2024–2028">
+            </div>
+          </div>
+
+          <div class="cms-form-group">
+            <label class="cms-label">Profile Photograph (Asset Path or Public Image URL)</label>
+            <input type="text" id="cfgDev1Photo" class="cms-input" placeholder="/developer-1.jpg">
+            <small style="color:var(--text-dim); font-size:0.75rem; margin-top:4px; display:block;">Default: /developer-1.jpg (Headshot verified from student records)</small>
+          </div>
+
+          <div class="cms-form-group">
+            <label class="cms-label">Short Description / Contributions Bio</label>
+            <textarea id="cfgDev1Bio" class="cms-textarea" rows="3" placeholder="Architected the digital frontend, interactive 3D portal engine, responsive design, and festival system workflows for TECHNORITI ’26."></textarea>
+          </div>
+        </div>
+
+        <!-- 3. Developer 2 Profile Card (Partner) -->
+        <div class="cms-card">
+          <div class="cms-card-header">
+            <div>
+              <h3 class="cms-card-title">👤 Developer 2 (Development Partner)</h3>
+              <p class="cms-card-sub">Partner profile displayed side by side on desktop and stacked on mobile</p>
+            </div>
+            <span class="badge" style="background:rgba(255,184,0,0.15); color:#ffb800; border:1px solid rgba(255,184,0,0.4); padding:4px 10px; border-radius:12px; font-size:0.75rem;">Profile 2</span>
+          </div>
+
+          <div class="cms-grid-2">
+            <div class="cms-form-group">
+              <label class="cms-label">Full Name</label>
+              <input type="text" id="cfgDev2Name" class="cms-input" placeholder="Web Developer Partner">
+            </div>
+            <div class="cms-form-group">
+              <label class="cms-label">Role Title</label>
+              <input type="text" id="cfgDev2Role" class="cms-input" placeholder="Web Developer">
+            </div>
+          </div>
+
+          <div class="cms-grid-2">
+            <div class="cms-form-group">
+              <label class="cms-label">Branch / Department</label>
+              <input type="text" id="cfgDev2Branch" class="cms-input" placeholder="Engineering & Technology">
+            </div>
+            <div class="cms-form-group">
+              <label class="cms-label">Academic Session</label>
+              <input type="text" id="cfgDev2Session" class="cms-input" placeholder="2024–2028">
+            </div>
+          </div>
+
+          <div class="cms-form-group">
+            <label class="cms-label">Profile Photograph (Asset Path or Public Image URL)</label>
+            <input type="text" id="cfgDev2Photo" class="cms-input" placeholder="/developer-2.jpg">
+            <small style="color:var(--text-dim); font-size:0.75rem; margin-top:4px; display:block;">Default: /developer-2.jpg (Partner portrait from uploaded archives)</small>
+          </div>
+
+          <div class="cms-form-group">
+            <label class="cms-label">Short Description / Contributions Bio</label>
+            <textarea id="cfgDev2Bio" class="cms-textarea" rows="3" placeholder="Contributed to website architecture, responsive mobile layouts, dynamic database synchronization, and seamless user interaction."></textarea>
+          </div>
+        </div>
+
+        <!-- 4. Event Coordinators Management Desk -->
+        <div class="cms-card">
+          <div class="cms-card-header">
+            <div>
+              <h3 class="cms-card-title">👥 Event Coordinators Desk</h3>
+              <p class="cms-card-sub">Student leadership steering technical competitions, logistics, and participant experience. Displays names only by default (strictly NO personal contact numbers or emails).</p>
+            </div>
+          </div>
+
+          <div class="cms-form-group">
+            <label class="cms-label">Coordinators Sub-Section Intro Text</label>
+            <input type="text" id="cfgCoordIntro" class="cms-input" placeholder="Student leadership steering technical challenges, logistics, and participant experience for TECHNORITI '26.">
+          </div>
+
+          <!-- Add Coordinator Form -->
+          <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border-glass); border-radius:12px; padding:16px; margin:16px 0;">
+            <h4 style="color:#00ffff; font-size:0.9rem; margin-bottom:12px; display:flex; align-items:center; gap:6px;">
+              <span>➕</span> Add New Coordinator
+            </h4>
+            <div class="cms-grid-3" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:12px; margin-bottom:12px;">
+              <div class="cms-form-group" style="margin-bottom:0;">
+                <label class="cms-label" style="font-size:0.75rem;">Full Name *</label>
+                <input type="text" id="newCoordName" class="cms-input" placeholder="e.g. Shubham Thakur">
+              </div>
+              <div class="cms-form-group" style="margin-bottom:0;">
+                <label class="cms-label" style="font-size:0.75rem;">Designation / Role</label>
+                <input type="text" id="newCoordDesignation" class="cms-input" placeholder="e.g. Lead Coordinator">
+              </div>
+              <div class="cms-form-group" style="margin-bottom:0;">
+                <label class="cms-label" style="font-size:0.75rem;">Department / College</label>
+                <input type="text" id="newCoordDept" class="cms-input" placeholder="e.g. BCE Bhagalpur">
+              </div>
+            </div>
+            <button type="button" class="btn-secondary" onclick="addCoordinatorFromAdmin()" style="margin-top:6px;">
+              <span>➕</span> Add to Coordinators List
+            </button>
+          </div>
+
+          <!-- Reorderable Coordinators Table -->
+          <div style="margin-top:16px;">
+            <label class="cms-label" style="margin-bottom:8px;">Current Coordinators (<span id="coordCountDisplay">0</span>)</label>
+            <div style="overflow-x:auto;">
+              <table class="admin-table" style="width:100%; border-collapse:collapse;">
+                <thead>
+                  <tr style="border-bottom:1px solid rgba(255,255,255,0.1); text-align:left;">
+                    <th style="padding:10px 12px; font-size:0.75rem; color:var(--text-dim);">#</th>
+                    <th style="padding:10px 12px; font-size:0.75rem; color:var(--text-dim);">Full Name</th>
+                    <th style="padding:10px 12px; font-size:0.75rem; color:var(--text-dim);">Designation</th>
+                    <th style="padding:10px 12px; font-size:0.75rem; color:var(--text-dim);">Department</th>
+                    <th style="padding:10px 12px; font-size:0.75rem; color:var(--text-dim); text-align:right;">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="coordinatorsAdminTableBody">
+                  <!-- Rendered dynamically via admin.js -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div style="margin-top:24px; display:flex; justify-content:flex-end;">
+            <button class="btn-primary" onclick="saveCmsDevelopers()">
+              <span>💾</span> Save All Developers &amp; Coordinators
+            </button>
           </div>
         </div>
       </section>

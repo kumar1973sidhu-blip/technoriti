@@ -4890,3 +4890,363 @@ html, body {
   transition: transform 0.1s ease-out;
   will-change: transform;
 }
+
+/* =====================================================================
+   7. WEB DEVELOPERS & COORDINATORS SECTION & PANEL STYLES
+   ===================================================================== */
+.developers-panel-overlay .developers-drawer {
+  width: min(1060px, 95vw);
+}
+
+.drawer-subtitle-cyan {
+  color: var(--accent-cyan, #00ffff);
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  margin-top: 4px;
+}
+
+.developers-drawer-body {
+  padding-bottom: 40px;
+}
+
+.developers-section {
+  width: 100%;
+}
+
+/* Developer 2-Card Grid (Side by side on desktop, stacked on mobile) */
+.dev-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 26px;
+  margin-top: 10px;
+  margin-bottom: 36px;
+  perspective: 1000px;
+}
+
+.developer-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+  border-radius: 20px;
+  background: linear-gradient(145deg, rgba(10, 18, 36, 0.85) 0%, rgba(6, 12, 26, 0.92) 100%);
+  border: 1px solid rgba(0, 240, 255, 0.28);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 240, 255, 0.12);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  transform-style: preserve-3d;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease, border-color 0.25s ease;
+  overflow: hidden;
+}
+
+@media (hover: hover) and (min-width: 769px) {
+  .developer-card:hover {
+    transform: translateY(-8px);
+    border-color: rgba(0, 240, 255, 0.55);
+    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.6), 0 0 35px rgba(0, 240, 255, 0.28);
+  }
+
+  .developer-card:hover .dev-photo {
+    transform: scale(1.04);
+  }
+}
+
+.dev-card-glow-edge {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(0, 240, 255, 0.8), transparent);
+  pointer-events: none;
+}
+
+.dev-photo-wrap {
+  position: relative;
+  width: 100%;
+  height: 310px;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 2px solid rgba(0, 240, 255, 0.4);
+  box-shadow: 0 0 22px rgba(0, 240, 255, 0.22);
+  margin-bottom: 20px;
+  background: #050b14;
+}
+
+.dev-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+  transition: transform 0.4s ease;
+}
+
+.dev-badge-overlay {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(5, 11, 24, 0.9);
+  border: 1px solid rgba(0, 240, 255, 0.55);
+  padding: 5px 13px;
+  border-radius: 30px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.pulse-cyan-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #00ffff;
+  box-shadow: 0 0 8px #00ffff;
+  animation: pulseDotCyan 2s infinite;
+}
+
+@keyframes pulseDotCyan {
+  0% { transform: scale(0.95); opacity: 0.8; }
+  50% { transform: scale(1.2); opacity: 1; box-shadow: 0 0 12px #00ffff; }
+  100% { transform: scale(0.95); opacity: 0.8; }
+}
+
+.dev-role-badge {
+  font-family: var(--font-orbitron);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #00ffff;
+  letter-spacing: 0.8px;
+}
+
+.dev-content {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.dev-name {
+  font-family: var(--font-orbitron);
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 8px;
+  letter-spacing: 0.5px;
+}
+
+.dev-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.dev-meta-pill {
+  font-size: 0.74rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.branch-pill {
+  background: rgba(0, 240, 255, 0.12);
+  color: #00ffff;
+  border: 1px solid rgba(0, 240, 255, 0.3);
+}
+
+.session-pill {
+  background: rgba(255, 184, 0, 0.12);
+  color: #ffb800;
+  border: 1px solid rgba(255, 184, 0, 0.35);
+}
+
+.dev-college-tag {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 12px;
+  font-weight: 500;
+}
+
+.dev-bio {
+  font-size: 0.88rem;
+  color: rgba(230, 240, 255, 0.82);
+  line-height: 1.55;
+  margin-bottom: 16px;
+  flex-grow: 1;
+}
+
+.dev-tech-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.dev-tech-tags span {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: rgba(0, 240, 255, 0.9);
+  background: rgba(0, 240, 255, 0.08);
+  border: 1px solid rgba(0, 240, 255, 0.2);
+  border-radius: 4px;
+  padding: 3px 8px;
+}
+
+/* Event Coordinators Sub-Section */
+.coordinators-sub-section {
+  margin-top: 10px;
+  padding-top: 28px;
+  border-top: 1px solid rgba(0, 240, 255, 0.2);
+}
+
+.coord-section-header {
+  text-align: center;
+  margin-bottom: 22px;
+}
+
+.coord-tag-badge {
+  display: inline-block;
+  font-family: var(--font-orbitron);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: #ffb800;
+  background: rgba(255, 184, 0, 0.1);
+  border: 1px solid rgba(255, 184, 0, 0.35);
+  padding: 4px 12px;
+  border-radius: 20px;
+  margin-bottom: 8px;
+}
+
+.coord-section-title {
+  font-family: var(--font-orbitron);
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+}
+
+.coord-section-intro {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.65);
+  max-width: 580px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+/* Compact Coordinators Grid - Names only, No photos, No phones, No emails */
+.coordinators-compact-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.coord-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 13px 15px;
+  border-radius: 12px;
+  background: rgba(10, 20, 42, 0.7);
+  border: 1px solid rgba(0, 240, 255, 0.2);
+  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+}
+
+@media (hover: hover) {
+  .coord-card:hover {
+    border-color: rgba(0, 240, 255, 0.5);
+    background: rgba(14, 28, 56, 0.85);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 18px rgba(0, 240, 255, 0.12);
+  }
+}
+
+.coord-name {
+  font-family: var(--font-orbitron);
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 4px;
+}
+
+.coord-designation {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--accent-cyan, #00ffff);
+  margin-bottom: 2px;
+}
+
+.coord-dept {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* Developers Section Footer */
+.developers-section-footer {
+  margin-top: 32px;
+  padding: 18px 20px;
+  border-radius: 14px;
+  background: rgba(0, 240, 255, 0.035);
+  border: 1px dashed rgba(0, 240, 255, 0.22);
+  text-align: center;
+}
+
+.dsf-emblem {
+  font-family: var(--font-orbitron);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: #00ffff;
+  margin-bottom: 4px;
+}
+
+.dsf-copy {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* Responsive Media Queries for Developers Section */
+@media (max-width: 860px) {
+  .dev-cards-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .dev-photo-wrap {
+    height: 290px;
+  }
+}
+
+@media (max-width: 640px) {
+  .dev-photo-wrap {
+    height: 260px;
+  }
+
+  .dev-name {
+    font-size: 1.25rem;
+  }
+
+  .coordinators-compact-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 10px;
+  }
+
+  .coord-card {
+    padding: 11px 12px;
+  }
+
+  .coord-name {
+    font-size: 0.85rem;
+  }
+
+  .coord-designation {
+    font-size: 0.74rem;
+  }
+}
+

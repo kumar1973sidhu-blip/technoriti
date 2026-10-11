@@ -109,6 +109,7 @@
         'cms-sections': ['Page Section Visibility & Ordering', 'Publish, hide, rename, and sort homepage sections'],
         'cms-general': ['General Settings & Footer', 'Contact coordinates, social media links, and copyright text'],
         'cms-seo': ['SEO & Social Metadata', 'Optimize Google search ranking, meta tags, and OpenGraph social cards'],
+        'cms-developers': ['Web Developers & Coordinators CMS', 'Manage developer profile cards, academic credentials, and event coordinators'],
         'competitions': ['Competitions Management', 'Add, edit, duplicate, delete, and toggle all 29 festival events'],
         'prizes-rules': ['Prizes & Rule Clauses Desk', 'Configure normalized position prizes and competition rule clauses'],
         'sponsors': ['Sponsors & Partners Desk', 'Manage title sponsors, tech partners, emblems, and click-through links'],
@@ -143,6 +144,8 @@
       populatePrizesEventSelector();
     } else if (tabName === 'cms-about') {
       populateCmsAbout();
+    } else if (tabName === 'cms-developers') {
+      populateCmsDevelopers();
     }
   };
 
@@ -296,6 +299,7 @@
       ['renderSectionVisibilityCards', renderSectionVisibilityCards],
       ['populateCmsGeneral', populateCmsGeneral],
       ['populateCmsSeo', populateCmsSeo],
+      ['populateCmsDevelopers', populateCmsDevelopers],
       ['renderCompetitionsTable', renderCompetitionsTable],
       ['populatePrizesEventSelector', populatePrizesEventSelector],
       ['renderSponsorsTable', renderSponsorsTable],
@@ -1087,6 +1091,217 @@
       showToast('SEO & Metadata saved!', 'success');
     } catch (err) {
       showToast('Save failed: ' + err.message, 'error');
+    }
+  };
+
+  // =========================================================================
+  // 9B. CMS - WEB DEVELOPERS & EVENT COORDINATORS
+  // =========================================================================
+  const DEFAULT_ADMIN_DEV_SETTINGS = {
+    developer1: {
+      name: 'Siddharth Bhushan',
+      role: 'Web Developer',
+      branch: 'Mechanical Engineering',
+      session: '2024–2028',
+      photo: '/developer-1.jpg',
+      bio: 'Architected the digital frontend, interactive 3D portal engine, responsive design, and festival system workflows for TECHNORITI ’26.'
+    },
+    developer2: {
+      name: 'Web Developer Partner',
+      role: 'Web Developer',
+      branch: 'Engineering & Technology',
+      session: '2024–2028',
+      photo: '/developer-2.jpg',
+      bio: 'Contributed to website architecture, responsive mobile layouts, dynamic database synchronization, and seamless user interaction.'
+    },
+    coordinators_intro: 'Student leadership steering technical challenges, logistics, and participant experience for TECHNORITI \'26.',
+    coordinators: [
+      { name: 'Shubham Thakur', designation: 'Lead Coordinator', department: 'BCE Bhagalpur' },
+      { name: 'Vinit Kumar', designation: 'Event Coordinator', department: 'BCE Bhagalpur' },
+      { name: 'Md. Aman Ansari', designation: 'Technical Coordinator', department: 'BCE Bhagalpur' },
+      { name: 'Madan Kumar Jha', designation: 'Logistics Coordinator', department: 'BCE Bhagalpur' },
+      { name: 'Manish Kumar', designation: 'Hospitality Coordinator', department: 'BCE Bhagalpur' },
+      { name: 'Saurav Singh', designation: 'Arena Coordinator', department: 'BCE Bhagalpur' },
+      { name: 'Varun Singh', designation: 'Public Relations', department: 'BCE Bhagalpur' },
+      { name: 'Deepankar Pandey', designation: 'Operations Coordinator', department: 'BCE Bhagalpur' },
+      { name: 'Himanshu Vishwas', designation: 'Security & Flow', department: 'BCE Bhagalpur' },
+      { name: 'Dev Raj Dev', designation: 'Sponsorship Coordinator', department: 'BCE Bhagalpur' }
+    ]
+  };
+
+  function getDevelopersData() {
+    if (state.settings && state.settings.web_developers_and_coordinators) {
+      return state.settings.web_developers_and_coordinators;
+    }
+    return DEFAULT_ADMIN_DEV_SETTINGS;
+  }
+
+  function populateCmsDevelopers() {
+    const data = getDevelopersData();
+    const d1 = data.developer1 || DEFAULT_ADMIN_DEV_SETTINGS.developer1;
+    const d2 = data.developer2 || DEFAULT_ADMIN_DEV_SETTINGS.developer2;
+
+    const setVal = (id, val) => {
+      const el = document.getElementById(id);
+      if (el) el.value = val || '';
+    };
+
+    setVal('cfgDev1Name', d1.name);
+    setVal('cfgDev1Role', d1.role);
+    setVal('cfgDev1Branch', d1.branch);
+    setVal('cfgDev1Session', d1.session);
+    setVal('cfgDev1Photo', d1.photo);
+    setVal('cfgDev1Bio', d1.bio);
+
+    setVal('cfgDev2Name', d2.name);
+    setVal('cfgDev2Role', d2.role);
+    setVal('cfgDev2Branch', d2.branch);
+    setVal('cfgDev2Session', d2.session);
+    setVal('cfgDev2Photo', d2.photo);
+    setVal('cfgDev2Bio', d2.bio);
+
+    setVal('cfgCoordIntro', data.coordinators_intro || DEFAULT_ADMIN_DEV_SETTINGS.coordinators_intro);
+
+    renderCoordinatorsAdminTable();
+  }
+
+  function renderCoordinatorsAdminTable() {
+    const data = getDevelopersData();
+    const coords = Array.isArray(data.coordinators) ? data.coordinators : DEFAULT_ADMIN_DEV_SETTINGS.coordinators;
+    const tbody = document.getElementById('coordinatorsAdminTableBody');
+    const countDisplay = document.getElementById('coordCountDisplay');
+    if (countDisplay) countDisplay.textContent = coords.length;
+
+    if (!tbody) return;
+
+    if (coords.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:24px; color:var(--text-dim);">No coordinators configured yet. Add one above!</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = coords.map((c, idx) => `
+      <tr style="border-bottom:1px solid rgba(255,255,255,0.06);">
+        <td style="padding:10px 12px; color:var(--text-dim); font-size:0.8rem;">${idx + 1}</td>
+        <td style="padding:10px 12px; font-weight:600; color:#fff;">${escapeHtml(c.name)}</td>
+        <td style="padding:10px 12px; color:#00ffff; font-size:0.85rem;">${escapeHtml(c.designation || 'Coordinator')}</td>
+        <td style="padding:10px 12px; color:var(--text-dim); font-size:0.8rem;">${escapeHtml(c.department || 'BCE Bhagalpur')}</td>
+        <td style="padding:10px 12px; text-align:right;">
+          <div style="display:inline-flex; gap:6px;">
+            <button type="button" class="btn-secondary" style="padding:4px 8px; font-size:0.75rem;" onclick="moveCoordinatorAdmin(${idx}, -1)" ${idx === 0 ? 'disabled' : ''} title="Move Up">↑</button>
+            <button type="button" class="btn-secondary" style="padding:4px 8px; font-size:0.75rem;" onclick="moveCoordinatorAdmin(${idx}, 1)" ${idx === coords.length - 1 ? 'disabled' : ''} title="Move Down">↓</button>
+            <button type="button" class="btn-danger" style="padding:4px 8px; font-size:0.75rem;" onclick="deleteCoordinatorAdmin(${idx})" title="Delete">🗑️</button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  window.addCoordinatorFromAdmin = function () {
+    const nameEl = document.getElementById('newCoordName');
+    const desigEl = document.getElementById('newCoordDesignation');
+    const deptEl = document.getElementById('newCoordDept');
+
+    const name = nameEl ? nameEl.value.trim() : '';
+    if (!name) {
+      showToast('Please enter coordinator full name', 'warning');
+      return;
+    }
+
+    const designation = desigEl ? desigEl.value.trim() : '';
+    const department = deptEl ? deptEl.value.trim() : '';
+
+    if (!state.settings.web_developers_and_coordinators) {
+      state.settings.web_developers_and_coordinators = JSON.parse(JSON.stringify(DEFAULT_ADMIN_DEV_SETTINGS));
+    }
+    if (!Array.isArray(state.settings.web_developers_and_coordinators.coordinators)) {
+      state.settings.web_developers_and_coordinators.coordinators = [];
+    }
+
+    state.settings.web_developers_and_coordinators.coordinators.push({
+      name,
+      designation: designation || 'Event Coordinator',
+      department: department || 'BCE Bhagalpur'
+    });
+
+    if (nameEl) nameEl.value = '';
+    if (desigEl) desigEl.value = '';
+    if (deptEl) deptEl.value = '';
+
+    renderCoordinatorsAdminTable();
+    showToast(`Added coordinator: ${name}. Click "Save All" to publish!`, 'info');
+  };
+
+  window.deleteCoordinatorAdmin = function (index) {
+    if (!state.settings.web_developers_and_coordinators) {
+      state.settings.web_developers_and_coordinators = JSON.parse(JSON.stringify(DEFAULT_ADMIN_DEV_SETTINGS));
+    }
+    const coords = state.settings.web_developers_and_coordinators.coordinators;
+    if (Array.isArray(coords) && coords[index]) {
+      const removed = coords.splice(index, 1);
+      renderCoordinatorsAdminTable();
+      showToast(`Removed coordinator: ${removed[0]?.name || ''}. Click "Save All" to publish!`, 'info');
+    }
+  };
+
+  window.moveCoordinatorAdmin = function (index, direction) {
+    if (!state.settings.web_developers_and_coordinators) {
+      state.settings.web_developers_and_coordinators = JSON.parse(JSON.stringify(DEFAULT_ADMIN_DEV_SETTINGS));
+    }
+    const coords = state.settings.web_developers_and_coordinators.coordinators;
+    if (Array.isArray(coords)) {
+      const targetIndex = index + direction;
+      if (targetIndex >= 0 && targetIndex < coords.length) {
+        const item = coords.splice(index, 1)[0];
+        coords.splice(targetIndex, 0, item);
+        renderCoordinatorsAdminTable();
+      }
+    }
+  };
+
+  window.saveCmsDevelopers = async function () {
+    try {
+      const getVal = (id, fallback = '') => {
+        const el = document.getElementById(id);
+        return el ? el.value.trim() : fallback;
+      };
+
+      const existing = getDevelopersData();
+      const currentCoords = Array.isArray(existing.coordinators) ? existing.coordinators : DEFAULT_ADMIN_DEV_SETTINGS.coordinators;
+
+      const payload = {
+        developer1: {
+          name: getVal('cfgDev1Name', 'Siddharth Bhushan'),
+          role: getVal('cfgDev1Role', 'Web Developer'),
+          branch: getVal('cfgDev1Branch', 'Mechanical Engineering'),
+          session: getVal('cfgDev1Session', '2024–2028'),
+          photo: getVal('cfgDev1Photo', '/developer-1.jpg'),
+          bio: getVal('cfgDev1Bio', '')
+        },
+        developer2: {
+          name: getVal('cfgDev2Name', 'Web Developer Partner'),
+          role: getVal('cfgDev2Role', 'Web Developer'),
+          branch: getVal('cfgDev2Branch', 'Engineering & Technology'),
+          session: getVal('cfgDev2Session', '2024–2028'),
+          photo: getVal('cfgDev2Photo', '/developer-2.jpg'),
+          bio: getVal('cfgDev2Bio', '')
+        },
+        coordinators_intro: getVal('cfgCoordIntro', 'Student leadership steering technical challenges, logistics, and participant experience for TECHNORITI \'26.'),
+        coordinators: currentCoords
+      };
+
+      await TechnoritiDB.updateSiteSetting(
+        'web_developers_and_coordinators',
+        payload,
+        'Web developers profiles and student event coordinators list'
+      );
+
+      state.settings.web_developers_and_coordinators = payload;
+      await TechnoritiDB.logAdminAction('UPDATE_DEVELOPERS_AND_COORDINATORS', 'site_settings', 'web_developers_and_coordinators', existing, payload);
+
+      showToast('Web Developers & Event Coordinators saved and published!', 'success');
+    } catch (err) {
+      console.error('[Admin] Failed to save developers:', err);
+      showToast('Failed to save developers: ' + err.message, 'error');
     }
   };
 

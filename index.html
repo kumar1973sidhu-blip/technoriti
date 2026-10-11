@@ -137,6 +137,7 @@
           <li><button class="nav-item" onclick="window.openPanel('competitions')">COMPETITIONS</button></li>
           <li><button class="nav-item" onclick="window.openPanel('accommodation')">ACCOMMODATION</button></li>
           <li><button class="nav-item" onclick="window.openPanel('sponsors')">SPONSORS</button></li>
+          <li><button class="nav-item" onclick="window.openPanel('developers')">DEVELOPERS</button></li>
         </ul>
       </nav>
 
@@ -214,6 +215,10 @@
           <span class="mni-icon">🤝</span>
           <span class="mni-text">Sponsors</span>
         </button>
+        <button class="mobile-nav-item" data-action="developers" onclick="window.navMobileTo('developers')">
+          <span class="mni-icon">💻</span>
+          <span class="mni-text">Web Developers</span>
+        </button>
         <button class="mobile-nav-item highlight-item" data-action="register" onclick="window.navMobileTo('register')">
           <span class="mni-icon">⚡</span>
           <span class="mni-text">Event Registration</span>
@@ -253,6 +258,10 @@
     <button class="dock-link" onclick="window.openPanel('sponsors')" title="Sponsors">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
       <span class="dock-label">Sponsors</span>
+    </button>
+    <button class="dock-link" onclick="window.openPanel('developers')" title="Web Developers & Coordinators">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+      <span class="dock-label">Developers</span>
     </button>
     <button class="dock-link" onclick="window.openPanel('register')" title="Register">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
@@ -1199,6 +1208,157 @@
         <button type="button" class="btn-pay-verify primary-glow-btn" id="btn-pay-verify" onclick="window.confirmPaymentAndCompleteRegistration()">
           <span>VERIFY &amp; COMPLETE REGISTRATION ✓</span>
         </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       6. WEB DEVELOPERS & COORDINATORS PANEL & HOMEPAGE SECTION
+       ===================================================================== -->
+  <div id="developers-panel" class="slide-panel-overlay developers-panel-overlay" onclick="window.handleOverlayClick(event, 'developers')">
+    <div class="slide-panel-drawer wide-drawer glassmorphism-drawer developers-drawer" onclick="event.stopPropagation()">
+      <div class="drawer-header">
+        <div>
+          <span class="panel-badge">DIGITAL ARCHITECTURE &amp; STUDENT LEADERSHIP</span>
+          <h2 class="drawer-title">MEET THE WEB DEVELOPERS</h2>
+          <p class="drawer-subtitle-cyan">The minds behind the digital experience of TECHNORITI ’26.</p>
+        </div>
+        <button class="drawer-close-btn" onclick="window.closeAllPanels()" title="Close (Esc)">✕</button>
+      </div>
+
+      <div class="drawer-body developers-drawer-body">
+        <section id="developers-section" class="developers-section">
+          <!-- DEVELOPERS 2-CARD GRID (SIDE BY SIDE ON DESKTOP, STACKED ON MOBILE) -->
+          <div class="dev-cards-grid">
+            <!-- Developer 1 Card: Siddharth Bhushan -->
+            <div class="developer-card glassmorphism-card" id="dev-card-1">
+              <div class="dev-card-glow-edge"></div>
+              <div class="dev-photo-wrap">
+                <img id="dev1-photo" src="/developer-1.jpg" alt="Siddharth Bhushan - Web Developer" class="dev-photo" loading="lazy">
+                <div class="dev-badge-overlay">
+                  <span class="pulse-cyan-dot"></span>
+                  <span class="dev-role-badge" id="dev1-role">Web Developer</span>
+                </div>
+              </div>
+              <div class="dev-content">
+                <h3 class="dev-name" id="dev1-name">Siddharth Bhushan</h3>
+                <div class="dev-meta-row">
+                  <span class="dev-meta-pill branch-pill" id="dev1-branch">Mechanical Engineering</span>
+                  <span class="dev-meta-pill session-pill" id="dev1-session">Session: 2024–2028</span>
+                </div>
+                <div class="dev-college-tag">Bhagalpur College of Engineering</div>
+                <p class="dev-bio" id="dev1-bio">
+                  Architected the digital frontend, interactive 3D portal engine, responsive design, and festival system workflows for TECHNORITI ’26.
+                </p>
+                <div class="dev-tech-tags">
+                  <span>Frontend Architecture</span>
+                  <span>Interactive 3D</span>
+                  <span>Full-Stack</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Developer 2 Card: Development Partner -->
+            <div class="developer-card glassmorphism-card" id="dev-card-2">
+              <div class="dev-card-glow-edge"></div>
+              <div class="dev-photo-wrap">
+                <img id="dev2-photo" src="/developer-2.jpg" alt="Web Developer Partner" class="dev-photo" loading="lazy">
+                <div class="dev-badge-overlay">
+                  <span class="pulse-cyan-dot"></span>
+                  <span class="dev-role-badge" id="dev2-role">Web Developer</span>
+                </div>
+              </div>
+              <div class="dev-content">
+                <h3 class="dev-name" id="dev2-name">Web Developer Partner</h3>
+                <div class="dev-meta-row">
+                  <span class="dev-meta-pill branch-pill" id="dev2-branch">Engineering &amp; Technology</span>
+                  <span class="dev-meta-pill session-pill" id="dev2-session">Session: 2024–2028</span>
+                </div>
+                <div class="dev-college-tag">Bhagalpur College of Engineering</div>
+                <p class="dev-bio" id="dev2-bio">
+                  Contributed to website architecture, responsive mobile layouts, dynamic database synchronization, and seamless user interaction.
+                </p>
+                <div class="dev-tech-tags">
+                  <span>Full-Stack</span>
+                  <span>Database Systems</span>
+                  <span>Creative Tech</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- EVENT COORDINATORS SUB-SECTION (BELOW DEVELOPER CARDS) -->
+          <div class="coordinators-sub-section">
+            <div class="coord-section-header">
+              <div class="coord-tag-badge">STUDENT STEERING COMMITTEE</div>
+              <h3 class="coord-section-title">EVENT COORDINATORS</h3>
+              <p class="coord-section-intro" id="coord-intro-text">
+                Student leadership steering technical challenges, logistics, and participant experience for TECHNORITI '26.
+              </p>
+            </div>
+
+            <!-- Coordinators Compact List/Grid: Names only by default (NO personal photos, phone numbers, or emails) -->
+            <div class="coordinators-compact-grid" id="coordinators-grid">
+              <!-- Rendered dynamically via script.js -->
+              <div class="coord-card">
+                <div class="coord-name">Shubham Thakur</div>
+                <div class="coord-designation">Lead Coordinator</div>
+                <div class="coord-dept">BCE Bhagalpur</div>
+              </div>
+              <div class="coord-card">
+                <div class="coord-name">Vinit Kumar</div>
+                <div class="coord-designation">Event Coordinator</div>
+                <div class="coord-dept">BCE Bhagalpur</div>
+              </div>
+              <div class="coord-card">
+                <div class="coord-name">Md. Aman Ansari</div>
+                <div class="coord-designation">Technical Coordinator</div>
+                <div class="coord-dept">BCE Bhagalpur</div>
+              </div>
+              <div class="coord-card">
+                <div class="coord-name">Madan Kumar Jha</div>
+                <div class="coord-designation">Logistics Coordinator</div>
+                <div class="coord-dept">BCE Bhagalpur</div>
+              </div>
+              <div class="coord-card">
+                <div class="coord-name">Manish Kumar</div>
+                <div class="coord-designation">Hospitality Coordinator</div>
+                <div class="coord-dept">BCE Bhagalpur</div>
+              </div>
+              <div class="coord-card">
+                <div class="coord-name">Saurav Singh</div>
+                <div class="coord-designation">Arena Coordinator</div>
+                <div class="coord-dept">BCE Bhagalpur</div>
+              </div>
+              <div class="coord-card">
+                <div class="coord-name">Varun Singh</div>
+                <div class="coord-designation">Public Relations</div>
+                <div class="coord-dept">BCE Bhagalpur</div>
+              </div>
+              <div class="coord-card">
+                <div class="coord-name">Deepankar Pandey</div>
+                <div class="coord-designation">Operations Coordinator</div>
+                <div class="coord-dept">BCE Bhagalpur</div>
+              </div>
+              <div class="coord-card">
+                <div class="coord-name">Himanshu Vishwas</div>
+                <div class="coord-designation">Security &amp; Flow</div>
+                <div class="coord-dept">BCE Bhagalpur</div>
+              </div>
+              <div class="coord-card">
+                <div class="coord-name">Dev Raj Dev</div>
+                <div class="coord-designation">Sponsorship Coordinator</div>
+                <div class="coord-dept">BCE Bhagalpur</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section Footer / Attributions -->
+          <div class="developers-section-footer">
+            <div class="dsf-emblem">⚡ TECHNORITI '26 BCE BHAGALPUR ⚡</div>
+            <p class="dsf-copy">Crafted with passion by the student web development &amp; technical committee.</p>
+          </div>
+        </section>
       </div>
     </div>
   </div>
