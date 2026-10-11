@@ -394,7 +394,7 @@
       </div>
 
       <!-- Bottom Scroll Cue (Desktop and Mobile) -->
-      <div class="scroll-canvas-cue" onclick="window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })">
+      <div class="scroll-canvas-cue" onclick="if(window.advanceHeroCanvasAnimation){window.advanceHeroCanvasAnimation()}else{window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}">
         <div class="scroll-mouse-icon">
           <div class="wheel-dot dot-1"></div>
           <div class="wheel-dot dot-2"></div>

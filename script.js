@@ -579,6 +579,7 @@
   let currentFrameFloat = 0;
   let targetFrame = 0;
   let lastRenderedFrame = -1;
+  let lastRenderedImg = null;
   let isAudioActive = false;
   let audioContext = null;
   let masterGain = null;
@@ -589,14 +590,22 @@
   }
 
   function resizeCanvas() {
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const isMobile = window.innerWidth <= 768;
+    const maxDpr = isMobile ? Math.min(window.devicePixelRatio || 1, 2.5) : Math.min(window.devicePixelRatio || 1, 2);
+    const dpr = maxDpr;
     const width = window.innerWidth;
     const height = window.innerHeight;
 
-    if (canvas.width !== width * dpr || canvas.height !== height * dpr) {
-      canvas.width = width * dpr;
-      canvas.height = height * dpr;
+    const targetW = Math.round(width * dpr);
+    const targetH = Math.round(height * dpr);
+
+    if (canvas.width !== targetW || canvas.height !== targetH) {
+      canvas.width = targetW;
+      canvas.height = targetH;
     }
+
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
 
     if (lastRenderedFrame >= 0) {
       drawFrame(lastRenderedFrame);
@@ -618,11 +627,15 @@
         }
       }
       if (!fallbackImg) return;
+      if (lastRenderedImg === fallbackImg) return; // avoid redundant canvas repaints
       renderImageToCanvas(fallbackImg);
+      lastRenderedImg = fallbackImg;
       return;
     }
+    if (lastRenderedImg === img && lastRenderedFrame === index) return;
     renderImageToCanvas(img);
     lastRenderedFrame = index;
+    lastRenderedImg = img;
   }
 
   function renderImageToCanvas(img) {
@@ -640,6 +653,8 @@
     const destX = (cw - destW) / 2;
     const destY = (ch - destH) / 2;
 
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
     ctx.drawImage(img, 0, 0, iw, ih, destX, destY, destW, destH);
   }
 
@@ -721,6 +736,19 @@
 
   // --- Wheel & Touch Canvas Scrubbing ---
   function setupScrollInteractions() {
+    window.advanceHeroCanvasAnimation = function() {
+      targetFrame = (targetFrame + 30) % TOTAL_FRAMES;
+    };
+
+    const scrollCue = document.querySelector('.scroll-canvas-cue');
+    if (scrollCue) {
+      scrollCue.addEventListener('click', () => {
+        if (typeof window.advanceHeroCanvasAnimation === 'function') {
+          window.advanceHeroCanvasAnimation();
+        }
+      });
+    }
+
     window.addEventListener('wheel', (e) => {
       // Don't scrub background while a drawer panel is open
       const openDrawer = document.querySelector('.slide-panel-overlay.open');
@@ -2924,23 +2952,23 @@
       show_cta_buttons: true
     };
 
-    const badge = document.getElementById('hero-badge-tagline');
-    if (badge) badge.classList.toggle('mobile-forced-hide', m.show_tagline !== true);
+    function toggleMobileElem(el, isVisible) {
+      if (!el) return;
+      if (isVisible) {
+        el.classList.remove('mobile-forced-hide');
+        el.classList.add('mobile-visible');
+      } else {
+        el.classList.add('mobile-forced-hide');
+        el.classList.remove('mobile-visible');
+      }
+    }
 
-    const theme = document.getElementById('hero-theme-text');
-    if (theme) theme.classList.toggle('mobile-forced-hide', m.show_theme !== true);
-
-    const dateCue = document.getElementById('hero-date-text');
-    if (dateCue) dateCue.classList.toggle('mobile-forced-hide', m.show_event_date !== true);
-
-    const statEdition = document.getElementById('hero-stat-edition');
-    if (statEdition) statEdition.classList.toggle('mobile-forced-hide', m.show_edition_card !== true);
-
-    const statComps = document.getElementById('hero-stat-comps');
-    if (statComps) statComps.classList.toggle('mobile-forced-hide', m.show_competition_count !== true);
-
-    const statPrize = document.getElementById('hero-stat-prize');
-    if (statPrize) statPrize.classList.toggle('mobile-forced-hide', m.show_prize_pool !== true);
+    toggleMobileElem(document.getElementById('hero-badge-tagline'), m.show_tagline === true);
+    toggleMobileElem(document.getElementById('hero-theme-text'), m.show_theme === true);
+    toggleMobileElem(document.getElementById('hero-date-text'), m.show_event_date === true);
+    toggleMobileElem(document.getElementById('hero-stat-edition'), m.show_edition_card === true);
+    toggleMobileElem(document.getElementById('hero-stat-comps'), m.show_competition_count === true);
+    toggleMobileElem(document.getElementById('hero-stat-prize'), m.show_prize_pool === true);
 
     const collegeTag = document.getElementById('hero-college-name');
     if (collegeTag) collegeTag.classList.toggle('mobile-forced-hide', m.show_college_tag === false);
@@ -2954,7 +2982,7 @@
     const statsContainer = document.getElementById('hero-stats-container');
     const hasVisibleStats = (m.show_edition_card === true || m.show_competition_count === true || m.show_prize_pool === true);
     if (statsContainer) {
-      statsContainer.classList.toggle('mobile-forced-hide', !hasVisibleStats);
+      toggleMobileElem(statsContainer, hasVisibleStats);
     }
   }
 
@@ -3043,7 +3071,12 @@
       heroContent.style.transform = `perspective(1000px) rotateX(${curTiltX.toFixed(2)}deg) rotateY(${curTiltY.toFixed(2)}deg) translate3d(${curTransX.toFixed(1)}px, ${curTransY.toFixed(1)}px, 0)`;
 
       if (canvasWrapper) {
-        canvasWrapper.style.transform = `scale(1.03) translate3d(${(-curTransX * 0.25).toFixed(1)}px, ${(-curTransY * 0.25).toFixed(1)}px, 0)`;
+        if (isTouch || window.innerWidth <= 768) {
+          // On mobile, keep background canvas stationary and 1:1 pixel aligned to avoid resampling blur & jitter
+          canvasWrapper.style.transform = 'none';
+        } else {
+          canvasWrapper.style.transform = `scale(1.03) translate3d(${(-curTransX * 0.25).toFixed(1)}px, ${(-curTransY * 0.25).toFixed(1)}px, 0)`;
+        }
       }
 
       requestAnimationFrame(updateParallax);
