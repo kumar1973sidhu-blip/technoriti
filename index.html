@@ -1003,20 +1003,52 @@
                     <span class="svc-title">🍱 Campus Mess Food</span>
                     <span class="svc-price">₹125 / pers / day</span>
                   </div>
-                  <span class="svc-subtext">3 daily meals in BCE dining hall</span>
+                  <span class="svc-subtext">Daily meals (breakfast, lunch & dinner) in BCE dining hall</span>
                 </div>
               </label>
             </div>
 
-            <!-- Stay duration selector (shown when either lodging or fooding is selected) -->
-            <div class="form-group" id="reg-service-days-group" style="display:none; margin-top: 10px;">
-              <label for="reg-service-days">Days of Campus Services Needed</label>
-              <select id="reg-service-days" onchange="window.updateFeeSummary()">
-                <option value="1">1 Day</option>
-                <option value="2" selected>2 Days (Recommended)</option>
-                <option value="3">3 Days (Full Fest)</option>
-                <option value="4">4 Days</option>
-              </select>
+            <!-- Independent Stay & Mess Duration Selectors -->
+            <div class="reg-services-durations-grid" id="reg-services-durations">
+              <div class="form-group reg-duration-group" id="reg-lodging-days-group" style="display:none;">
+                <label for="reg-lodging-days">Days of Hostel Stay</label>
+                <select id="reg-lodging-days" onchange="window.updateFeeSummary()">
+                  <option value="1">1 Day</option>
+                  <option value="2" selected>2 Days (Recommended)</option>
+                  <option value="3">3 Days (Full Fest)</option>
+                  <option value="4">4 Days</option>
+                  <option value="5">5 Days</option>
+                  <option value="6">6 Days</option>
+                  <option value="7">7 Days</option>
+                  <option value="8">8 Days</option>
+                  <option value="9">9 Days</option>
+                  <option value="10">10 Days</option>
+                  <option value="11">11 Days</option>
+                  <option value="12">12 Days</option>
+                  <option value="13">13 Days</option>
+                  <option value="14">14 Days</option>
+                </select>
+              </div>
+
+              <div class="form-group reg-duration-group" id="reg-fooding-days-group" style="display:none;">
+                <label for="reg-fooding-days">Days of Mess Food Required</label>
+                <select id="reg-fooding-days" onchange="window.updateFeeSummary()">
+                  <option value="1">1 Day</option>
+                  <option value="2" selected>2 Days (Recommended)</option>
+                  <option value="3">3 Days (Full Fest)</option>
+                  <option value="4">4 Days</option>
+                  <option value="5">5 Days</option>
+                  <option value="6">6 Days</option>
+                  <option value="7">7 Days</option>
+                  <option value="8">8 Days</option>
+                  <option value="9">9 Days</option>
+                  <option value="10">10 Days</option>
+                  <option value="11">11 Days</option>
+                  <option value="12">12 Days</option>
+                  <option value="13">13 Days</option>
+                  <option value="14">14 Days</option>
+                </select>
+              </div>
             </div>
           </div>
 
@@ -1090,8 +1122,14 @@
             <strong>Selected Arenas:</strong>
             <div id="pay-summary-events" class="pos-events-tags"></div>
           </div>
+          <div class="pos-line" id="pay-summary-lodging-row" style="display:none;">
+            <strong>Campus Hostel Lodging:</strong> <span id="pay-summary-lodging">-</span>
+          </div>
+          <div class="pos-line" id="pay-summary-fooding-row" style="display:none;">
+            <strong>Campus Mess Food:</strong> <span id="pay-summary-fooding">-</span>
+          </div>
           <div class="pos-line" id="pay-summary-services-row" style="display:none;">
-            <strong>Campus Services:</strong> <span id="pay-summary-services">-</span>
+            <strong>Campus Services Total:</strong> <span id="pay-summary-services">-</span>
           </div>
         </div>
         <div class="pos-amount-banner">

@@ -1383,8 +1383,12 @@
     const teamSizeSelect = document.getElementById('reg-team-size');
     const lodgingCheck = document.getElementById('reg-opt-lodging');
     const foodingCheck = document.getElementById('reg-opt-fooding');
-    const daysSelect = document.getElementById('reg-service-days');
-    const daysGroup = document.getElementById('reg-service-days-group');
+    const lodgingDaysSelect = document.getElementById('reg-lodging-days');
+    const foodingDaysSelect = document.getElementById('reg-fooding-days');
+    const lodgingDaysGroup = document.getElementById('reg-lodging-days-group');
+    const foodingDaysGroup = document.getElementById('reg-fooding-days-group');
+    const legacyDaysSelect = document.getElementById('reg-service-days');
+    const legacyDaysGroup = document.getElementById('reg-service-days-group');
 
     const summaryEventFee = document.getElementById('summary-event-fee');
     const summaryEventsBreakdown = document.getElementById('summary-selected-events-breakdown');
@@ -1396,7 +1400,7 @@
     const foodingCalcDesc = document.getElementById('reg-fooding-calc-desc');
     const summaryTotalFee = document.getElementById('summary-total-fee');
 
-    if (!teamSizeSelect) return { totalCost: 0, totalEventsCost: 0, lodgingCost: 0, foodingCost: 0, selectedEventsList: [] };
+    if (!teamSizeSelect) return { totalCost: 0, totalEventsCost: 0, lodgingCost: 0, foodingCost: 0, lodgingDays: 0, foodingDays: 0, selectedEventsList: [] };
     const teamSize = parseInt(teamSizeSelect.value, 10) || 1;
 
     let totalEventsCost = 0;
@@ -1454,34 +1458,60 @@
     const isLodging = lodgingCheck ? lodgingCheck.checked : false;
     const isFooding = foodingCheck ? foodingCheck.checked : false;
 
-    if (daysGroup) {
-      daysGroup.style.display = (isLodging || isFooding) ? 'block' : 'none';
+    // Toggle independent duration groups and disabled states
+    if (lodgingDaysGroup) {
+      lodgingDaysGroup.style.display = isLodging ? 'block' : 'none';
+    }
+    if (lodgingDaysSelect) {
+      lodgingDaysSelect.disabled = !isLodging;
     }
 
-    const serviceDays = parseInt(daysSelect?.value, 10) || 2;
-    const lodgingCost = isLodging ? (50 * serviceDays * teamSize) : 0;
-    const foodingCost = isFooding ? (125 * serviceDays * teamSize) : 0;
+    if (foodingDaysGroup) {
+      foodingDaysGroup.style.display = isFooding ? 'block' : 'none';
+    }
+    if (foodingDaysSelect) {
+      foodingDaysSelect.disabled = !isFooding;
+    }
+
+    if (legacyDaysGroup) {
+      legacyDaysGroup.style.display = 'none';
+    }
+
+    // Independent durations: 1-14 days supported, default 2 days if selected, 0 if unselected
+    const lodgingDays = isLodging ? (parseInt(lodgingDaysSelect?.value, 10) || parseInt(legacyDaysSelect?.value, 10) || 2) : 0;
+    const foodingDays = isFooding ? (parseInt(foodingDaysSelect?.value, 10) || parseInt(legacyDaysSelect?.value, 10) || 2) : 0;
+
+    // Independent calculations
+    const lodgingCost = isLodging ? (50 * lodgingDays * teamSize) : 0;
+    const foodingCost = isFooding ? (125 * foodingDays * teamSize) : 0;
+    const servicesCost = lodgingCost + foodingCost;
+    const totalCost = totalEventsCost + servicesCost;
 
     if (lodgingRow) {
       lodgingRow.style.display = isLodging ? 'flex' : 'none';
       if (summaryLodgingFee) summaryLodgingFee.textContent = `₹${lodgingCost}`;
-      if (lodgingCalcDesc) lodgingCalcDesc.textContent = `₹50 × ${serviceDays}d × ${teamSize}p`;
+      if (lodgingCalcDesc) lodgingCalcDesc.textContent = `₹50 × ${lodgingDays}d × ${teamSize}p`;
     }
 
     if (foodingRow) {
       foodingRow.style.display = isFooding ? 'flex' : 'none';
       if (summaryFoodingFee) summaryFoodingFee.textContent = `₹${foodingCost}`;
-      if (foodingCalcDesc) foodingCalcDesc.textContent = `₹125 × ${serviceDays}d × ${teamSize}p`;
+      if (foodingCalcDesc) foodingCalcDesc.textContent = `₹125 × ${foodingDays}d × ${teamSize}p`;
     }
 
     if (summaryEventFee) summaryEventFee.textContent = `₹${totalEventsCost}`;
-    if (summaryTotalFee) summaryTotalFee.textContent = `₹${totalEventsCost + lodgingCost + foodingCost}`;
+    if (summaryTotalFee) summaryTotalFee.textContent = `₹${totalCost}`;
 
     return {
       totalEventsCost,
       lodgingCost,
       foodingCost,
-      totalCost: totalEventsCost + lodgingCost + foodingCost,
+      servicesCost,
+      lodgingDays,
+      foodingDays,
+      isLodging,
+      isFooding,
+      totalCost,
       selectedEventsList
     };
   };
@@ -1602,7 +1632,8 @@
     const feeData = window.updateFeeSummary();
     const isLodging = document.getElementById('reg-opt-lodging')?.checked || false;
     const isFooding = document.getElementById('reg-opt-fooding')?.checked || false;
-    const serviceDays = parseInt(document.getElementById('reg-service-days')?.value, 10) || 2;
+    const lodgingDays = isLodging ? (parseInt(document.getElementById('reg-lodging-days')?.value, 10) || 2) : 0;
+    const foodingDays = isFooding ? (parseInt(document.getElementById('reg-fooding-days')?.value, 10) || 2) : 0;
     const teamSize = parseInt(document.getElementById('reg-team-size')?.value, 10) || 1;
 
     const refId = `REG-BCE-${Math.random().toString(36).substring(2, 6).toUpperCase()}-${Date.now().toString().slice(-4)}`;
@@ -1618,7 +1649,11 @@
       primaryEvent: feeData.selectedEventsList[0],
       lodgingRequired: isLodging,
       foodingRequired: isFooding,
-      serviceDays: serviceDays,
+      lodgingDays: lodgingDays,
+      foodingDays: foodingDays,
+      lodgingCost: feeData.lodgingCost,
+      foodingCost: feeData.foodingCost,
+      serviceDays: Math.max(lodgingDays, foodingDays, 1),
       eventFee: feeData.totalEventsCost,
       accommodationFee: feeData.lodgingCost + feeData.foodingCost,
       totalAmount: feeData.totalCost,
@@ -1635,6 +1670,10 @@
     const phoneEl = document.getElementById('pay-summary-phone');
     const teamEl = document.getElementById('pay-summary-team');
     const eventsContainer = document.getElementById('pay-summary-events');
+    const lodgingRowEl = document.getElementById('pay-summary-lodging-row');
+    const lodgingValEl = document.getElementById('pay-summary-lodging');
+    const foodingRowEl = document.getElementById('pay-summary-fooding-row');
+    const foodingValEl = document.getElementById('pay-summary-fooding');
     const servicesRow = document.getElementById('pay-summary-services-row');
     const servicesTextEl = document.getElementById('pay-summary-services');
     const totalAmountEl = document.getElementById('pay-total-amount');
@@ -1658,13 +1697,32 @@
       `).join('');
     }
 
+    // Independent line items in payment modal
+    if (lodgingRowEl) {
+      if (isLodging) {
+        lodgingRowEl.style.display = 'block';
+        if (lodgingValEl) lodgingValEl.textContent = `₹50 × ${lodgingDays}d × ${teamSize}p = ₹${feeData.lodgingCost}`;
+      } else {
+        lodgingRowEl.style.display = 'none';
+      }
+    }
+
+    if (foodingRowEl) {
+      if (isFooding) {
+        foodingRowEl.style.display = 'block';
+        if (foodingValEl) foodingValEl.textContent = `₹125 × ${foodingDays}d × ${teamSize}p = ₹${feeData.foodingCost}`;
+      } else {
+        foodingRowEl.style.display = 'none';
+      }
+    }
+
     if (servicesRow) {
       if (isLodging || isFooding) {
         servicesRow.style.display = 'block';
         const parts = [];
-        if (isLodging) parts.push(`Hostel Lodging (${serviceDays} days × ${teamSize} pers)`);
-        if (isFooding) parts.push(`Mess Food Pass (${serviceDays} days × ${teamSize} pers)`);
-        if (servicesTextEl) servicesTextEl.textContent = parts.join(' + ');
+        if (isLodging) parts.push(`Lodging (₹${feeData.lodgingCost})`);
+        if (isFooding) parts.push(`Mess Food (₹${feeData.foodingCost})`);
+        if (servicesTextEl) servicesTextEl.textContent = `₹${feeData.lodgingCost + feeData.foodingCost} (${parts.join(' + ')})`;
       } else {
         servicesRow.style.display = 'none';
       }
@@ -1758,6 +1816,10 @@
         teamSize: data.teamSize,
         lodgingRequired: data.lodgingRequired,
         foodingRequired: data.foodingRequired,
+        lodgingDays: data.lodgingDays,
+        foodingDays: data.foodingDays,
+        lodgingCost: data.lodgingCost,
+        foodingCost: data.foodingCost,
         serviceDays: data.serviceDays,
         eventFee: data.eventFee,
         accommodationFee: data.accommodationFee,
@@ -1779,7 +1841,10 @@
       if (msgEl) {
         const eventsCount = data.events.length;
         const eventsDesc = eventsCount > 1 ? `${data.primaryEvent.title} + ${eventsCount - 1} more competition(s) [${allEventsTitles}]` : data.primaryEvent.title;
-        const servicesDesc = (data.lodgingRequired && data.foodingRequired) ? ' + Hostel Lodging & Campus Mess' : (data.lodgingRequired ? ' + Hostel Lodging' : (data.foodingRequired ? ' + Campus Mess Food' : ''));
+        const servicesList = [];
+        if (data.lodgingRequired) servicesList.push(`Hostel Lodging (${data.lodgingDays}d, ₹${data.lodgingCost})`);
+        if (data.foodingRequired) servicesList.push(`Mess Food (${data.foodingDays}d, ₹${data.foodingCost})`);
+        const servicesDesc = servicesList.length > 0 ? ` + ${servicesList.join(' & ')}` : '';
         msgEl.textContent = `Welcome, ${data.fullName}! Your registration for ${eventsDesc}${servicesDesc} has been securely recorded in the official TECHNORITI '26 database (Payment Status: Pending Verification, UTR: ${utrVal}, Total: ₹${data.totalAmount}). Please present this reference ID (${data.refId}) and valid college ID upon arrival at BCE Bhagalpur in December 2026.`;
       }
 

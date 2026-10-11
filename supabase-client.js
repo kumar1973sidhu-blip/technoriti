@@ -150,15 +150,24 @@
         const isLodging = !!regData.lodgingRequired;
         const isFooding = !!regData.foodingRequired;
         const needsServices = isLodging || isFooding;
-        const serviceDays = parseInt(regData.serviceDays, 10) || 2;
         const teamSize = parseInt(regData.teamSize, 10) || 1;
+        const lodgingDays = isLodging ? (parseInt(regData.lodgingDays, 10) || parseInt(regData.serviceDays, 10) || 2) : 0;
+        const foodingDays = isFooding ? (parseInt(regData.foodingDays, 10) || parseInt(regData.serviceDays, 10) || 2) : 0;
+
+        // Authoritative server-side recalculation of services
+        const lodgingSubtotal = isLodging ? (50 * lodgingDays * teamSize) : 0;
+        const foodingSubtotal = isFooding ? (125 * foodingDays * teamSize) : 0;
+        const calculatedServicesTotal = lodgingSubtotal + foodingSubtotal;
+        const serviceDaysMax = Math.max(lodgingDays, foodingDays, 1);
+
+        const verifiedEventFee = parseInt(regData.eventFee, 10) || 0;
+        const verifiedTotal = verifiedEventFee + calculatedServicesTotal;
+
+        const servicesTag = `Services: [Lodging: ${isLodging ? 'YES (' + lodgingDays + 'd, ₹' + lodgingSubtotal + ')' : 'NO'} | Fooding: ${isFooding ? 'YES (' + foodingDays + 'd, ₹' + foodingSubtotal + ')' : 'NO'}] | People: ${teamSize} | Campus Total: ₹${calculatedServicesTotal}`;
 
         // 1. If accommodation or fooding is requested, create an accommodation booking record
         if (needsServices) {
           bookingId = generateUUID();
-          const lodgingSubtotal = isLodging ? (50 * serviceDays * teamSize) : 0;
-          const foodingSubtotal = isFooding ? (125 * serviceDays * teamSize) : 0;
-          const serviceTotal = lodgingSubtotal + foodingSubtotal;
           const dailyRate = (isLodging ? 50 : 0) + (isFooding ? 125 : 0);
 
           const accomPayload = {
@@ -169,12 +178,12 @@
             college: (regData.college || '').trim(),
             gender: regData.gender || 'male',
             hostel_block: (regData.gender === 'female') ? 'Girls Hostel Block' : 'Boys Hostel Block',
-            days_count: serviceDays,
+            days_count: serviceDaysMax,
             members_count: teamSize,
             daily_rate: dailyRate,
-            total_fee: regData.accommodationFee || serviceTotal,
+            total_fee: calculatedServicesTotal,
             status: 'requested',
-            admin_notes: `Linked Event: ${regData.eventTitle} | Services: [Lodging: ${isLodging ? 'YES' : 'NO'} | Fooding: ${isFooding ? 'YES' : 'NO'}]`
+            admin_notes: `Linked Event: ${regData.eventTitle} | ${servicesTag}`
           };
 
           const { error: accomErr } = await sb
@@ -219,12 +228,12 @@
           team_size: teamSize,
           needs_accommodation: needsServices,
           accommodation_booking_id: bookingId,
-          event_fee: regData.eventFee || 0,
-          accommodation_fee: regData.accommodationFee || 0,
-          total_amount: regData.totalAmount || 0,
+          event_fee: verifiedEventFee,
+          accommodation_fee: calculatedServicesTotal,
+          total_amount: verifiedTotal,
           payment_status: 'pending',
           payment_reference: regData.paymentReference || '',
-          admin_notes: `Portal Submission | Ref: ${regData.refId || regId.slice(0, 8).toUpperCase()}`
+          admin_notes: `Portal Submission | Ref: ${regData.refId || regId.slice(0, 8).toUpperCase()} | ${servicesTag}`
         };
 
         const { error: regErr } = await sb

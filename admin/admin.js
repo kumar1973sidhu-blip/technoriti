@@ -2046,14 +2046,23 @@
 
       let serviceLabel = 'Lodging + Food';
       let serviceStyle = 'color:#c084fc; border:1px solid rgba(192,132,252,0.35); background:rgba(192,132,252,0.1);';
-      if (acc.admin_notes) {
-        if (acc.admin_notes.includes('Lodging: YES') && acc.admin_notes.includes('Fooding: NO')) {
-          serviceLabel = 'Lodging Only';
-          serviceStyle = 'color:#38bdf8; border:1px solid rgba(56,189,248,0.35); background:rgba(56,189,248,0.1);';
-        } else if (acc.admin_notes.includes('Lodging: NO') && acc.admin_notes.includes('Fooding: YES')) {
-          serviceLabel = 'Mess Food Only';
-          serviceStyle = 'color:#fbbf24; border:1px solid rgba(251,191,36,0.35); background:rgba(251,191,36,0.1);';
-        }
+      const notes = acc.admin_notes || '';
+      const lMatch = notes.match(/Lodging:\s*(YES|NO)(?:\s*\(([0-9]+)d,\s*₹?([0-9]+)\))?/i);
+      const fMatch = notes.match(/Fooding:\s*(YES|NO)(?:\s*\(([0-9]+)d,\s*₹?([0-9]+)\))?/i);
+      const isL = lMatch ? lMatch[1].toUpperCase() === 'YES' : notes.includes('Lodging: YES');
+      const isF = fMatch ? fMatch[1].toUpperCase() === 'YES' : notes.includes('Fooding: YES');
+      const lDays = lMatch && lMatch[2] ? lMatch[2] : (acc.days_count || 2);
+      const fDays = fMatch && fMatch[2] ? fMatch[2] : (acc.days_count || 2);
+
+      if (isL && isF) {
+        serviceLabel = `Hostel (${lDays}d) + Mess (${fDays}d)`;
+        serviceStyle = 'color:#c084fc; border:1px solid rgba(192,132,252,0.35); background:rgba(192,132,252,0.1);';
+      } else if (isL) {
+        serviceLabel = `Hostel (${lDays}d)`;
+        serviceStyle = 'color:#38bdf8; border:1px solid rgba(56,189,248,0.35); background:rgba(56,189,248,0.1);';
+      } else if (isF) {
+        serviceLabel = `Mess Food (${fDays}d)`;
+        serviceStyle = 'color:#fbbf24; border:1px solid rgba(251,191,36,0.35); background:rgba(251,191,36,0.1);';
       }
 
       return `
@@ -2194,6 +2203,53 @@
     }
   };
 
+  function parseRegistrationServices(reg) {
+    const notes = reg.admin_notes || '';
+    const teamSize = reg.team_size || 1;
+    let hasLodging = false;
+    let lodgingDays = 0;
+    let lodgingFee = 0;
+    let hasFooding = false;
+    let foodingDays = 0;
+    let foodingFee = 0;
+
+    // Check structured tags: Services: [Lodging: YES (2d, ₹100) | Fooding: YES (3d, ₹375)]
+    const lodgingMatch = notes.match(/Lodging:\s*(YES|NO)(?:\s*\(([0-9]+)d,\s*₹?([0-9]+)\))?/i);
+    const foodingMatch = notes.match(/Fooding:\s*(YES|NO)(?:\s*\(([0-9]+)d,\s*₹?([0-9]+)\))?/i);
+
+    if (lodgingMatch) {
+      hasLodging = lodgingMatch[1].toUpperCase() === 'YES';
+      lodgingDays = hasLodging ? (parseInt(lodgingMatch[2], 10) || reg.service_days || 2) : 0;
+      lodgingFee = hasLodging ? (parseInt(lodgingMatch[3], 10) || (50 * lodgingDays * teamSize)) : 0;
+    } else {
+      hasLodging = !!(reg.lodging_required || reg.needs_accommodation || notes.includes('Lodging: YES'));
+      lodgingDays = hasLodging ? (reg.service_days || 2) : 0;
+      lodgingFee = hasLodging ? (50 * lodgingDays * teamSize) : 0;
+    }
+
+    if (foodingMatch) {
+      hasFooding = foodingMatch[1].toUpperCase() === 'YES';
+      foodingDays = hasFooding ? (parseInt(foodingMatch[2], 10) || reg.service_days || 2) : 0;
+      foodingFee = hasFooding ? (parseInt(foodingMatch[3], 10) || (125 * foodingDays * teamSize)) : 0;
+    } else {
+      hasFooding = !!(reg.fooding_required || notes.includes('Fooding: YES'));
+      foodingDays = hasFooding ? (reg.service_days || 2) : 0;
+      foodingFee = hasFooding ? (125 * foodingDays * teamSize) : 0;
+    }
+
+    const servicesTotal = lodgingFee + foodingFee;
+    return {
+      hasLodging,
+      lodgingDays,
+      lodgingFee,
+      hasFooding,
+      foodingDays,
+      foodingFee,
+      teamSize,
+      servicesTotal
+    };
+  }
+
   function renderRegistrationsTable() {
     const tbody = document.getElementById('registrationsTableBody');
     if (!tbody) return;
@@ -2269,12 +2325,15 @@
       const isRejected = reg.payment_status === 'rejected';
 
       // Services text
-      const services = [];
-      const hasLodging = reg.lodging_required || reg.needs_accommodation || (reg.admin_notes && reg.admin_notes.includes('Lodging: YES'));
-      const hasFooding = reg.fooding_required || (reg.admin_notes && reg.admin_notes.includes('Fooding: YES'));
-      if (hasLodging) services.push('Hostel');
-      if (hasFooding) services.push('Mess');
-      const servicesText = services.length > 0 ? `${services.join('+')} (${reg.service_days || 2}d)` : 'Event Only';
+      const svc = parseRegistrationServices(reg);
+      let servicesText = 'Event Only';
+      if (svc.hasLodging && svc.hasFooding) {
+        servicesText = `Lodging (${svc.lodgingDays}d, ₹${svc.lodgingFee}) + Mess (${svc.foodingDays}d, ₹${svc.foodingFee})`;
+      } else if (svc.hasLodging) {
+        servicesText = `Lodging: ${svc.lodgingDays}d (₹${svc.lodgingFee})`;
+      } else if (svc.hasFooding) {
+        servicesText = `Mess Food: ${svc.foodingDays}d (₹${svc.foodingFee})`;
+      }
 
       return `
         <tr>
@@ -2333,12 +2392,7 @@
         `).join('')
       : `<div style="font-size:0.82rem; color:var(--text-dim);">${reg.team_size > 1 ? `Contingent of ${reg.team_size} members` : 'Solo entry / Individual participant'}</div>`;
 
-    const services = [];
-    const hasLodging = reg.lodging_required || reg.needs_accommodation || (reg.admin_notes && reg.admin_notes.includes('Lodging: YES'));
-    const hasFooding = reg.fooding_required || (reg.admin_notes && reg.admin_notes.includes('Fooding: YES'));
-    if (hasLodging) services.push(`Campus Hostel Lodging (${reg.service_days || 2} days)`);
-    if (hasFooding) services.push(`Campus Mess Food Pass (${reg.service_days || 2} days)`);
-    const servicesDesc = services.length > 0 ? services.join(' + ') : 'None (Competition Registration Only)';
+    const svc = parseRegistrationServices(reg);
 
     modalBody.innerHTML = `
       <div id="printableSlipArea">
@@ -2381,8 +2435,21 @@
             <span class="detail-val" style="font-family:monospace; color:var(--accent-cyan);">${escapeHtml(reg.payment_reference || 'N/A')}</span>
           </div>
           <div class="detail-item full-width">
-            <span class="detail-label">Campus Services Booked</span>
-            <span class="detail-val">${escapeHtml(servicesDesc)}</span>
+            <span class="detail-label">Campus Services Breakdown</span>
+            <div style="background: rgba(15,23,42,0.65); padding: 12px 14px; border-radius: 8px; border: 1px solid var(--admin-border); margin-top: 4px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; font-size:0.85rem;">
+                <span><strong>🛏️ Campus Hostel Lodging:</strong> ${svc.hasLodging ? `YES (${svc.lodgingDays} Days @ ₹50/day × ${svc.teamSize} pers)` : 'NO (Not Booked)'}</span>
+                <span style="color:var(--accent-cyan); font-weight:700;">₹${svc.lodgingFee}</span>
+              </div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; font-size:0.85rem;">
+                <span><strong>🍱 Campus Mess Food:</strong> ${svc.hasFooding ? `YES (${svc.foodingDays} Days @ ₹125/day × ${svc.teamSize} pers)` : 'NO (Not Booked)'}</span>
+                <span style="color:var(--accent-yellow); font-weight:700;">₹${svc.foodingFee}</span>
+              </div>
+              <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid rgba(255,255,255,0.1); padding-top:8px; font-size:0.88rem; font-weight:700;">
+                <span>Total Campus Services (${svc.teamSize} ${svc.teamSize === 1 ? 'person' : 'members'}):</span>
+                <span style="color:var(--accent-green);">₹${svc.servicesTotal}</span>
+              </div>
+            </div>
           </div>
           <div class="detail-item full-width">
             <span class="detail-label">Team Members</span>
