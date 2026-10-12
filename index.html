@@ -77,6 +77,12 @@
     </div>
     <div class="loader-background-grid"></div>
   </div>
+  <script>
+    if (typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('skipLoader') === '1') {
+      const _loaderEl = document.getElementById('loader');
+      if (_loaderEl) _loaderEl.style.display = 'none';
+    }
+  </script>
 
   <!-- Background Canvas Viewport (170 Frames Smooth Scroll Animation) -->
   <div class="canvas-viewport" id="canvas-wrapper">
@@ -299,6 +305,16 @@
       <!-- Mobile Top Cyan Accent Line -->
       <div class="hero-accent-bar" id="hero-accent-bar"></div>
 
+      <!-- Mobile Festival Eyebrow (Matches Reference Image) -->
+      <div class="hero-festival-eyebrow" id="hero-festival-eyebrow">
+        <div class="hfe-line-wrap">
+          <span class="hfe-dash"></span>
+          <span class="hfe-top">EAST INDIA'S PREMIER</span>
+          <span class="hfe-dash"></span>
+        </div>
+        <div class="hfe-bottom">TECHNICAL FESTIVAL</div>
+      </div>
+
       <!-- Desktop Tagline Badge (Preserved for desktop, admin toggled for mobile) -->
       <div class="hero-badge desktop-only-elem" id="hero-badge-tagline">
         <span class="pulsing-radar"></span>
@@ -316,7 +332,7 @@
       <p class="hero-tagline-mobile" id="hero-tagline-mobile">BUILD BEYOND BOUNDARIES.</p>
       <div class="hero-mobile-date-badge" id="hero-mobile-date">
         <span class="hmd-dash">—</span>
-        <span class="hmd-text">DECEMBER 2026</span>
+        <span class="hmd-text">2026</span>
         <span class="hmd-dash">—</span>
       </div>
 
