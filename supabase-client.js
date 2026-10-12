@@ -165,6 +165,9 @@
 
         const servicesTag = `Services: [Lodging: ${isLodging ? 'YES (' + lodgingDays + 'd, ₹' + lodgingSubtotal + ')' : 'NO'} | Fooding: ${isFooding ? 'YES (' + foodingDays + 'd, ₹' + foodingSubtotal + ')' : 'NO'}] | People: ${teamSize} | Campus Total: ₹${calculatedServicesTotal}`;
 
+        const rollNumber = (regData.rollNumber || '').trim();
+        const safeEmail = (regData.email || '').trim().toLowerCase() || (rollNumber ? `${rollNumber.toLowerCase().replace(/[^a-z0-9]/g, '')}@student.bce` : 'participant@student.bce');
+
         // 1. If accommodation or fooding is requested, create an accommodation booking record
         if (needsServices) {
           bookingId = generateUUID();
@@ -173,7 +176,7 @@
           const accomPayload = {
             id: bookingId,
             full_name: (regData.fullName || '').trim(),
-            email: (regData.email || '').trim().toLowerCase(),
+            email: safeEmail,
             phone: (regData.phone || '').trim(),
             college: (regData.college || '').trim(),
             gender: regData.gender || 'male',
@@ -183,7 +186,7 @@
             daily_rate: dailyRate,
             total_fee: calculatedServicesTotal,
             status: 'requested',
-            admin_notes: `Linked Event: ${regData.eventTitle} | ${servicesTag}`
+            admin_notes: `Roll: ${rollNumber || 'N/A'} | Linked Event: ${regData.eventTitle} | ${servicesTag}`
           };
 
           const { error: accomErr } = await sb
@@ -204,7 +207,7 @@
             event_id: regData.eventId,
             college: (regData.college || '').trim(),
             leader_name: (regData.fullName || '').trim(),
-            leader_email: (regData.email || '').trim().toLowerCase(),
+            leader_email: safeEmail,
             leader_phone: (regData.phone || '').trim(),
             team_size: teamSize
           };
@@ -219,7 +222,7 @@
         const regPayload = {
           id: regId,
           full_name: (regData.fullName || '').trim(),
-          email: (regData.email || '').trim().toLowerCase(),
+          email: safeEmail,
           phone: (regData.phone || '').trim(),
           college: (regData.college || '').trim(),
           event_id: regData.eventId,
@@ -233,7 +236,7 @@
           total_amount: verifiedTotal,
           payment_status: 'pending',
           payment_reference: regData.paymentReference || '',
-          admin_notes: `Portal Submission | Ref: ${regData.refId || regId.slice(0, 8).toUpperCase()} | ${servicesTag}`
+          admin_notes: `Roll: ${rollNumber || 'N/A'} | Competitions: ${regData.eventTitle} | Portal Submission | Ref: ${regData.refId || regId.slice(0, 8).toUpperCase()} | ${servicesTag}`
         };
 
         const { error: regErr } = await sb

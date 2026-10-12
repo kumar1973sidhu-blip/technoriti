@@ -1642,10 +1642,21 @@
 
   window.handleRegistration = function (form) {
     const name = document.getElementById('reg-fullname').value.trim();
-    const email = document.getElementById('reg-email').value.trim();
+    const rollInput = document.getElementById('reg-roll');
+    const rollNumber = rollInput ? rollInput.value.trim() : '';
     const phone = document.getElementById('reg-phone').value.trim();
     const college = document.getElementById('reg-college').value.trim();
     const primarySelect = document.getElementById('reg-event');
+
+    if (!name || name.length < 2) {
+      alert('Please enter your full name.');
+      return;
+    }
+
+    if (!rollNumber || rollNumber.length < 2) {
+      alert('Please enter your official College Roll Number / Registration Number.');
+      return;
+    }
 
     if (!primarySelect || !primarySelect.value) {
       alert('Please select at least one primary competition/arena.');
@@ -1659,6 +1670,10 @@
       return;
     }
 
+    // Clean roll number and generate safe backward-compatible email for database
+    const cleanRoll = rollNumber.replace(/\s+/g, ' ');
+    const safeEmail = `${cleanRoll.toLowerCase().replace(/[^a-z0-9]/g, '') || 'participant'}@student.bce`;
+
     const feeData = window.updateFeeSummary();
     const isLodging = document.getElementById('reg-opt-lodging')?.checked || false;
     const isFooding = document.getElementById('reg-opt-fooding')?.checked || false;
@@ -1671,7 +1686,8 @@
     // Store in pendingRegistrationData
     pendingRegistrationData = {
       fullName: name,
-      email: email,
+      rollNumber: cleanRoll,
+      email: safeEmail,
       phone: cleanPhone,
       college: college,
       teamSize: teamSize,
@@ -1696,6 +1712,7 @@
 
     const orderIdEl = document.getElementById('pay-order-id');
     const nameEl = document.getElementById('pay-summary-name');
+    const rollEl = document.getElementById('pay-summary-roll');
     const collegeEl = document.getElementById('pay-summary-college');
     const phoneEl = document.getElementById('pay-summary-phone');
     const teamEl = document.getElementById('pay-summary-team');
@@ -1714,6 +1731,7 @@
 
     if (orderIdEl) orderIdEl.textContent = `REF: ${refId}`;
     if (nameEl) nameEl.textContent = name;
+    if (rollEl) rollEl.textContent = cleanRoll;
     if (collegeEl) collegeEl.textContent = college;
     if (phoneEl) phoneEl.textContent = cleanPhone;
     if (teamEl) teamEl.textContent = teamSize === 1 ? '1 (Solo Participant)' : `${teamSize} Members (Team)`;
@@ -1838,6 +1856,7 @@
       // 1. Submit to Supabase - throws real error if insert fails
       const regResponse = await window.TechnoritiDB.submitRegistration({
         fullName: data.fullName,
+        rollNumber: data.rollNumber,
         email: data.email,
         phone: data.phone,
         college: data.college,
@@ -1875,7 +1894,7 @@
         if (data.lodgingRequired) servicesList.push(`Hostel Lodging (${data.lodgingDays}d, ₹${data.lodgingCost})`);
         if (data.foodingRequired) servicesList.push(`Mess Food (${data.foodingDays}d, ₹${data.foodingCost})`);
         const servicesDesc = servicesList.length > 0 ? ` + ${servicesList.join(' & ')}` : '';
-        msgEl.textContent = `Welcome, ${data.fullName}! Your registration for ${eventsDesc}${servicesDesc} has been securely recorded in the official TECHNORITI '26 database (Payment Status: Pending Verification, UTR: ${utrVal}, Total: ₹${data.totalAmount}). Please present this reference ID (${data.refId}) and valid college ID upon arrival at BCE Bhagalpur in December 2026.`;
+        msgEl.textContent = `Welcome, ${data.fullName} (Roll No: ${data.rollNumber})! Your registration for ${eventsDesc}${servicesDesc} has been securely recorded in the official TECHNORITI '26 database (Payment Status: Pending Verification, UTR: ${utrVal}, Total: ₹${data.totalAmount}). Please present this reference ID (${data.refId}) and valid college ID upon arrival at BCE Bhagalpur in December 2026.`;
       }
 
       if (successModal) successModal.classList.add('open');

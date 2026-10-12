@@ -1866,6 +1866,8 @@
       ]);
       const prizes = toArray(prizesRes);
       const rules = toArray(rulesRes);
+      state.currentEventPrizes = prizes;
+      state.currentEventRules = rules;
 
       if (prizesTbody) {
         if (prizes.length === 0) {
@@ -1883,10 +1885,14 @@
           prizesTbody.innerHTML = prizes.map(p => `
             <tr>
               <td style="font-weight:700; color:var(--accent-yellow); font-family:var(--font-orbitron);">${p.position}</td>
-              <td style="font-weight:700; color:#fff;">${escapeHtml(p.prize_title)}</td>
+              <td>
+                <div style="font-weight:700; color:#fff;">${escapeHtml(p.prize_title)}</div>
+                ${p.description ? `<div style="font-size:0.75rem; color:var(--text-dim); margin-top:2px;">${escapeHtml(p.description)}</div>` : ''}
+              </td>
               <td style="font-weight:700; color:var(--accent-green);">${escapeHtml(p.prize_amount)}</td>
-              <td style="text-align:right;">
-                <button class="btn-action-icon reject" onclick="deletePrizeEntry('${p.id}')">✕</button>
+              <td style="text-align:right; white-space:nowrap;">
+                <button class="btn-action-icon" onclick="openEditPrizeModal('${p.id}')" title="Edit Prize" style="margin-right:4px;">✏️</button>
+                <button class="btn-action-icon reject" onclick="confirmDeletePrize('${p.id}')" title="Delete Prize">✕</button>
               </td>
             </tr>
           `).join('');
@@ -1910,8 +1916,9 @@
             <tr>
               <td style="font-weight:700; color:var(--accent-cyan); font-family:var(--font-orbitron);">${r.rule_number}</td>
               <td style="font-size:0.85rem; color:#fff;">${escapeHtml(r.rule_text)}</td>
-              <td style="text-align:right;">
-                <button class="btn-action-icon reject" onclick="deleteRuleEntry('${r.id}')">✕</button>
+              <td style="text-align:right; white-space:nowrap;">
+                <button class="btn-action-icon" onclick="openEditRuleModal('${r.id}')" title="Edit Rule Clause" style="margin-right:4px;">✏️</button>
+                <button class="btn-action-icon reject" onclick="confirmDeleteRule('${r.id}')" title="Delete Rule Clause">✕</button>
               </td>
             </tr>
           `).join('');
@@ -1930,72 +1937,285 @@
     }
   };
 
-  window.openAddPrizeModal = async function () {
+  // --- PRIZES MANAGEMENT MODALS & HANDLERS ---
+  window.openAddPrizeModal = function () {
     const eventId = state.selectedEventIdForPrizes;
     if (!eventId) {
       showToast('Please select a competition first', 'error');
       return;
     }
-    const title = prompt('Enter Prize Position / Title (e.g. 1st Place / Winner):', '1st Place');
-    if (!title) return;
-    const amount = prompt('Enter Prize Amount (e.g. ₹10,000 + Certificate):', '₹10,000');
-    if (!amount) return;
+    const prizes = state.currentEventPrizes || [];
+    const maxPos = prizes.reduce((max, p) => Math.max(max, Number(p.position) || 0), 0);
+    const nextPos = maxPos + 1;
+
+    const idInput = document.getElementById('prizeFormId');
+    const posInput = document.getElementById('prizeFormPosition');
+    const titleInput = document.getElementById('prizeFormTitle');
+    const amountInput = document.getElementById('prizeFormAmount');
+    const descInput = document.getElementById('prizeFormDescription');
+    const errEl = document.getElementById('prizeFormError');
+    const modalTitle = document.getElementById('prizeModalTitle');
+    const saveBtn = document.getElementById('btnSavePrize');
+
+    if (idInput) idInput.value = '';
+    if (posInput) posInput.value = nextPos;
+    if (titleInput) {
+      if (nextPos === 1) titleInput.value = '1st Prize / Champion';
+      else if (nextPos === 2) titleInput.value = '2nd Prize / Runner Up';
+      else if (nextPos === 3) titleInput.value = '3rd Prize / 2nd Runner Up';
+      else titleInput.value = `Rank ${nextPos} / Consolation Prize`;
+    }
+    if (amountInput) amountInput.value = '';
+    if (descInput) descInput.value = '';
+    if (errEl) { errEl.style.display = 'none'; errEl.textContent = ''; }
+    if (modalTitle) modalTitle.textContent = `Add Prize Entry (Rank ${nextPos})`;
+    if (saveBtn) saveBtn.textContent = 'Save Prize';
+
+    openModal('prizeModal');
+  };
+
+  window.openEditPrizeModal = function (id) {
+    const prizes = state.currentEventPrizes || [];
+    const prize = prizes.find(p => p.id === id);
+    if (!prize) {
+      showToast('Prize entry not found', 'error');
+      return;
+    }
+
+    const idInput = document.getElementById('prizeFormId');
+    const posInput = document.getElementById('prizeFormPosition');
+    const titleInput = document.getElementById('prizeFormTitle');
+    const amountInput = document.getElementById('prizeFormAmount');
+    const descInput = document.getElementById('prizeFormDescription');
+    const errEl = document.getElementById('prizeFormError');
+    const modalTitle = document.getElementById('prizeModalTitle');
+    const saveBtn = document.getElementById('btnSavePrize');
+
+    if (idInput) idInput.value = prize.id;
+    if (posInput) posInput.value = prize.position;
+    if (titleInput) titleInput.value = prize.prize_title || '';
+    if (amountInput) amountInput.value = prize.prize_amount || '';
+    if (descInput) descInput.value = prize.description || '';
+    if (errEl) { errEl.style.display = 'none'; errEl.textContent = ''; }
+    if (modalTitle) modalTitle.textContent = `Edit Prize Entry: ${prize.prize_title || `Rank ${prize.position}`}`;
+    if (saveBtn) saveBtn.textContent = 'Update Prize';
+
+    openModal('prizeModal');
+  };
+
+  window.handleSavePrize = async function (e) {
+    if (e && e.preventDefault) e.preventDefault();
+    const eventId = state.selectedEventIdForPrizes;
+    if (!eventId) {
+      showToast('No competition selected', 'error');
+      return;
+    }
+
+    const id = document.getElementById('prizeFormId')?.value?.trim() || null;
+    const posVal = parseInt(document.getElementById('prizeFormPosition')?.value, 10);
+    const title = document.getElementById('prizeFormTitle')?.value?.trim();
+    const amount = document.getElementById('prizeFormAmount')?.value?.trim();
+    const desc = document.getElementById('prizeFormDescription')?.value?.trim() || null;
+    const errEl = document.getElementById('prizeFormError');
+    const saveBtn = document.getElementById('btnSavePrize');
+
+    if (!posVal || posVal < 1 || !Number.isInteger(posVal)) {
+      const msg = 'Award Position must be a positive whole integer (1, 2, 3...)';
+      if (errEl) { errEl.textContent = msg; errEl.style.display = 'block'; }
+      else showToast(msg, 'error');
+      return;
+    }
+
+    if (!title) {
+      const msg = 'Please enter a Prize Title or Citation.';
+      if (errEl) { errEl.textContent = msg; errEl.style.display = 'block'; }
+      else showToast(msg, 'error');
+      return;
+    }
+
+    if (!amount) {
+      const msg = 'Please enter a Prize Amount or Purse value.';
+      if (errEl) { errEl.textContent = msg; errEl.style.display = 'block'; }
+      else showToast(msg, 'error');
+      return;
+    }
+
+    // Duplicate check: verify position is not already taken by another prize in this event
+    const existingPrizes = state.currentEventPrizes || [];
+    const conflict = existingPrizes.find(p => p.position === posVal && p.id !== id);
+    if (conflict) {
+      const msg = `Position ${posVal} is already occupied by "${conflict.prize_title}". Please choose an unoccupied position or edit that prize.`;
+      if (errEl) { errEl.textContent = msg; errEl.style.display = 'block'; }
+      else showToast(msg, 'error');
+      return;
+    }
+
+    if (errEl) errEl.style.display = 'none';
+    if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = 'Saving...'; }
 
     try {
-      await TechnoritiDB.saveEventPrize({
+      const payload = {
         event_id: eventId,
-        position: 1,
+        position: posVal,
         prize_title: title,
-        prize_amount: amount
-      });
-      loadPrizesAndRulesForSelectedEvent();
-      showToast('Prize entry added', 'success');
+        prize_amount: amount,
+        description: desc
+      };
+      if (id) payload.id = id;
+
+      await TechnoritiDB.saveEventPrize(payload);
+      closeModal('prizeModal');
+      await loadPrizesAndRulesForSelectedEvent();
+      showToast(id ? 'Prize updated successfully' : 'New prize added successfully', 'success');
     } catch (err) {
-      showToast('Failed to add prize: ' + err.message, 'error');
+      console.error('Failed to save prize:', err);
+      const errMsg = err.message || 'Failed to save prize to database';
+      if (errEl) { errEl.textContent = errMsg; errEl.style.display = 'block'; }
+      showToast(errMsg, 'error');
+    } finally {
+      if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = id ? 'Update Prize' : 'Save Prize'; }
     }
   };
 
-  window.deletePrizeEntry = async function (id) {
+  window.confirmDeletePrize = async function (id) {
+    const prizes = state.currentEventPrizes || [];
+    const prize = prizes.find(p => p.id === id);
+    const label = prize ? `"${prize.prize_title}" (Rank ${prize.position})` : 'this prize entry';
+    if (!confirm(`Are you sure you want to permanently delete ${label}?`)) {
+      return;
+    }
     try {
       await TechnoritiDB.deleteEventPrize(id);
-      loadPrizesAndRulesForSelectedEvent();
-      showToast('Prize deleted', 'success');
+      await loadPrizesAndRulesForSelectedEvent();
+      showToast('Prize entry deleted', 'success');
     } catch (err) {
       showToast('Delete failed: ' + err.message, 'error');
     }
   };
+  window.deletePrizeEntry = window.confirmDeletePrize;
 
-  window.openAddRuleModal = async function () {
+  // --- RULES MANAGEMENT MODALS & HANDLERS ---
+  window.openAddRuleModal = function () {
     const eventId = state.selectedEventIdForPrizes;
     if (!eventId) {
       showToast('Please select a competition first', 'error');
       return;
     }
-    const text = prompt('Enter rule clause description:');
-    if (!text) return;
+    const rules = state.currentEventRules || [];
+    const maxRule = rules.reduce((max, r) => Math.max(max, Number(r.rule_number) || 0), 0);
+    const nextRule = maxRule + 1;
+
+    const idInput = document.getElementById('ruleFormId');
+    const numInput = document.getElementById('ruleFormNumber');
+    const textInput = document.getElementById('ruleFormText');
+    const errEl = document.getElementById('ruleFormError');
+    const modalTitle = document.getElementById('ruleModalTitle');
+    const saveBtn = document.getElementById('btnSaveRule');
+
+    if (idInput) idInput.value = '';
+    if (numInput) numInput.value = nextRule;
+    if (textInput) textInput.value = '';
+    if (errEl) { errEl.style.display = 'none'; errEl.textContent = ''; }
+    if (modalTitle) modalTitle.textContent = `Add Rule Clause #${nextRule}`;
+    if (saveBtn) saveBtn.textContent = 'Save Rule';
+
+    openModal('ruleModal');
+  };
+
+  window.openEditRuleModal = function (id) {
+    const rules = state.currentEventRules || [];
+    const rule = rules.find(r => r.id === id);
+    if (!rule) {
+      showToast('Rule clause not found', 'error');
+      return;
+    }
+
+    const idInput = document.getElementById('ruleFormId');
+    const numInput = document.getElementById('ruleFormNumber');
+    const textInput = document.getElementById('ruleFormText');
+    const errEl = document.getElementById('ruleFormError');
+    const modalTitle = document.getElementById('ruleModalTitle');
+    const saveBtn = document.getElementById('btnSaveRule');
+
+    if (idInput) idInput.value = rule.id;
+    if (numInput) numInput.value = rule.rule_number;
+    if (textInput) textInput.value = rule.rule_text || '';
+    if (errEl) { errEl.style.display = 'none'; errEl.textContent = ''; }
+    if (modalTitle) modalTitle.textContent = `Edit Rule Clause #${rule.rule_number}`;
+    if (saveBtn) saveBtn.textContent = 'Update Rule';
+
+    openModal('ruleModal');
+  };
+
+  window.handleSaveRule = async function (e) {
+    if (e && e.preventDefault) e.preventDefault();
+    const eventId = state.selectedEventIdForPrizes;
+    if (!eventId) {
+      showToast('No competition selected', 'error');
+      return;
+    }
+
+    const id = document.getElementById('ruleFormId')?.value?.trim() || null;
+    const numVal = parseInt(document.getElementById('ruleFormNumber')?.value, 10);
+    const textVal = document.getElementById('ruleFormText')?.value?.trim();
+    const errEl = document.getElementById('ruleFormError');
+    const saveBtn = document.getElementById('btnSaveRule');
+
+    if (!numVal || numVal < 1 || !Number.isInteger(numVal)) {
+      const msg = 'Rule clause number must be a positive integer (1, 2, 3...)';
+      if (errEl) { errEl.textContent = msg; errEl.style.display = 'block'; }
+      else showToast(msg, 'error');
+      return;
+    }
+
+    if (!textVal) {
+      const msg = 'Please enter the rule clause statement.';
+      if (errEl) { errEl.textContent = msg; errEl.style.display = 'block'; }
+      else showToast(msg, 'error');
+      return;
+    }
+
+    if (errEl) errEl.style.display = 'none';
+    if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = 'Saving...'; }
 
     try {
-      await TechnoritiDB.saveEventRule({
+      const payload = {
         event_id: eventId,
-        rule_number: Date.now() % 1000,
-        rule_text: text
-      });
-      loadPrizesAndRulesForSelectedEvent();
-      showToast('Rule clause recorded', 'success');
+        rule_number: numVal,
+        rule_text: textVal
+      };
+      if (id) payload.id = id;
+
+      await TechnoritiDB.saveEventRule(payload);
+      closeModal('ruleModal');
+      await loadPrizesAndRulesForSelectedEvent();
+      showToast(id ? 'Rule updated successfully' : 'Rule clause recorded successfully', 'success');
     } catch (err) {
-      showToast('Failed to add rule: ' + err.message, 'error');
+      console.error('Failed to save rule:', err);
+      const errMsg = err.message || 'Failed to save rule clause to database';
+      if (errEl) { errEl.textContent = errMsg; errEl.style.display = 'block'; }
+      showToast(errMsg, 'error');
+    } finally {
+      if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = id ? 'Update Rule' : 'Save Rule'; }
     }
   };
 
-  window.deleteRuleEntry = async function (id) {
+  window.confirmDeleteRule = async function (id) {
+    const rules = state.currentEventRules || [];
+    const rule = rules.find(r => r.id === id);
+    const label = rule ? `Clause #${rule.rule_number}` : 'this rule clause';
+    if (!confirm(`Are you sure you want to permanently delete ${label}?`)) {
+      return;
+    }
     try {
       await TechnoritiDB.deleteEventRule(id);
-      loadPrizesAndRulesForSelectedEvent();
-      showToast('Rule removed', 'success');
+      await loadPrizesAndRulesForSelectedEvent();
+      showToast('Rule clause removed', 'success');
     } catch (err) {
       showToast('Delete failed: ' + err.message, 'error');
     }
   };
+  window.deleteRuleEntry = window.confirmDeleteRule;
 
   // =========================================================================
   // 12. SPONSORS MANAGEMENT (FULL CRUD)
@@ -2688,6 +2908,26 @@
     };
   }
 
+  function getRegistrationRoll(reg) {
+    if (reg.roll_number) return reg.roll_number;
+    if (reg.admin_notes) {
+      const match = reg.admin_notes.match(/Roll(?: Number)?:?\s*([A-Za-z0-9\/\-_.]+)/i);
+      if (match && match[1] && match[1].toLowerCase() !== 'n/a') return match[1];
+    }
+    if (reg.email && reg.email.endsWith('@student.bce')) {
+      const prefix = reg.email.replace('@student.bce', '').toUpperCase();
+      if (prefix && prefix !== 'PARTICIPANT') return prefix;
+    }
+    return '—';
+  }
+
+  function parseRegistrationCompetitions(reg) {
+    const raw = (reg.event_title || reg.events?.title || '').trim();
+    if (!raw) return ['General Event'];
+    const list = raw.split(/,\s*/).map(s => s.trim()).filter(Boolean);
+    return list.length > 0 ? list : [raw];
+  }
+
   function renderRegistrationsTable() {
     const tbody = document.getElementById('registrationsTableBody');
     if (!tbody) return;
@@ -2714,24 +2954,26 @@
 
     const filtered = regsList.filter(reg => {
       const pName = (reg.full_name || reg.participant_name || '').toLowerCase();
+      const pRoll = getRegistrationRoll(reg).toLowerCase();
       const pEmail = (reg.email || '').toLowerCase();
       const pPhone = (reg.phone || '').toLowerCase();
       const pCollege = (reg.college || '').toLowerCase();
-      const eTitle = (reg.events?.title || reg.event_title || '').toLowerCase();
+      const rawEvents = (reg.event_title || reg.events?.title || '').toLowerCase();
       const refId = (reg.ref_id || reg.id || '').toLowerCase();
       const utrRef = (reg.payment_reference || '').toLowerCase();
 
       if (searchVal) {
         const matches = pName.includes(searchVal) || 
+                        pRoll.includes(searchVal) ||
                         pEmail.includes(searchVal) || 
                         pPhone.includes(searchVal) || 
                         pCollege.includes(searchVal) || 
-                        eTitle.includes(searchVal) || 
+                        rawEvents.includes(searchVal) || 
                         refId.includes(searchVal) || 
                         utrRef.includes(searchVal);
         if (!matches) return false;
       }
-      if (eventFilter && (reg.events?.title || reg.event_title) !== eventFilter) return false;
+      if (eventFilter && !rawEvents.includes(eventFilter.toLowerCase())) return false;
       if (statusFilter && reg.payment_status !== statusFilter) return false;
       if (paymentFilter && reg.payment_status !== paymentFilter) return false;
       return true;
@@ -2753,14 +2995,22 @@
     tbody.innerHTML = filtered.map((reg) => {
       const displayRef = reg.ref_id || ('REG-' + reg.id.slice(0, 8).toUpperCase());
       const pName = reg.full_name || reg.participant_name || 'Participant';
+      const rollNumber = getRegistrationRoll(reg);
       const email = reg.email || '—';
       const phone = reg.phone || '—';
-      const eventTitle = reg.events?.title || reg.event_title || 'General Event';
       const college = reg.college || 'BCE Bhagalpur';
       const teamSize = reg.team_size || 1;
       const teamLabel = teamSize === 1 ? '1 (Solo)' : `${teamSize} Members`;
       const isPaid = reg.payment_status === 'verified';
       const isRejected = reg.payment_status === 'rejected';
+
+      // Parse all selected competitions
+      const eventTitles = parseRegistrationCompetitions(reg);
+      const eventsBadgesHtml = eventTitles.map((t, idx) => `
+        <span class="badge-competition" style="display:inline-flex; align-items:center; margin:1px 3px 2px 0; padding:2px 8px; border-radius:4px; font-size:0.74rem; font-weight:600; background:rgba(0,240,255,0.12); color:#00f0ff; border:1px solid rgba(0,240,255,0.3); white-space:nowrap;">
+          ${idx === 0 ? '★ ' : '＋ '}${escapeHtml(t)}
+        </span>
+      `).join('');
 
       // Services text
       const svc = parseRegistrationServices(reg);
@@ -2778,9 +3028,14 @@
           <td style="font-family:var(--font-orbitron); font-size:0.78rem; color:var(--accent-cyan); font-weight:700;">${escapeHtml(displayRef)}</td>
           <td>
             <div style="font-weight:700; color:#fff;">${escapeHtml(pName)}</div>
-            <div style="font-size:0.75rem; color:var(--text-dim);">${escapeHtml(email)} • ${escapeHtml(phone)}</div>
+            <div style="font-size:0.75rem; color:var(--accent-yellow); font-family:var(--font-orbitron); font-weight:700; margin-top:1px;">Roll: ${escapeHtml(rollNumber)}</div>
+            <div style="font-size:0.73rem; color:var(--text-dim); margin-top:1px;">${escapeHtml(phone)}${email && !email.endsWith('@student.bce') ? ` • ${escapeHtml(email)}` : ''}</div>
           </td>
-          <td><span style="color:var(--accent-cyan); font-weight:600;">${escapeHtml(eventTitle)}</span></td>
+          <td style="max-width:260px;">
+            <div style="display:flex; flex-wrap:wrap; gap:2px;">
+              ${eventsBadgesHtml}
+            </div>
+          </td>
           <td>${escapeHtml(college)}</td>
           <td><span style="font-size:0.8rem; color:var(--text-muted);">${escapeHtml(teamLabel)}</span></td>
           <td>
@@ -2822,6 +3077,14 @@
     const displayRef = reg.ref_id || ('REG-' + reg.id.slice(0, 8).toUpperCase());
     modalTitle.textContent = `Registration Details: ${displayRef}`;
 
+    const rollNumber = getRegistrationRoll(reg);
+    const eventTitles = parseRegistrationCompetitions(reg);
+    const eventsBadgesHtml = eventTitles.map((t, idx) => `
+      <span class="badge-competition" style="display:inline-flex; align-items:center; margin:2px 4px; padding:3px 10px; border-radius:4px; font-size:0.82rem; font-weight:700; background:rgba(0,240,255,0.15); color:#00f0ff; border:1px solid rgba(0,240,255,0.4);">
+        ${idx === 0 ? '★ Primary: ' : '＋ Additional: '}${escapeHtml(t)}
+      </span>
+    `).join('');
+
     const membersHtml = (reg.teams?.members && reg.teams.members.length > 0)
       ? reg.teams.members.map((m, idx) => `
           <div style="font-size:0.82rem; margin-bottom:4px; color:var(--text-main);">
@@ -2842,27 +3105,33 @@
         <div class="detail-grid">
           <div class="detail-item">
             <span class="detail-label">Reference ID</span>
-            <span class="detail-val" style="font-family:var(--font-orbitron); color:var(--accent-cyan);">${escapeHtml(displayRef)}</span>
+            <span class="detail-val" style="font-family:var(--font-orbitron); color:var(--accent-cyan); font-weight:700;">${escapeHtml(displayRef)}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">College Roll Number</span>
+            <span class="detail-val" style="font-family:var(--font-orbitron); color:var(--accent-yellow); font-weight:700;">${escapeHtml(rollNumber)}</span>
           </div>
           <div class="detail-item">
             <span class="detail-label">Participant / Leader</span>
-            <span class="detail-val">${escapeHtml(reg.full_name || reg.participant_name || 'N/A')}</span>
-          </div>
-          <div class="detail-item">
-            <span class="detail-label">Event Applied</span>
-            <span class="detail-val" style="color:var(--accent-cyan);">${escapeHtml(reg.events?.title || reg.event_title || 'N/A')}</span>
-          </div>
-          <div class="detail-item">
-            <span class="detail-label">Email Address</span>
-            <span class="detail-val">${escapeHtml(reg.email || 'N/A')}</span>
-          </div>
-          <div class="detail-item">
-            <span class="detail-label">Phone Number</span>
-            <span class="detail-val">${escapeHtml(reg.phone || 'N/A')}</span>
+            <span class="detail-val" style="font-weight:700; color:#fff;">${escapeHtml(reg.full_name || reg.participant_name || 'N/A')}</span>
           </div>
           <div class="detail-item">
             <span class="detail-label">Institution / College</span>
             <span class="detail-val">${escapeHtml(reg.college || 'N/A')}</span>
+          </div>
+          <div class="detail-item full-width">
+            <span class="detail-label">All Registered Competitions (${eventTitles.length})</span>
+            <div style="background: rgba(15,23,42,0.65); padding: 10px 14px; border-radius: 8px; border: 1px solid rgba(0,240,255,0.25); margin-top: 4px; display:flex; flex-wrap:wrap; gap:6px;">
+              ${eventsBadgesHtml}
+            </div>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">WhatsApp Phone</span>
+            <span class="detail-val">${escapeHtml(reg.phone || 'N/A')}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Email Address</span>
+            <span class="detail-val">${escapeHtml(reg.email || 'N/A')}</span>
           </div>
           <div class="detail-item">
             <span class="detail-label">Total Amount Paid / Due</span>
@@ -3002,18 +3271,51 @@
       return;
     }
 
-    const headers = ['Registration_ID', 'Participant_Name', 'Email', 'Phone', 'College', 'Event_Title', 'Team_Size', 'Payment_Status', 'Created_Date'];
-    const rows = state.registrations.map((r, i) => [
-      `REG-${1000 + i}`,
-      csvEscape(r.full_name || r.participant_name || ''),
-      csvEscape(r.email || ''),
-      csvEscape(r.phone || ''),
-      csvEscape(r.college || ''),
-      csvEscape(r.events?.title || r.event_title || ''),
-      r.team_size || 1,
-      r.payment_status || 'pending',
-      r.created_at || ''
-    ]);
+    const headers = [
+      'Registration_ID',
+      'Participant_Name',
+      'College_Roll_Number',
+      'Phone',
+      'Email',
+      'College',
+      'All_Competitions',
+      'Team_Size',
+      'Campus_Services',
+      'Total_Amount_INR',
+      'Payment_Status',
+      'Payment_Reference_UTR',
+      'Created_Date'
+    ];
+    const rows = state.registrations.map((r, i) => {
+      const displayRef = r.ref_id || ('REG-' + (1000 + i));
+      const roll = getRegistrationRoll(r);
+      const allEvents = r.event_title || r.events?.title || 'General Event';
+      const svc = parseRegistrationServices(r);
+      let servicesText = 'None';
+      if (svc.hasLodging && svc.hasFooding) {
+        servicesText = `Hostel (${svc.lodgingDays}d) + Mess (${svc.foodingDays}d)`;
+      } else if (svc.hasLodging) {
+        servicesText = `Hostel (${svc.lodgingDays}d)`;
+      } else if (svc.hasFooding) {
+        servicesText = `Mess Food (${svc.foodingDays}d)`;
+      }
+
+      return [
+        csvEscape(displayRef),
+        csvEscape(r.full_name || r.participant_name || ''),
+        csvEscape(roll),
+        csvEscape(r.phone || ''),
+        csvEscape(r.email || ''),
+        csvEscape(r.college || ''),
+        csvEscape(allEvents),
+        r.team_size || 1,
+        csvEscape(servicesText),
+        r.total_amount || 0,
+        csvEscape(r.payment_status || 'pending'),
+        csvEscape(r.payment_reference || ''),
+        csvEscape(r.created_at || '')
+      ];
+    });
 
     const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
     const encodedUri = encodeURI(csvContent);
@@ -3024,7 +3326,7 @@
     document.body.appendChild(link);
     link.click();
     link.remove();
-    showToast('Exported registrations to CSV', 'success');
+    showToast('Exported registrations to CSV with roll numbers and all competitions', 'success');
   };
 
   function csvEscape(text) {

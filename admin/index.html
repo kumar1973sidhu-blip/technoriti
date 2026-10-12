@@ -1489,8 +1489,8 @@
               <thead>
                 <tr>
                   <th>Reg #</th>
-                  <th>Participant</th>
-                  <th>Event / Arena</th>
+                  <th>Participant &amp; Roll #</th>
+                  <th>Competitions / Arenas</th>
                   <th>College</th>
                   <th>Team</th>
                   <th>Services &amp; Fee</th>
@@ -1969,6 +1969,83 @@
           <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
             <button type="button" class="btn-secondary" onclick="closeModal('sponsorModal')">Cancel</button>
             <button type="submit" class="btn-primary">Save Partner</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2B. EVENT PRIZE MODAL -->
+  <div id="prizeModal" class="modal-overlay">
+    <div class="modal-box" style="max-width: 540px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="prizeModalTitle">Add Prize Entry</h3>
+        <button class="modal-close" onclick="closeModal('prizeModal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <form id="prizeForm" onsubmit="handleSavePrize(event)">
+          <input type="hidden" id="prizeFormId">
+
+          <div class="cms-grid-2">
+            <div class="cms-form-group">
+              <label class="cms-label">Award Position / Rank *</label>
+              <input type="number" id="prizeFormPosition" class="cms-input" min="1" step="1" required placeholder="1">
+              <div style="font-size:0.73rem; color:var(--text-dim); margin-top:4px;">1 = 1st Place, 2 = 2nd Place, etc.</div>
+            </div>
+            <div class="cms-form-group">
+              <label class="cms-label">Prize Amount / Purse *</label>
+              <input type="text" id="prizeFormAmount" class="cms-input" required placeholder="e.g. ₹15,000 + Trophy">
+            </div>
+          </div>
+
+          <div class="cms-form-group">
+            <label class="cms-label">Prize Title / Citation *</label>
+            <input type="text" id="prizeFormTitle" class="cms-input" required placeholder="e.g. 1st Prize / Champion">
+          </div>
+
+          <div class="cms-form-group">
+            <label class="cms-label">Perks &amp; Additional Rewards (Optional)</label>
+            <textarea id="prizeFormDescription" class="cms-textarea" style="min-height:70px;" placeholder="e.g. Certificate of Excellence, Direct Interview Opportunity, Technoriti Medallion"></textarea>
+          </div>
+
+          <div id="prizeFormError" style="display:none; color:var(--accent-red); font-size:0.8rem; margin-bottom:12px; padding:8px 12px; background:rgba(239,68,68,0.12); border-radius:6px; border:1px solid rgba(239,68,68,0.3);"></div>
+
+          <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+            <button type="button" class="btn-secondary" onclick="closeModal('prizeModal')">Cancel</button>
+            <button type="submit" class="btn-primary" id="btnSavePrize">Save Prize</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2C. EVENT RULE MODAL -->
+  <div id="ruleModal" class="modal-overlay">
+    <div class="modal-box" style="max-width: 580px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="ruleModalTitle">Add Rule Clause</h3>
+        <button class="modal-close" onclick="closeModal('ruleModal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <form id="ruleForm" onsubmit="handleSaveRule(event)">
+          <input type="hidden" id="ruleFormId">
+
+          <div class="cms-form-group">
+            <label class="cms-label">Rule Clause Number *</label>
+            <input type="number" id="ruleFormNumber" class="cms-input" min="1" step="1" required placeholder="1" style="max-width:140px;">
+            <div style="font-size:0.73rem; color:var(--text-dim); margin-top:4px;">Sequential clause number (e.g. 1, 2, 3...)</div>
+          </div>
+
+          <div class="cms-form-group">
+            <label class="cms-label">Rule Statement / Regulation *</label>
+            <textarea id="ruleFormText" class="cms-textarea" style="min-height:110px;" required placeholder="e.g. All robots must adhere to the 40cm x 40cm dimensional limits. Weapon power supply must not exceed 24V DC."></textarea>
+          </div>
+
+          <div id="ruleFormError" style="display:none; color:var(--accent-red); font-size:0.8rem; margin-bottom:12px; padding:8px 12px; background:rgba(239,68,68,0.12); border-radius:6px; border:1px solid rgba(239,68,68,0.3);"></div>
+
+          <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+            <button type="button" class="btn-secondary" onclick="closeModal('ruleModal')">Cancel</button>
+            <button type="submit" class="btn-primary" id="btnSaveRule">Save Rule</button>
           </div>
         </form>
       </div>

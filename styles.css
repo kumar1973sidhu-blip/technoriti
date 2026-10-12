@@ -2477,7 +2477,7 @@ html, body {
     stroke: #d98fff !important;
   }
 
-  /* 8. Bottom Scroll Indicator */
+  /* 8. Bottom Scroll Indicator - Mobile 3D Glass Capsule Indicator */
   .scroll-canvas-cue {
     position: relative !important;
     bottom: auto !important;
@@ -2486,13 +2486,16 @@ html, body {
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
-    gap: 4px !important;
-    margin: 2px auto 2px !important;
+    gap: 3px !important;
+    margin: 4px auto 2px !important;
     cursor: pointer !important;
     z-index: 15 !important;
-    padding: 4px 12px !important;
+    padding: 6px 20px 8px !important;
+    min-height: 48px !important;
+    min-width: 48px !important;
     touch-action: manipulation !important;
     -webkit-tap-highlight-color: transparent !important;
+    user-select: none !important;
   }
 
   .scroll-text-desktop {
@@ -2501,52 +2504,55 @@ html, body {
 
   .scroll-text-mobile {
     display: inline !important;
-    font-family: var(--font-space), sans-serif !important;
-    font-size: clamp(0.52rem, 1.9vw, 0.62rem) !important;
+    font-family: var(--font-orbitron), sans-serif !important;
+    font-size: clamp(0.55rem, 2vw, 0.64rem) !important;
     font-weight: 700 !important;
-    letter-spacing: 2px !important;
-    color: #94a3b8 !important;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8) !important;
+    letter-spacing: 2.2px !important;
+    color: #cbd5e1 !important;
+    text-shadow: 0 0 8px rgba(0, 240, 255, 0.35), 0 1px 2px rgba(0, 0, 0, 0.9) !important;
     text-transform: uppercase !important;
+    margin-top: 2px !important;
   }
 
   .scroll-mouse-icon {
-    width: 16px !important;
-    height: 26px !important;
-    border: 1.5px solid rgba(255, 255, 255, 0.65) !important;
-    border-radius: 10px !important;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 3px !important;
-    box-shadow: 0 0 8px rgba(0, 240, 255, 0.3) !important;
+    width: 18px !important;
+    height: 30px !important;
+    border: 1.5px solid rgba(0, 240, 255, 0.95) !important;
+    border-radius: 12px !important;
+    background: rgba(10, 16, 40, 0.55) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+    box-shadow: 0 0 10px rgba(0, 240, 255, 0.4), inset 0 0 6px rgba(168, 85, 247, 0.3) !important;
+    position: relative !important;
+    overflow: hidden !important;
+    display: block !important;
   }
 
   .wheel-dot.dot-1 {
-    width: 2.5px !important;
-    height: 2.5px !important;
-    background: #00ffff !important;
-    border-radius: 50% !important;
-    animation: cosmicDotPulse 1.8s ease-in-out infinite !important;
+    width: 3px !important;
+    height: 6px !important;
+    background: #00f0ff !important;
+    border-radius: 2px !important;
+    box-shadow: 0 0 6px #00f0ff, 0 0 10px rgba(0, 240, 255, 0.8) !important;
+    position: absolute !important;
+    top: 4px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    animation: mobilePillDotTravel 2s cubic-bezier(0.4, 0, 0.2, 1) infinite !important;
   }
 
   .wheel-dot.dot-2 {
-    display: block !important;
-    width: 2.5px !important;
-    height: 2.5px !important;
-    background: #00ffff !important;
-    border-radius: 50% !important;
-    opacity: 0.6 !important;
-    animation: cosmicDotPulse 1.8s ease-in-out infinite 0.3s !important;
+    display: none !important;
   }
 
   .scroll-chevron-down {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    color: #00ffff !important;
-    animation: cosmicChevronBounce 1.8s ease-in-out infinite !important;
+    color: #00f0ff !important;
+    animation: cosmicChevronBounce 2s ease-in-out infinite !important;
+    filter: drop-shadow(0 0 4px rgba(0, 240, 255, 0.7)) !important;
+    margin-top: 1px !important;
   }
 }
 
@@ -2593,6 +2599,34 @@ html, body {
 @keyframes cosmicDotPulse {
   0%, 100% { transform: translateY(0); opacity: 0.4; }
   50% { transform: translateY(2px); opacity: 1; }
+}
+
+@keyframes mobilePillDotTravel {
+  0% {
+    top: 4px;
+    opacity: 1;
+    transform: translateX(-50%) scaleY(1);
+  }
+  50% {
+    top: 14px;
+    opacity: 0.9;
+    transform: translateX(-50%) scaleY(1.1);
+  }
+  80% {
+    top: 20px;
+    opacity: 0;
+    transform: translateX(-50%) scaleY(0.7);
+  }
+  81% {
+    top: 4px;
+    opacity: 0;
+    transform: translateX(-50%) scaleY(1);
+  }
+  100% {
+    top: 4px;
+    opacity: 1;
+    transform: translateX(-50%) scaleY(1);
+  }
 }
 
 @keyframes cosmicChevronBounce {
