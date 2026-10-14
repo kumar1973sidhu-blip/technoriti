@@ -2969,10 +2969,12 @@
       if (navItems && navItems.length > 0) {
         const navList = document.querySelector('.nav-links');
         if (navList) {
-          // Developers is accessible via the left floating dock and mobile drawer - keep desktop header uncluttered
+          // Developers and Register are excluded from desktop top navigation to keep header clean
           const headerNavItems = navItems.filter(i => 
             i.destination_url !== 'developers' && 
-            !(i.label && i.label.toLowerCase().includes('developer'))
+            !(i.label && i.label.toLowerCase().includes('developer')) &&
+            i.destination_url !== 'register' && 
+            !(i.label && i.label.toLowerCase().includes('register'))
           );
           navList.innerHTML = headerNavItems.map(item => {
             if (item.is_external) {

@@ -173,14 +173,6 @@
           </a>
         </div>
 
-        <!-- Register Button -->
-        <button class="cyber-btn-register header-desktop-only" onclick="window.handleRegisterClickProtected()">
-          <span class="btn-text">REGISTER</span>
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <path d="M5 12h14M12 5l7 7-7 7"/>
-          </svg>
-        </button>
-
         <!-- Mobile Navigation Menu Toggle (Concetto Style) -->
         <button id="mobile-menu-btn" class="mobile-hamburger-btn" aria-label="Open Navigation Menu" aria-expanded="false" aria-controls="mobile-nav-drawer" title="Menu" onclick="window.toggleMobileDrawer(event)">
           <span class="hamburger-bar"></span>
@@ -287,17 +279,9 @@
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
       <span class="dock-label">Sponsors</span>
     </button>
-    <button class="dock-link" onclick="window.openPanel('developers')" title="Web Developers & Coordinators">
+    <button class="dock-link" onclick="window.openPanel('developers')" title="Web Developers &amp; Coordinators">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
       <span class="dock-label">Developers</span>
-    </button>
-    <button class="dock-link" onclick="window.handleDashboardDockClick()" title="Participant Dashboard">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-      <span class="dock-label">Dashboard</span>
-    </button>
-    <button class="dock-link" onclick="window.handleRegisterClickProtected()" title="Register for Competitions">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
-      <span class="dock-label">Register</span>
     </button>
   </aside>
 
@@ -441,33 +425,31 @@
        SLIDE-OUT PANELS (CLICK-TO-VIEW CLEAN ARCHITECTURE)
        ===================================================================== -->
 
-  <!-- 1. ABOUT PANEL -->
+  <!-- 1. ABOUT PANEL (SINGLE SCREEN EXECUTIVE DASHBOARD // ZERO SCROLL) -->
   <div id="about-panel" class="slide-panel-overlay" onclick="window.handleOverlayClick(event, 'about')">
     <div class="slide-panel-drawer about-large-drawer glassmorphism-drawer" onclick="event.stopPropagation()">
-      <div class="drawer-header">
-        <div>
-          <span class="panel-badge">OFFICIAL FESTIVAL LEADERSHIP</span>
-          <h2 class="drawer-title">LEADERSHIP & PATRONS</h2>
-          <p class="drawer-subtitle-cyan">Bhagalpur College of Engineering • TECHNORITI '26 (6–7 January 2027)</p>
+      <div class="drawer-header about-compact-header">
+        <div class="header-left-cluster">
+          <div class="header-badge-row">
+            <span class="panel-badge">OFFICIAL FESTIVAL LEADERSHIP // NOTICE NO. 2363</span>
+            <div class="header-govt-chip">
+              <span class="chip-emblem">🏛️</span>
+              <span class="chip-text">Govt. of Bihar • Dept. of Science, Technology &amp; Technical Education • Official Notice No. 2363</span>
+            </div>
+          </div>
+          <h2 class="drawer-title" style="margin: 4px 0 0 0; font-size: 1.35rem; line-height: 1.2;">FESTIVAL LEADERSHIP &amp; STEERING COMMITTEE</h2>
+          <p class="drawer-subtitle-cyan" style="margin: 2px 0 0 0; font-size: 0.78rem;">Bhagalpur College of Engineering • TECHNORITI '26 (6–7 January 2027)</p>
         </div>
         <button class="drawer-close-btn" onclick="window.closeAllPanels()" title="Close (Esc)">✕</button>
       </div>
 
-      <div class="drawer-body">
-        <!-- Bihar Government & Institutional Affiliation Banner -->
-        <div class="institutional-support-strip">
-          <div class="iss-emblem-badge">🏛️ GOVT. OF BIHAR</div>
-          <div class="iss-info">
-            <h4 class="iss-dept">Department of Science, Technology and Technical Education</h4>
-            <p class="iss-sub">Government of Bihar • Bhagalpur College of Engineering (Estd. 1960) • Official Notice No. 2363</p>
-          </div>
-        </div>
-
-        <!-- Tier 1: PATRON SPOTLIGHT (Head of Institution) -->
-        <div class="leadership-tier-section patron-tier">
+      <div class="drawer-body about-compact-body">
+        <!-- ROW 1: PRIMARY FESTIVAL LEADERSHIP (PATRON & CONVENOR IN PRIORITY) -->
+        <div class="about-row-primary">
+          <!-- Card 1: PATRON (Level 1 - Head of Institution) -->
           <div class="leadership-card patron-card glassmorphism-card">
             <div class="leadership-photo-wrap">
-              <img id="about-patron-img" src="principal-office-portrait.png" alt="Dr. Bimlesh Kumar, Principal BCE Bhagalpur - Patron" class="leadership-photo" loading="lazy" onerror="this.onerror=null; this.src='principal-portrait.png';">
+              <img id="about-patron-img" src="principal-office-portrait.png" alt="Dr. Bimlesh Kumar - Patron" class="leadership-photo" loading="lazy" onerror="this.onerror=null; this.src='principal-portrait.png';">
               <div class="leadership-badge-overlay badge-patron">
                 <span class="pulse-dot-gold"></span>
                 <span>PATRON</span>
@@ -475,112 +457,99 @@
             </div>
             <div class="leadership-content">
               <div class="leadership-header-row">
-                <div>
-                  <h3 id="about-patron-name" class="leadership-name">Dr. Bimlesh Kumar</h3>
-                  <p id="about-patron-title" class="leadership-title">Principal, Bhagalpur College of Engineering, Bhagalpur</p>
-                </div>
+                <span class="tier-level-tag gold">LEVEL 1 // PATRON</span>
                 <span class="tier-pill tier-pill-patron">HEAD OF INSTITUTION</span>
               </div>
-              <div id="about-patron-quote" class="leadership-quote-box">
+              <h3 id="about-patron-name" class="leadership-name">Dr. Bimlesh Kumar</h3>
+              <p id="about-patron-title" class="leadership-title">Principal, Bhagalpur College of Engineering</p>
+              <div id="about-patron-quote" class="leadership-quote-compact">
                 <p>
-                  "Education prepares a person to meet new challenges, scale fresh heights and lead a successful life. We, therefore, at BCE Bhagalpur, would like to encourage all students to strive for the best and achieve excellence by way of inclusiveness, integrity, innovation and creativity."
+                  "Education prepares a person to meet new challenges, scale fresh heights and lead a successful life. At BCE Bhagalpur, we encourage all students to strive for excellence by way of innovation, integrity and technical brilliance. As Patron, I warmly welcome all technocrats to TECHNORITI '26."
                 </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2: CONVENOR (Level 3 - Festival Steering Lead - IN PRIORITY!) -->
+          <div class="leadership-card convenor-priority-card glassmorphism-card">
+            <div class="leadership-photo-wrap">
+              <img id="about-convenor-img" src="convener-portrait.jpg" alt="Dr. Abhinav Kumar - Convenor" class="leadership-photo" loading="lazy" onerror="this.onerror=null; this.src='convener-portrait.jpg';">
+              <div class="leadership-badge-overlay badge-convenor">
+                <span class="pulse-dot-blue"></span>
+                <span>CONVENOR</span>
+              </div>
+            </div>
+            <div class="leadership-content">
+              <div class="leadership-header-row">
+                <span class="tier-level-tag cyan">LEVEL 3 // CONVENOR</span>
+                <span class="tier-pill tier-pill-convenor">FESTIVAL STEERING LEAD</span>
+              </div>
+              <h3 id="about-convenor-name" class="leadership-name">Dr. Abhinav Kumar</h3>
+              <p id="about-convenor-title" class="leadership-title">Assistant Professor, Dept. of Electronics &amp; Communication Engg.</p>
+              <div id="about-convenor-quote" class="leadership-quote-compact">
                 <p>
-                  "Institution is not only for academic brilliance but also for an ambience where our ancient cultural heritage and human skills are enhanced. Our constant endeavour is to create a climate for the dissemination of knowledge and technical skills wherein the products of this Institution compete with the best in the country. As Patron of TECHNORITI '26, I welcome all participants, researchers, and technocrats to our campus on 6–7 January 2027."
+                  "Orchestrating festival operations, 29 technical arenas, tournament brackets, and student engineering talent showcases as Convenor of TECHNORITI '26. Proud to host Eastern India's defining tech confluence at BCE Bhagalpur on 6–7 January 2027."
                 </p>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Tier 2: CO-PATRONS (Two Columns Side-by-Side) -->
-        <div class="leadership-tier-section copatrons-tier">
-          <div class="tier-heading-row">
-            <span class="tier-tag">EXECUTIVE OVERSIGHT</span>
-            <h4 class="tier-title">CO-PATRONS</h4>
-          </div>
-          <div class="leadership-grid-2col">
-            <!-- Co-Patron 1: Prof. Shashank Shekhar -->
-            <div class="leadership-card copatron-card glassmorphism-card">
-              <div class="leadership-photo-wrap">
-                <img id="about-copatron1-img" src="shashank-shekhar.png" alt="Prof. Shashank Shekhar - Co-Patron" class="leadership-photo" loading="lazy" onerror="this.onerror=null; this.src='shashank shekhar.png';">
-                <div class="leadership-badge-overlay badge-copatron">
-                  <span class="pulse-dot-cyan"></span>
-                  <span>CO-PATRON</span>
-                </div>
-              </div>
-              <div class="leadership-content">
-                <h3 id="about-copatron1-name" class="leadership-name">Prof. Shashank Shekhar</h3>
-                <p id="about-copatron1-title" class="leadership-title">HoD, Department of Applied Sciences and Humanities</p>
-                <div class="leadership-affiliation-tag">Bhagalpur College of Engineering</div>
-                <p id="about-copatron1-desc" class="leadership-desc">
-                  Nurturing fundamental scientific inquiry, ethical leadership, and academic rigor to empower future engineers at TECHNORITI '26.
-                </p>
+        <!-- ROW 2: EXECUTIVE OVERSIGHT & CAMPUS HERITAGE (3 COLUMNS) -->
+        <div class="about-row-secondary">
+          <!-- Col 1: CO-PATRON (Prof. Shashank Shekhar) -->
+          <div class="leadership-card copatron-card glassmorphism-card">
+            <div class="leadership-photo-wrap-sm">
+              <img id="about-copatron1-img" src="shashank-shekhar.png" alt="Prof. Shashank Shekhar - Co-Patron" class="leadership-photo-sm" loading="lazy" onerror="this.onerror=null; this.src='shashank shekhar.png';">
+              <div class="leadership-badge-overlay badge-copatron">
+                <span class="pulse-dot-cyan"></span>
+                <span>CO-PATRON</span>
               </div>
             </div>
-
-            <!-- Co-Patron 2: Dr. Pushpalata -->
-            <div class="leadership-card copatron-card glassmorphism-card">
-              <div class="leadership-photo-wrap">
-                <img id="about-copatron2-img" src="dr-pushpalata.png" alt="Dr. Pushpalata - Co-Patron" class="leadership-photo" loading="lazy" onerror="this.onerror=null; this.src='dr,pushpalata.png';">
-                <div class="leadership-badge-overlay badge-copatron">
-                  <span class="pulse-dot-cyan"></span>
-                  <span>CO-PATRON</span>
-                </div>
-              </div>
-              <div class="leadership-content">
-                <h3 id="about-copatron2-name" class="leadership-name">Dr. Pushpalata</h3>
-                <p id="about-copatron2-title" class="leadership-title">HoD, Department of Electronics &amp; Communication Engineering</p>
-                <div class="leadership-affiliation-tag">Bhagalpur College of Engineering</div>
-                <p id="about-copatron2-desc" class="leadership-desc">
-                  Driving technological breakthroughs, research endeavors, and student engineering innovations as Co-Patron of TECHNORITI '26.
-                </p>
-              </div>
+            <div class="leadership-content">
+              <div class="tier-level-tag purple">LEVEL 2 // CO-PATRON</div>
+              <h4 id="about-copatron1-name" class="leadership-name-sm">Prof. Shashank Shekhar</h4>
+              <p id="about-copatron1-title" class="leadership-title-sm">HoD, Applied Sciences &amp; Humanities</p>
+              <p id="about-copatron1-desc" class="leadership-desc-sm">
+                Nurturing fundamental scientific inquiry, ethical leadership, and academic rigor to empower future engineers at TECHNORITI '26.
+              </p>
             </div>
           </div>
-        </div>
 
-        <!-- Tier 3: CONVENOR & INSTITUTION HERITAGE (Two Columns Side-by-Side) -->
-        <div class="leadership-tier-section convenor-institution-tier">
-          <div class="leadership-grid-2col">
-            <!-- Convenor Card: Dr. Abhinav Kumar -->
-            <div class="leadership-card convenor-card glassmorphism-card">
-              <div class="leadership-photo-wrap">
-                <img id="about-convenor-img" src="convener-portrait.jpg" alt="Dr. Abhinav Kumar - Convenor" class="leadership-photo" loading="lazy" onerror="this.onerror=null; this.src='convener-portrait.jpg';">
-                <div class="leadership-badge-overlay badge-convenor">
-                  <span class="pulse-dot-blue"></span>
-                  <span>CONVENOR</span>
-                </div>
-              </div>
-              <div class="leadership-content">
-                <div class="tier-pill-small">STEERING COMMITTEE LEAD</div>
-                <h3 id="about-convenor-name" class="leadership-name">Dr. Abhinav Kumar</h3>
-                <p id="about-convenor-title" class="leadership-title">Assistant Professor, Department of Electronics &amp; Communication Engineering</p>
-                <div class="leadership-affiliation-tag">Bhagalpur College of Engineering</div>
-                <div id="about-convenor-quote" class="leadership-desc">
-                  <p>
-                    Orchestrating festival operations, 29 technical arenas, and student talent showcases as Convenor of TECHNORITI '26.
-                  </p>
-                </div>
+          <!-- Col 2: CO-PATRON (Dr. Pushpalata) -->
+          <div class="leadership-card copatron-card glassmorphism-card">
+            <div class="leadership-photo-wrap-sm">
+              <img id="about-copatron2-img" src="dr-pushpalata.png" alt="Dr. Pushpalata - Co-Patron" class="leadership-photo-sm" loading="lazy" onerror="this.onerror=null; this.src='dr,pushpalata.png';">
+              <div class="leadership-badge-overlay badge-copatron">
+                <span class="pulse-dot-cyan"></span>
+                <span>CO-PATRON</span>
               </div>
             </div>
+            <div class="leadership-content">
+              <div class="tier-level-tag purple">LEVEL 2 // CO-PATRON</div>
+              <h4 id="about-copatron2-name" class="leadership-name-sm">Dr. Pushpalata</h4>
+              <p id="about-copatron2-title" class="leadership-title-sm">HoD, Electronics &amp; Communication Engg.</p>
+              <p id="about-copatron2-desc" class="leadership-desc-sm">
+                Driving technological breakthroughs, research endeavors, and student engineering innovations as Co-Patron of TECHNORITI '26.
+              </p>
+            </div>
+          </div>
 
-            <!-- Institution & Campus Heritage Card -->
-            <div class="leadership-card institution-card glassmorphism-card">
-              <div class="leadership-photo-wrap">
-                <img id="about-institution-img" src="bce-campus-building.jpg" alt="Bhagalpur College of Engineering Campus Building" class="leadership-photo institution-photo" loading="lazy">
-                <div class="leadership-badge-overlay badge-heritage">
-                  <span>ESTD. 1960</span>
-                </div>
+          <!-- Col 3: INSTITUTION & CAMPUS HERITAGE -->
+          <div class="leadership-card institution-card glassmorphism-card">
+            <div class="leadership-photo-wrap-sm">
+              <img id="about-institution-img" src="bce-campus-building.jpg" alt="BCE Bhagalpur Campus Building" class="leadership-photo-sm institution-photo" loading="lazy">
+              <div class="leadership-badge-overlay badge-heritage">
+                <span>ESTD. 1960</span>
               </div>
-              <div class="leadership-content">
-                <div class="tier-pill-small">GOVERNMENT ENGINEERING COLLEGE</div>
-                <h3 id="about-institution-heading" class="leadership-name">Bhagalpur College of Engineering</h3>
-                <p id="about-institution-dept" class="leadership-title">Department of Science, Technology and Technical Education, Govt. of Bihar</p>
-                <p id="about-institution-desc" class="leadership-desc">
-                  Estd. 1960, Bhagalpur College of Engineering (BCE Bhagalpur) is one of Eastern India's premier government engineering institutions. Affiliated with Bihar Engineering University (BEU) and approved by AICTE, BCE welcomes innovators across robotics, coding, cyber forensics, aerospace design, and core engineering on 6–7 January 2027.
-                </p>
-              </div>
+            </div>
+            <div class="leadership-content">
+              <div class="tier-level-tag orange">CAMPUS HERITAGE</div>
+              <h4 id="about-institution-heading" class="leadership-name-sm">BCE Bhagalpur</h4>
+              <p id="about-institution-dept" class="leadership-title-sm">Bihar Engineering University • AICTE Approved</p>
+              <p id="about-institution-desc" class="leadership-desc-sm">
+                Premier technical institution in Bihar established in 1960, fostering generations of visionary engineers and hosting TECHNORITI '26.
+              </p>
             </div>
           </div>
         </div>
@@ -1405,7 +1374,7 @@
         To register for competitions, please sign in or create your participant account. Once authenticated, your profile information will be automatically prefilled in the registration form.
       </p>
       <div style="display: flex; flex-direction: column; gap: 10px;">
-        <a href="/login.html?redirect=register" class="cyber-btn-register" style="justify-content: center; padding: 12px 20px; font-size: 0.85rem; text-decoration: none;">
+        <a href="/login.html?redirect=register" class="primary-glow-btn" style="justify-content: center; padding: 12px 20px; font-size: 0.85rem; text-decoration: none;">
           <span>SIGN IN / CREATE ACCOUNT →</span>
         </a>
         <button type="button" class="btn-secondary" onclick="window.closeAuthRequiredModal()" style="background: transparent; border: 1px solid rgba(255, 255, 255, 0.15); color: var(--text-secondary); padding: 10px; border-radius: 8px; font-family: var(--font-orbitron); font-size: 0.78rem; cursor: pointer;">

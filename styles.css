@@ -5622,51 +5622,43 @@ html, body {
    OFFICIAL TECHNORITI '26 LEADERSHIP & ABOUT LARGE ANIMATED DRAWER
    ===================================================================== */
 
-/* 1. Large Side-Panel Drawer for About (85–92% viewport width on desktop) */
+/* 1. Large Side-Panel Drawer for About (Single Screen Executive Dashboard // Zero Scroll) */
 #about-panel .slide-panel-drawer,
 .about-large-drawer {
-  width: min(1380px, 88vw) !important;
-  max-width: 90vw !important;
-  height: 96vh !important;
-  margin: 2vh 2vw 2vh auto !important;
-  border-radius: 20px 0 0 20px !important;
-  background: rgba(6, 11, 23, 0.95) !important;
+  width: min(1380px, 92vw) !important;
+  max-width: 94vw !important;
+  height: auto !important;
+  max-height: 92vh !important;
+  margin: auto !important;
+  border-radius: 18px !important;
+  background: rgba(6, 11, 23, 0.96) !important;
   backdrop-filter: blur(24px) saturate(180%) !important;
   -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
   border: 1px solid rgba(0, 240, 255, 0.35) !important;
-  border-right: none !important;
-  box-shadow: -25px 0 65px rgba(0, 0, 0, 0.85), -6px 0 35px rgba(0, 240, 255, 0.22) !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.88), 0 0 35px rgba(0, 240, 255, 0.22) !important;
   display: flex !important;
   flex-direction: column !important;
   transform: translateX(100%);
   transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.45s ease;
-  overflow: hidden;
+  overflow: hidden !important;
 }
 
 #about-panel.open .slide-panel-drawer {
   transform: translateX(0) !important;
 }
 
-#about-panel.open .institutional-support-strip {
-  animation: aboutStaggerFade 0.45s cubic-bezier(0.16, 1, 0.3, 1) 0.08s both;
+#about-panel.open .about-row-primary {
+  animation: aboutStaggerFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.08s both;
 }
 
-#about-panel.open .patron-tier {
-  animation: aboutStaggerFade 0.45s cubic-bezier(0.16, 1, 0.3, 1) 0.16s both;
-}
-
-#about-panel.open .copatrons-tier {
-  animation: aboutStaggerFade 0.45s cubic-bezier(0.16, 1, 0.3, 1) 0.24s both;
-}
-
-#about-panel.open .convenor-institution-tier {
-  animation: aboutStaggerFade 0.45s cubic-bezier(0.16, 1, 0.3, 1) 0.32s both;
+#about-panel.open .about-row-secondary {
+  animation: aboutStaggerFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.16s both;
 }
 
 @keyframes aboutStaggerFade {
   from {
     opacity: 0;
-    transform: translateY(18px);
+    transform: translateY(14px);
   }
   to {
     opacity: 1;
@@ -5674,106 +5666,194 @@ html, body {
   }
 }
 
-/* 2. Official Leadership Tiers Layout */
-.leadership-tier-section {
-  margin-bottom: 24px;
+/* Compact Header */
+.about-compact-header {
+  padding: 12px 24px 10px !important;
+  border-bottom: 1px solid rgba(0, 240, 255, 0.18) !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  background: rgba(10, 18, 36, 0.75) !important;
 }
 
-.tier-heading-row {
+.header-left-cluster {
+  display: flex;
+  flex-direction: column;
+}
+
+.header-badge-row {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 14px;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
-.tier-tag {
-  font-family: var(--font-orbitron);
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 1.5px;
-  color: var(--accent-cyan);
-  background: rgba(0, 240, 255, 0.1);
-  border: 1px solid rgba(0, 240, 255, 0.3);
-  padding: 4px 10px;
+.header-govt-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(251, 191, 36, 0.1);
+  border: 1px solid rgba(251, 191, 36, 0.32);
+  padding: 2px 8px;
   border-radius: 6px;
 }
 
-.tier-title {
-  font-family: var(--font-heading);
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: #ffffff;
-  letter-spacing: 1px;
-  margin: 0;
+.chip-emblem {
+  font-size: 0.72rem;
 }
 
-.leadership-grid-2col {
+.chip-text {
+  font-size: 0.7rem;
+  color: #fde047;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+/* Compact Drawer Body - Formatted to Fit Single Screen Without Scrolling */
+.about-compact-body {
+  padding: 14px 22px 16px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+  overflow-y: auto !important;
+  max-height: calc(92vh - 65px) !important;
+}
+
+/* Row 1: Primary Festival Leadership (Patron & Convenor 50/50 Grid) */
+.about-row-primary {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
 }
 
-/* Base Leadership Card */
-.leadership-card {
+/* Row 2: Executive Oversight & Campus Heritage (3 Columns 33/33/33 Grid) */
+.about-row-secondary {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+}
+
+/* Base Leadership Card - Ultra-Refined & Compact */
+.about-compact-body .leadership-card {
   display: flex;
-  gap: 22px;
-  padding: 22px;
-  border-radius: 16px;
-  background: rgba(13, 22, 43, 0.65);
-  border: 1px solid rgba(0, 240, 255, 0.2);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  gap: 14px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(13, 22, 43, 0.7);
+  border: 1px solid rgba(0, 240, 255, 0.22);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
   position: relative;
   overflow: hidden;
-  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
-.leadership-card:hover {
+.about-compact-body .leadership-card:hover {
   transform: translateY(-2px);
-  border-color: rgba(0, 240, 255, 0.45);
-  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55), 0 0 25px rgba(0, 240, 255, 0.18);
+  border-color: rgba(0, 240, 255, 0.5);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6), 0 0 20px rgba(0, 240, 255, 0.2);
 }
 
-/* Tier 1: Patron Card (Spotlight) */
+/* Tier 1: Patron Card */
 .patron-card {
-  background: linear-gradient(135deg, rgba(234, 179, 8, 0.08) 0%, rgba(13, 22, 43, 0.75) 60%, rgba(0, 240, 255, 0.06) 100%);
-  border: 1px solid rgba(234, 179, 8, 0.4);
-  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5), 0 0 25px rgba(234, 179, 8, 0.15);
+  background: linear-gradient(135deg, rgba(234, 179, 8, 0.09) 0%, rgba(13, 22, 43, 0.8) 60%, rgba(0, 240, 255, 0.05) 100%) !important;
+  border: 1px solid rgba(234, 179, 8, 0.45) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 20px rgba(234, 179, 8, 0.12) !important;
 }
 
 .patron-card:hover {
-  border-color: rgba(234, 179, 8, 0.65);
-  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.6), 0 0 30px rgba(234, 179, 8, 0.25);
+  border-color: rgba(234, 179, 8, 0.7) !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6), 0 0 25px rgba(234, 179, 8, 0.22) !important;
 }
 
-.leadership-photo-wrap {
-  width: 140px;
-  flex-shrink: 0;
+/* Tier 3: Convenor Priority Card (Prominently Highlighted with Emerald/Cyan Glow) */
+.convenor-priority-card {
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.12) 0%, rgba(13, 22, 43, 0.82) 60%, rgba(16, 185, 129, 0.09) 100%) !important;
+  border: 1.5px solid rgba(0, 240, 255, 0.5) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 24px rgba(0, 240, 255, 0.2) !important;
   position: relative;
+}
+
+.convenor-priority-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(to bottom, #00f0ff, #10b981);
+}
+
+.convenor-priority-card:hover {
+  border-color: #00f0ff !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.65), 0 0 30px rgba(0, 240, 255, 0.3) !important;
+}
+
+/* Level Tags */
+.tier-level-tag {
+  font-family: var(--font-orbitron);
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  display: inline-block;
+  margin-bottom: 2px;
+}
+.tier-level-tag.gold { color: #fbbf24; }
+.tier-level-tag.cyan { color: #00f0ff; }
+.tier-level-tag.purple { color: #c084fc; }
+.tier-level-tag.orange { color: #fb923c; }
+
+/* Photo Wrapping & Dimensions */
+.about-compact-body .leadership-photo-wrap {
+  width: 92px;
+  flex-shrink: 0;
   text-align: center;
 }
 
-.leadership-photo {
-  width: 130px;
-  height: 150px;
+.about-compact-body .leadership-photo {
+  width: 88px;
+  height: 105px;
+  border-radius: 8px;
   object-fit: cover;
   object-position: top center;
-  border-radius: 12px;
-  border: 2px solid rgba(0, 240, 255, 0.4);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+  border: 1.5px solid rgba(0, 240, 255, 0.35);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
   background: #090e1a;
   display: block;
   margin: 0 auto;
 }
 
-.patron-card .leadership-photo {
-  width: 140px;
-  height: 165px;
+.about-compact-body .patron-card .leadership-photo {
   border-color: rgba(234, 179, 8, 0.6);
-  box-shadow: 0 8px 24px rgba(234, 179, 8, 0.25);
+  box-shadow: 0 4px 16px rgba(234, 179, 8, 0.2);
+}
+
+.about-compact-body .convenor-priority-card .leadership-photo {
+  border-color: rgba(0, 240, 255, 0.65);
+  box-shadow: 0 4px 16px rgba(0, 240, 255, 0.25);
+}
+
+.leadership-photo-wrap-sm {
+  width: 74px;
+  flex-shrink: 0;
+  text-align: center;
+}
+
+.leadership-photo-sm {
+  width: 70px;
+  height: 84px;
+  border-radius: 6px;
+  object-fit: cover;
+  object-position: top center;
+  border: 1.5px solid rgba(168, 85, 247, 0.4);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  background: #090e1a;
+  display: block;
+  margin: 0 auto;
 }
 
 .institution-photo {
   object-position: center center;
+  border-color: rgba(251, 191, 36, 0.5) !important;
 }
 
 /* Badge Overlays on Photos */
@@ -5781,14 +5861,14 @@ html, body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 5px;
-  margin-top: 8px;
-  padding: 3px 10px;
+  gap: 4px;
+  margin-top: 5px;
+  padding: 2px 7px;
   border-radius: 100px;
   font-family: var(--font-orbitron);
-  font-size: 0.62rem;
+  font-size: 0.56rem;
   font-weight: 700;
-  letter-spacing: 1px;
+  letter-spacing: 0.8px;
 }
 
 .badge-patron {
@@ -5798,51 +5878,51 @@ html, body {
 }
 
 .badge-copatron {
-  background: rgba(0, 240, 255, 0.16);
-  color: #00f0ff;
-  border: 1px solid rgba(0, 240, 255, 0.45);
-}
-
-.badge-convenor {
-  background: rgba(96, 165, 250, 0.2);
-  color: #60a5fa;
-  border: 1px solid rgba(96, 165, 250, 0.5);
-}
-
-.badge-heritage {
-  background: rgba(168, 85, 247, 0.2);
+  background: rgba(168, 85, 247, 0.18);
   color: #c084fc;
   border: 1px solid rgba(168, 85, 247, 0.5);
 }
 
+.badge-convenor {
+  background: rgba(0, 240, 255, 0.2);
+  color: #00f0ff;
+  border: 1px solid rgba(0, 240, 255, 0.55);
+}
+
+.badge-heritage {
+  background: rgba(251, 191, 36, 0.2);
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.5);
+}
+
 .pulse-dot-gold {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
   border-radius: 50%;
   background: #fbbf24;
-  box-shadow: 0 0 8px #fbbf24;
+  box-shadow: 0 0 6px #fbbf24;
   animation: pulseCyan 2s infinite ease-in-out;
 }
 
 .pulse-dot-cyan {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #00f0ff;
+  box-shadow: 0 0 6px #00f0ff;
+  animation: pulseCyan 2s infinite ease-in-out;
+}
+
+.pulse-dot-blue {
+  width: 5px;
+  height: 5px;
   border-radius: 50%;
   background: #00f0ff;
   box-shadow: 0 0 8px #00f0ff;
   animation: pulseCyan 2s infinite ease-in-out;
 }
 
-.pulse-dot-blue {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #60a5fa;
-  box-shadow: 0 0 8px #60a5fa;
-  animation: pulseCyan 2s infinite ease-in-out;
-}
-
-/* Content details */
+/* Card Content Details */
 .leadership-content {
   flex: 1;
   display: flex;
@@ -5852,19 +5932,18 @@ html, body {
 .leadership-header-row {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  gap: 12px;
-  flex-wrap: wrap;
-  margin-bottom: 8px;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 3px;
 }
 
 .tier-pill {
   font-family: var(--font-orbitron);
-  font-size: 0.64rem;
+  font-size: 0.58rem;
   font-weight: 700;
-  letter-spacing: 1px;
-  padding: 4px 10px;
-  border-radius: 6px;
+  letter-spacing: 0.8px;
+  padding: 2px 7px;
+  border-radius: 4px;
 }
 
 .tier-pill-patron {
@@ -5873,66 +5952,73 @@ html, body {
   border: 1px solid rgba(234, 179, 8, 0.4);
 }
 
-.tier-pill-small {
-  align-self: flex-start;
-  font-family: var(--font-orbitron);
-  font-size: 0.6rem;
-  font-weight: 700;
-  letter-spacing: 1px;
-  color: var(--accent-cyan);
-  margin-bottom: 6px;
+.tier-pill-convenor {
+  background: rgba(0, 240, 255, 0.15);
+  color: #00f0ff;
+  border: 1px solid rgba(0, 240, 255, 0.45);
 }
 
-.leadership-name {
+.about-compact-body .leadership-name {
   font-family: var(--font-heading);
-  font-size: 1.35rem;
+  font-size: 1.15rem;
   font-weight: 700;
   color: #ffffff;
-  margin: 0 0 4px 0;
-  letter-spacing: 0.5px;
+  margin: 0 0 2px 0;
+  letter-spacing: 0.4px;
+  line-height: 1.2;
 }
 
-.patron-card .leadership-name {
-  font-size: 1.55rem;
-}
-
-.leadership-title {
+.about-compact-body .leadership-title {
   color: var(--accent-cyan);
-  font-size: 0.86rem;
+  font-size: 0.77rem;
   font-weight: 600;
-  margin: 0 0 8px 0;
-  line-height: 1.4;
+  margin: 0 0 5px 0;
+  line-height: 1.35;
 }
 
-.patron-card .leadership-title {
+.about-compact-body .patron-card .leadership-title {
   color: #fde047;
 }
 
-.leadership-affiliation-tag {
-  font-size: 0.74rem;
-  color: rgba(255, 255, 255, 0.6);
-  margin-bottom: 10px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
+.about-compact-body .convenor-priority-card .leadership-title {
+  color: #67e8f9;
 }
 
-.leadership-desc {
-  font-size: 0.88rem;
-  color: var(--text-secondary);
-  line-height: 1.55;
+.leadership-quote-compact p {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.82);
+  line-height: 1.45;
   margin: 0;
 }
 
-.leadership-quote-box p {
-  font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.82);
-  line-height: 1.62;
-  margin: 0 0 10px 0;
+/* Secondary Row Typography */
+.leadership-name-sm {
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 2px 0;
+  letter-spacing: 0.3px;
+  line-height: 1.2;
 }
 
-.leadership-quote-box p:last-child {
-  margin-bottom: 0;
+.leadership-title-sm {
+  color: #c084fc;
+  font-size: 0.71rem;
+  font-weight: 600;
+  margin: 0 0 4px 0;
+  line-height: 1.3;
+}
+
+.institution-card .leadership-title-sm {
+  color: #fde047;
+}
+
+.leadership-desc-sm {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  line-height: 1.38;
+  margin: 0;
 }
 
 /* =====================================================================
@@ -6001,42 +6087,65 @@ html, body {
 /* =====================================================================
    RESPONSIVE DESIGN FOR ABOUT DRAWER & LEADERSHIP
    ===================================================================== */
-@media (max-width: 900px) {
+@media (max-width: 960px) {
   #about-panel .slide-panel-drawer,
   .about-large-drawer {
     width: 96vw !important;
     max-width: 100vw !important;
     height: 100vh !important;
-    margin: 0 !important;
-    border-radius: 0 !important;
+    max-height: 100vh !important;
+    margin: 0 0 0 auto !important;
+    border-radius: 16px 0 0 16px !important;
     border-left: 1px solid rgba(0, 240, 255, 0.3) !important;
     padding-bottom: max(24px, env(safe-area-inset-bottom)) !important;
   }
 
-  .leadership-grid-2col {
-    grid-template-columns: 1fr;
-    gap: 16px;
+  .about-row-primary {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
   }
 
-  .patron-card,
-  .leadership-card {
+  .about-row-secondary {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  .about-compact-body {
+    max-height: calc(100vh - 75px) !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .about-compact-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
+    position: relative;
+    padding: 12px 16px !important;
+  }
+
+  .about-compact-header .drawer-close-btn {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+  }
+
+  .about-compact-body .leadership-card {
     flex-direction: column;
     text-align: center;
-    padding: 18px;
+    align-items: center;
+    padding: 14px;
   }
 
-  .leadership-photo-wrap {
-    margin: 0 auto 12px;
+  .about-compact-body .leadership-photo-wrap,
+  .leadership-photo-wrap-sm {
+    margin: 0 auto 8px;
   }
 
-  .leadership-header-row {
+  .about-compact-body .leadership-header-row {
     flex-direction: column;
     align-items: center;
-    gap: 6px;
-  }
-
-  .tier-pill-small {
-    align-self: center;
+    gap: 4px;
   }
 }
 
