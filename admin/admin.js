@@ -672,129 +672,190 @@
   };
 
   // =========================================================================
-  // 5. CMS ABOUT & LEADERSHIP
+  // =========================================================================
+  // 5. CMS ABOUT & OFFICIAL LEADERSHIP (NOTICE NO. 2363)
   // =========================================================================
   function populateCmsAbout() {
+    const ldr = state.settings.about_leadership || {};
     const secPrincipal = state.contentSections.find(s => s.id === 'about_principal') || {};
     const secConvenors = state.contentSections.find(s => s.id === 'about_convenor' || s.id === 'about_convenors') || {};
     const secLegacy = state.contentSections.find(s => s.id === 'about_legacy' || s.id === 'institution_bce') || {};
 
-    // 1. Principal Spotlight
-    const pName = document.getElementById('cfgPrincipalName');
-    if (pName) pName.value = secPrincipal.title || 'Dr. Bimlesh Kumar';
+    const patronData = ldr.patron || {};
+    const co1Data = ldr.co_patron_1 || {};
+    const co2Data = ldr.co_patron_2 || {};
+    const convData = ldr.convenor || {};
+    const instData = ldr.institution || {};
 
-    const pSub = document.getElementById('cfgPrincipalSubtitle');
-    if (pSub) pSub.value = secPrincipal.subtitle || 'Principal, Bhagalpur College of Engineering';
+    // 1. Patron
+    const pName = document.getElementById('cfgPatronName') || document.getElementById('cfgPrincipalName');
+    if (pName) pName.value = patronData.name || secPrincipal.title || 'Dr. Bimlesh Kumar';
+    if (document.getElementById('cfgPrincipalName') && pName.id !== 'cfgPrincipalName') {
+      document.getElementById('cfgPrincipalName').value = pName.value;
+    }
 
-    const pQuote = document.getElementById('cfgPrincipalQuote');
-    if (pQuote) pQuote.value = secPrincipal.content || 'Education prepares a person to meet new challenges, scale fresh heights and lead a successful life. We, therefore, at BCE Bhagalpur, would like to encourage all students to strive for the best and achieve excellence by way of inclusiveness, integrity, innovation and creativity.\n\nInstitution is not only for academic brilliance but also for an ambience where our ancient cultural heritage and human skills are enhanced. Our constant endeavour is to create a climate for the dissemination of knowledge and technical skills wherein the products of this Institution compete with the best in the country. I wish my students have a glorious academic career and splendid future as confident and successful technocrats.';
+    const pSub = document.getElementById('cfgPatronSubtitle') || document.getElementById('cfgPrincipalSubtitle');
+    if (pSub) pSub.value = patronData.designation || secPrincipal.subtitle || 'Principal, Bhagalpur College of Engineering, Bhagalpur';
+    if (document.getElementById('cfgPrincipalSubtitle') && pSub.id !== 'cfgPrincipalSubtitle') {
+      document.getElementById('cfgPrincipalSubtitle').value = pSub.value;
+    }
 
-    const pPort = document.getElementById('cfgPrincipalPortrait');
-    if (pPort) pPort.value = secPrincipal.metadata?.portrait_src || 'principal-office-portrait.png';
+    const pQuote = document.getElementById('cfgPatronQuote') || document.getElementById('cfgPrincipalQuote');
+    if (pQuote) pQuote.value = patronData.description || secPrincipal.content || 'Leading Bhagalpur College of Engineering into an era of technological excellence, innovation, and holistic engineering development as the Patron of TECHNORITI \'26.';
+    if (document.getElementById('cfgPrincipalQuote') && pQuote.id !== 'cfgPrincipalQuote') {
+      document.getElementById('cfgPrincipalQuote').value = pQuote.value;
+    }
 
-    // 2. Convener Spotlight
+    const pPort = document.getElementById('cfgPatronPortrait') || document.getElementById('cfgPrincipalPortrait');
+    if (pPort) pPort.value = patronData.image || secPrincipal.metadata?.portrait_src || 'principal-office-portrait.png';
+    if (document.getElementById('cfgPrincipalPortrait') && pPort.id !== 'cfgPrincipalPortrait') {
+      document.getElementById('cfgPrincipalPortrait').value = pPort.value;
+    }
+
+    // 2. Co-Patrons
+    const co1Name = document.getElementById('cfgCoPatron1Name');
+    if (co1Name) co1Name.value = co1Data.name || 'Prof. Shashank Shekhar';
+
+    const co1Sub = document.getElementById('cfgCoPatron1Subtitle');
+    if (co1Sub) co1Sub.value = co1Data.designation || 'HoD, Department of Applied Sciences and Humanities';
+
+    const co1Quote = document.getElementById('cfgCoPatron1Quote');
+    if (co1Quote) co1Quote.value = co1Data.description || 'Nurturing fundamental scientific inquiry, ethical leadership, and academic rigor as Co-Patron of TECHNORITI \'26.';
+
+    const co1Port = document.getElementById('cfgCoPatron1Portrait');
+    if (co1Port) co1Port.value = co1Data.image || 'shashank-shekhar.png';
+
+    const co2Name = document.getElementById('cfgCoPatron2Name');
+    if (co2Name) co2Name.value = co2Data.name || 'Dr. Pushpalata';
+
+    const co2Sub = document.getElementById('cfgCoPatron2Subtitle');
+    if (co2Sub) co2Sub.value = co2Data.designation || 'HoD, Department of Electronics & Communication Engineering';
+
+    const co2Quote = document.getElementById('cfgCoPatron2Quote');
+    if (co2Quote) co2Quote.value = co2Data.description || 'Driving technological breakthroughs, research endeavors, and student engineering innovations as Co-Patron of TECHNORITI \'26.';
+
+    const co2Port = document.getElementById('cfgCoPatron2Portrait');
+    if (co2Port) co2Port.value = co2Data.image || 'dr-pushpalata.png';
+
+    // 3. Fest Convenor
     const cName = document.getElementById('cfgConvenerName');
-    if (cName) cName.value = secConvenors.title || "Convener, TECHNORITI '26";
+    if (cName) cName.value = convData.name || secConvenors.title || 'Dr. Abhinav Kumar';
 
     const cSub = document.getElementById('cfgConvenerSubtitle');
-    if (cSub) cSub.value = secConvenors.subtitle || 'Bhagalpur College of Engineering';
+    if (cSub) cSub.value = convData.designation || secConvenors.subtitle || 'Assistant Professor, Electronics & Communication Engineering';
 
     const cQuote = document.getElementById('cfgConvenerQuote');
-    if (cQuote) cQuote.value = secConvenors.content || "Welcome to TECHNORITI '26 — Eastern India's defining confluence of cutting-edge technology, robotics, and academic innovation. Our steering committee is proud to host talented technocrats from across the nation at BCE Bhagalpur.";
+    if (cQuote) cQuote.value = convData.description || secConvenors.content || 'Orchestrating festival operations, technical arenas, and student talent showcases as Convenor of TECHNORITI \'26.';
 
     const cPort = document.getElementById('cfgConvenerPortrait');
-    if (cPort) cPort.value = secConvenors.metadata?.portrait_src || 'convener-portrait.jpg';
+    if (cPort) cPort.value = convData.image || secConvenors.metadata?.portrait_src || 'convener-portrait.jpg';
 
     const convFaculty = document.getElementById('cfgConvenorsText');
-    if (convFaculty) convFaculty.value = secConvenors.metadata?.faculty_roster || secConvenors.content || 'Prof. Ranjan Kumar Mishra (HOD, Chemistry) & Prof. Shashank Shekhar (HOD, Humanities)';
+    if (convFaculty) convFaculty.value = secConvenors.metadata?.faculty_roster || secConvenors.content || 'Official Notice No. 2363 / BCE Bhagalpur';
 
-    // 3. Institution & Campus Presentation
+    // 4. Institution & Campus Presentation
     const instHeading = document.getElementById('cfgInstitutionHeading');
-    if (instHeading) instHeading.value = secLegacy.title || 'Bhagalpur College of Engineering';
+    if (instHeading) instHeading.value = instData.name || secLegacy.title || 'Bhagalpur College of Engineering';
 
     const instDept = document.getElementById('cfgInstitutionDept');
-    if (instDept) instDept.value = secLegacy.subtitle || 'Department of Science, Technology and Technical Education, Govt. of Bihar';
+    if (instDept) instDept.value = instData.dept || secLegacy.subtitle || 'Department of Science, Technology and Technical Education, Govt. of Bihar';
 
     const instPhoto = document.getElementById('cfgInstitutionPhoto');
-    if (instPhoto) instPhoto.value = secLegacy.metadata?.building_img || 'bce-campus-building.jpg';
+    if (instPhoto) instPhoto.value = instData.image || secLegacy.metadata?.building_img || 'bce-campus-building.jpg';
 
     const legText = document.getElementById('cfgLegacyText');
-    if (legText) legText.value = secLegacy.content || 'Estd. 1960, Bhagalpur College of Engineering (BCE Bhagalpur) is one of the premier technical institutions in Eastern India. Affiliated with Bihar Engineering University (BEU) and approved by AICTE, BCE has nurtured generations of visionary engineers and technocrats. TECHNORITI \'26 brings together over 1,500 innovators across robotics, coding, cyber forensics, aerospace design, and core engineering disciplines.';
+    if (legText) legText.value = instData.description || secLegacy.content || 'Estd. 1960, Bhagalpur College of Engineering (BCE Bhagalpur) is one of the premier technical institutions in Eastern India. Affiliated with Bihar Engineering University (BEU) and approved by AICTE, BCE has nurtured generations of visionary engineers and technocrats. TECHNORITI \'26 brings together over 1,500 innovators across robotics, coding, cyber forensics, aerospace design, and core engineering disciplines.';
   }
 
-  window.savePrincipalSection = async function () {
+  window.saveOfficialLeadershipSection = async function () {
     try {
-      const updates = {
-        title: document.getElementById('cfgPrincipalName')?.value.trim() || 'Dr. Bimlesh Kumar',
-        subtitle: document.getElementById('cfgPrincipalSubtitle')?.value.trim() || 'Principal, Bhagalpur College of Engineering',
-        content: document.getElementById('cfgPrincipalQuote')?.value.trim() || '',
-        metadata: {
-          designation: 'HEAD OF INSTITUTION',
-          portrait_src: document.getElementById('cfgPrincipalPortrait')?.value.trim() || 'principal-office-portrait.png'
+      const payload = {
+        notice_ref: 'Notice No. 2363 / Bhagalpur, Dated 28 September 2026',
+        fest_dates: '6th to 7th January 2027',
+        patron: {
+          category: 'PATRON',
+          name: document.getElementById('cfgPatronName')?.value.trim() || document.getElementById('cfgPrincipalName')?.value.trim() || 'Dr. Bimlesh Kumar',
+          designation: document.getElementById('cfgPatronSubtitle')?.value.trim() || document.getElementById('cfgPrincipalSubtitle')?.value.trim() || 'Principal, Bhagalpur College of Engineering, Bhagalpur',
+          image: document.getElementById('cfgPatronPortrait')?.value.trim() || document.getElementById('cfgPrincipalPortrait')?.value.trim() || 'principal-office-portrait.png',
+          description: document.getElementById('cfgPatronQuote')?.value.trim() || document.getElementById('cfgPrincipalQuote')?.value.trim() || ''
+        },
+        co_patron_1: {
+          category: 'CO-PATRON',
+          name: document.getElementById('cfgCoPatron1Name')?.value.trim() || 'Prof. Shashank Shekhar',
+          designation: document.getElementById('cfgCoPatron1Subtitle')?.value.trim() || 'HoD, Department of Applied Sciences and Humanities',
+          image: document.getElementById('cfgCoPatron1Portrait')?.value.trim() || 'shashank-shekhar.png',
+          description: document.getElementById('cfgCoPatron1Quote')?.value.trim() || ''
+        },
+        co_patron_2: {
+          category: 'CO-PATRON',
+          name: document.getElementById('cfgCoPatron2Name')?.value.trim() || 'Dr. Pushpalata',
+          designation: document.getElementById('cfgCoPatron2Subtitle')?.value.trim() || 'HoD, Department of Electronics & Communication Engineering',
+          image: document.getElementById('cfgCoPatron2Portrait')?.value.trim() || 'dr-pushpalata.png',
+          description: document.getElementById('cfgCoPatron2Quote')?.value.trim() || ''
+        },
+        convenor: {
+          category: 'CONVENOR',
+          name: document.getElementById('cfgConvenerName')?.value.trim() || 'Dr. Abhinav Kumar',
+          designation: document.getElementById('cfgConvenerSubtitle')?.value.trim() || 'Assistant Professor, Electronics & Communication Engineering',
+          image: document.getElementById('cfgConvenerPortrait')?.value.trim() || 'convener-portrait.jpg',
+          description: document.getElementById('cfgConvenerQuote')?.value.trim() || ''
+        },
+        institution: {
+          name: document.getElementById('cfgInstitutionHeading')?.value.trim() || 'Bhagalpur College of Engineering',
+          dept: document.getElementById('cfgInstitutionDept')?.value.trim() || 'Department of Science, Technology and Technical Education, Govt. of Bihar',
+          image: document.getElementById('cfgInstitutionPhoto')?.value.trim() || 'bce-campus-building.jpg',
+          description: document.getElementById('cfgLegacyText')?.value.trim() || ''
         }
       };
-      await TechnoritiDB.updateContentSection('about_principal', updates);
-      
-      const idx = state.contentSections.findIndex(s => s.id === 'about_principal');
-      if (idx >= 0) state.contentSections[idx] = { ...state.contentSections[idx], ...updates };
-      else state.contentSections.push({ id: 'about_principal', ...updates });
 
-      showToast("Principal's section saved and published to public site!", 'success');
+      await TechnoritiDB.updateSiteSetting('about_leadership', payload, 'Official Leadership (Notice 2363: Patron, Co-Patrons, Convenor, Institution)');
+      state.settings.about_leadership = payload;
+
+      // Keep legacy content sections synced for backward compatibility
+      try {
+        await TechnoritiDB.updateContentSection('about_principal', {
+          title: payload.patron.name,
+          subtitle: payload.patron.designation,
+          content: payload.patron.description,
+          metadata: { designation: 'PATRON', portrait_src: payload.patron.image }
+        });
+        await TechnoritiDB.updateContentSection('about_convenors', {
+          title: payload.convenor.name,
+          subtitle: payload.convenor.designation,
+          content: payload.convenor.description,
+          metadata: { portrait_src: payload.convenor.image }
+        });
+        await TechnoritiDB.updateContentSection('about_legacy', {
+          title: payload.institution.name,
+          subtitle: payload.institution.dept,
+          content: payload.institution.description,
+          metadata: { building_img: payload.institution.image }
+        });
+      } catch (legacyErr) {
+        console.warn('[Admin] Legacy content section sync warning:', legacyErr);
+      }
+
+      showToast('Official Leadership & Institution presentation saved successfully!', 'success');
     } catch (err) {
-      showToast('Principal update failed: ' + err.message, 'error');
+      console.error('[Admin] Error saving leadership section:', err);
+      showToast('Leadership update failed: ' + err.message, 'error');
     }
+  };
+
+  window.savePrincipalSection = async function () {
+    await window.saveOfficialLeadershipSection();
   };
 
   window.saveConvenerSection = async function () {
-    try {
-      const updates = {
-        title: document.getElementById('cfgConvenerName')?.value.trim() || "Convener, TECHNORITI '26",
-        subtitle: document.getElementById('cfgConvenerSubtitle')?.value.trim() || 'Bhagalpur College of Engineering',
-        content: document.getElementById('cfgConvenerQuote')?.value.trim() || '',
-        metadata: {
-          portrait_src: document.getElementById('cfgConvenerPortrait')?.value.trim() || 'convener-portrait.jpg',
-          faculty_roster: document.getElementById('cfgConvenorsText')?.value.trim() || 'Prof. Ranjan Kumar Mishra (HOD, Chemistry) & Prof. Shashank Shekhar (HOD, Humanities)'
-        }
-      };
-      await TechnoritiDB.updateContentSection('about_convenors', updates);
-
-      const idx = state.contentSections.findIndex(s => s.id === 'about_convenors');
-      if (idx >= 0) state.contentSections[idx] = { ...state.contentSections[idx], ...updates };
-      else state.contentSections.push({ id: 'about_convenors', ...updates });
-
-      showToast("Fest Convener section saved and published to public site!", 'success');
-    } catch (err) {
-      showToast('Convener update failed: ' + err.message, 'error');
-    }
+    await window.saveOfficialLeadershipSection();
   };
 
   window.saveInstitutionSection = async function () {
-    try {
-      const updates = {
-        title: document.getElementById('cfgInstitutionHeading')?.value.trim() || 'Bhagalpur College of Engineering',
-        subtitle: document.getElementById('cfgInstitutionDept')?.value.trim() || 'Department of Science, Technology and Technical Education, Govt. of Bihar',
-        content: document.getElementById('cfgLegacyText')?.value.trim() || '',
-        metadata: {
-          location: 'Bhagalpur, Bihar',
-          established: 1960,
-          building_img: document.getElementById('cfgInstitutionPhoto')?.value.trim() || 'bce-campus-building.jpg'
-        }
-      };
-      await TechnoritiDB.updateContentSection('about_legacy', updates);
-
-      const idx = state.contentSections.findIndex(s => s.id === 'about_legacy');
-      if (idx >= 0) state.contentSections[idx] = { ...state.contentSections[idx], ...updates };
-      else state.contentSections.push({ id: 'about_legacy', ...updates });
-
-      showToast('BCE Institution and Campus presentation saved and published!', 'success');
-    } catch (err) {
-      showToast('Institution update failed: ' + err.message, 'error');
-    }
+    await window.saveOfficialLeadershipSection();
   };
 
   window.saveConvenorsAndLegacy = async function () {
-    await window.saveConvenerSection();
-    await window.saveInstitutionSection();
+    await window.saveOfficialLeadershipSection();
   };
 
   // =========================================================================
@@ -1626,7 +1687,19 @@
 
     tbody.innerHTML = filtered.map(e => {
       const catName = e.event_categories?.name || e.category || 'General';
-      const teamSizeStr = e.team_size_min === e.team_size_max ? `${e.team_size_min} Person` : `${e.team_size_min || 1}-${e.team_size_max || 4} Members`;
+      let teamSizeStr = '';
+      if (e.fixed_team_size) {
+        teamSizeStr = `<span style="color:#00ffff; font-weight:700;">Fixed: ${e.fixed_team_size}</span>`;
+      } else if (e.team_size_min === e.team_size_max) {
+        teamSizeStr = `${e.team_size_min} Person`;
+      } else {
+        teamSizeStr = `${e.team_size_min || 1}–${e.team_size_max || 4} Members`;
+      }
+      if (e.participation_type === 'solo') {
+        teamSizeStr += ` <span style="font-size:0.75rem; color:#a855f7;">(Solo)</span>`;
+      } else if (e.participation_type === 'team') {
+        teamSizeStr += ` <span style="font-size:0.75rem; color:#38bdf8;">(Team)</span>`;
+      }
       const feeStr = e.registration_fee > 0 ? `₹${e.registration_fee}` : 'Free';
       const isOpen = (e.registration_status || 'open') === 'open';
       const isPub = e.is_published !== false;
@@ -1682,6 +1755,10 @@
     document.getElementById('compFormFee').value = '100';
     document.getElementById('compFormMinTeam').value = '1';
     document.getElementById('compFormMaxTeam').value = '4';
+    const partTypeEl = document.getElementById('compFormParticipationType');
+    if (partTypeEl) partTypeEl.value = 'solo_or_team';
+    const fixedTeamEl = document.getElementById('compFormFixedTeamSize');
+    if (fixedTeamEl) fixedTeamEl.value = '';
     document.getElementById('compFormPrizePool').value = '₹10,000';
     document.getElementById('compFormFirstPrize').value = '₹6,000';
     document.getElementById('compFormShortDesc').value = '';
@@ -1689,7 +1766,7 @@
     if (coverInput) coverInput.value = '';
     window.updateCompImagePreview('');
     document.getElementById('compFormFullDesc').value = '';
-    document.getElementById('compFormDate').value = 'December 18, 2026';
+    document.getElementById('compFormDate').value = '6–7 January 2027';
     document.getElementById('compFormVenue').value = 'BCE Campus';
     document.getElementById('compFormCoordName').value = '';
     document.getElementById('compFormCoordPhone').value = '';
@@ -1711,6 +1788,10 @@
     document.getElementById('compFormFee').value = e.registration_fee || 0;
     document.getElementById('compFormMinTeam').value = e.team_size_min || 1;
     document.getElementById('compFormMaxTeam').value = e.team_size_max || 4;
+    const partTypeEl = document.getElementById('compFormParticipationType');
+    if (partTypeEl) partTypeEl.value = e.participation_type || 'solo_or_team';
+    const fixedTeamEl = document.getElementById('compFormFixedTeamSize');
+    if (fixedTeamEl) fixedTeamEl.value = (e.fixed_team_size != null && e.fixed_team_size > 0) ? e.fixed_team_size : '';
     document.getElementById('compFormPrizePool').value = e.prize_pool || '';
     document.getElementById('compFormFirstPrize').value = e.first_prize || '';
     document.getElementById('compFormShortDesc').value = e.short_desc || '';
@@ -1720,7 +1801,7 @@
       window.updateCompImagePreview(e.cover_image || '');
     }
     document.getElementById('compFormFullDesc').value = e.full_desc || '';
-    document.getElementById('compFormDate').value = e.event_date || '';
+    document.getElementById('compFormDate').value = e.event_date || '6–7 January 2027';
     document.getElementById('compFormVenue').value = e.venue || '';
     document.getElementById('compFormCoordName').value = e.coordinator_name || '';
     document.getElementById('compFormCoordPhone').value = e.coordinator_phone || '';
@@ -1736,6 +1817,12 @@
       const id = document.getElementById('compFormId').value;
       const slugVal = document.getElementById('compFormSlug').value.trim() || document.getElementById('compFormTitle').value.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-');
       const coverVal = document.getElementById('compFormCoverImage')?.value.trim() || null;
+      const partType = document.getElementById('compFormParticipationType')?.value || 'solo_or_team';
+      const fixedTeamInput = document.getElementById('compFormFixedTeamSize')?.value;
+      const fixedTeamVal = fixedTeamInput ? parseInt(fixedTeamInput, 10) : null;
+      const minTeamVal = parseInt(document.getElementById('compFormMinTeam').value, 10) || 1;
+      const maxTeamVal = parseInt(document.getElementById('compFormMaxTeam').value, 10) || minTeamVal || 1;
+
       const payload = {
         id: id || slugVal,
         title: document.getElementById('compFormTitle').value.trim(),
@@ -1744,13 +1831,15 @@
         cover_image: coverVal,
         fee_type: document.getElementById('compFormFeeType').value,
         registration_fee: parseInt(document.getElementById('compFormFee').value, 10) || 0,
-        team_size_min: parseInt(document.getElementById('compFormMinTeam').value, 10) || 1,
-        team_size_max: parseInt(document.getElementById('compFormMaxTeam').value, 10) || 1,
+        team_size_min: minTeamVal,
+        team_size_max: maxTeamVal,
+        participation_type: partType,
+        fixed_team_size: (fixedTeamVal && fixedTeamVal > 0) ? fixedTeamVal : null,
         prize_pool: document.getElementById('compFormPrizePool').value.trim(),
         first_prize: document.getElementById('compFormFirstPrize').value.trim(),
         short_desc: document.getElementById('compFormShortDesc').value.trim(),
         full_desc: document.getElementById('compFormFullDesc').value.trim(),
-        event_date: document.getElementById('compFormDate').value.trim(),
+        event_date: document.getElementById('compFormDate').value.trim() || '6–7 January 2027',
         venue: document.getElementById('compFormVenue').value.trim(),
         coordinator_name: document.getElementById('compFormCoordName').value.trim(),
         coordinator_phone: document.getElementById('compFormCoordPhone').value.trim(),
@@ -2406,10 +2495,10 @@
     if (girlsCoord) girlsCoord.value = policy.girls_coordinator || 'Prof. Sarika Kushwaha (7321018753)';
 
     const checkIn = document.getElementById('cfgAccomCheckIn');
-    if (checkIn) checkIn.value = policy.check_in || 'December 2026, 6:00 AM';
+    if (checkIn) checkIn.value = policy.check_in || '6 January 2027, 6:00 AM';
 
     const checkOut = document.getElementById('cfgAccomCheckOut');
-    if (checkOut) checkOut.value = policy.check_out || 'December 2026, 10:00 PM';
+    if (checkOut) checkOut.value = policy.check_out || '7 January 2027, 10:00 PM';
 
     updateTotalDailyFeeDisplay();
   }

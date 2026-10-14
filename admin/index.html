@@ -412,7 +412,7 @@
             <div class="toggle-row">
               <div class="toggle-info">
                 <span class="toggle-title">Show Event Date</span>
-                <span class="toggle-desc">"COMING DECEMBER 2026" gold cue (Hidden on mobile by default)</span>
+                <span class="toggle-desc">"6–7 JANUARY 2027" gold cue (Hidden on mobile by default)</span>
               </div>
               <label class="switch">
                 <input type="checkbox" id="cfgMobileShowEventDate">
@@ -423,7 +423,7 @@
             <div class="toggle-row">
               <div class="toggle-info">
                 <span class="toggle-title">Show Edition Dates Card</span>
-                <span class="toggle-desc">"DEC 2026 / EDITION DATES" stat block (Hidden on mobile by default)</span>
+                <span class="toggle-desc">"6–7 JAN 2027 / EDITION DATES" stat block (Hidden on mobile by default)</span>
               </div>
               <label class="switch">
                 <input type="checkbox" id="cfgMobileShowEditionCard">
@@ -554,100 +554,200 @@
         </div>
       </section>
 
-      <!-- TAB 3: CMS - ABOUT BCE & LEADERSHIP -->
+      <!-- TAB 3: CMS - ABOUT BCE & LEADERSHIP (OFFICIAL NOTICE NO. 2363) -->
       <section id="pane-cms-about" class="admin-tab-pane">
-        <!-- 1. Principal Message & Spotlight -->
+        <!-- Official Notice Header Banner -->
+        <div style="background: linear-gradient(135deg, rgba(0, 240, 255, 0.12), rgba(168, 85, 247, 0.12)); border: 1px solid rgba(0, 240, 255, 0.35); border-radius: 12px; padding: 18px 24px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+          <div>
+            <div style="font-family: var(--font-orbitron); font-size: 0.95rem; font-weight: 800; color: #00ffff; letter-spacing: 1px;">
+              OFFICIAL LEADERSHIP &amp; FESTIVAL COMMITTEE
+            </div>
+            <div style="font-size: 0.82rem; color: #cbd5e1; margin-top: 4px;">
+              BCE Bhagalpur Notice No. 2363 / Dated 28 Sept 2026 • Official Festival Dates: <strong>6–7 January 2027</strong>
+            </div>
+          </div>
+          <button class="btn-primary" onclick="saveOfficialLeadershipSection()" style="padding: 10px 20px; font-weight: 700; box-shadow: 0 0 16px rgba(0, 240, 255, 0.4);">
+            <span>💾</span> Save All Leadership &amp; Heritage
+          </button>
+        </div>
+
+        <!-- 1. Patron: Head of Institution -->
         <div class="cms-card">
           <div class="cms-card-header">
             <div>
-              <h2 class="cms-card-title">🎓 Principal's Address &amp; Spotlight</h2>
-              <p class="cms-card-sub">Manage the message and official portrait from the Head of Institution (Dr. Bimlesh Kumar)</p>
+              <span class="badge" style="background: rgba(0, 240, 255, 0.15); color: #00ffff; border: 1px solid rgba(0, 240, 255, 0.4); margin-bottom: 6px; display: inline-block;">PATRON</span>
+              <h2 class="cms-card-title">Dr. Bimlesh Kumar (Principal, BCE Bhagalpur)</h2>
+              <p class="cms-card-sub">Head of Institution &amp; Patron of TECHNORITI '26</p>
             </div>
-            <button class="btn-primary" onclick="savePrincipalSection()">
-              <span>💾</span> Save Principal Section
+            <button class="btn-primary" onclick="saveOfficialLeadershipSection()">
+              <span>💾</span> Save Patron
             </button>
           </div>
 
           <div class="cms-grid-2">
             <div class="cms-form-group">
-              <label class="cms-label">Principal Full Name</label>
-              <input type="text" id="cfgPrincipalName" class="cms-input" placeholder="Dr. Bimlesh Kumar">
+              <label class="cms-label">Patron Full Name</label>
+              <input type="text" id="cfgPatronName" class="cms-input" placeholder="Dr. Bimlesh Kumar">
+              <!-- Backwards compatibility mirror -->
+              <input type="hidden" id="cfgPrincipalName">
             </div>
             <div class="cms-form-group">
-              <label class="cms-label">Designation / Subtitle</label>
-              <input type="text" id="cfgPrincipalSubtitle" class="cms-input" placeholder="Principal, Bhagalpur College of Engineering">
+              <label class="cms-label">Designation / Role</label>
+              <input type="text" id="cfgPatronSubtitle" class="cms-input" placeholder="Principal, Bhagalpur College of Engineering, Bhagalpur">
+              <!-- Backwards compatibility mirror -->
+              <input type="hidden" id="cfgPrincipalSubtitle">
             </div>
           </div>
 
           <div class="cms-form-group">
-            <label class="cms-label">Message / Address Quotation</label>
-            <textarea id="cfgPrincipalQuote" class="cms-textarea" rows="4" placeholder="Education prepares a person to meet new challenges..."></textarea>
+            <label class="cms-label">Patron's Official Address &amp; Vision</label>
+            <textarea id="cfgPatronQuote" class="cms-textarea" rows="4" placeholder="Leading Bhagalpur College of Engineering into an era of technological excellence..."></textarea>
+            <!-- Backwards compatibility mirror -->
+            <textarea id="cfgPrincipalQuote" style="display:none;"></textarea>
           </div>
 
           <div class="cms-form-group">
             <label class="cms-label">
-              <span>Portrait Image URL (with Bihar Govt Plaque)</span>
-              <button type="button" class="btn-action-icon" onclick="openMediaPickerFor('cfgPrincipalPortrait')">🖼️ Choose from Media Library</button>
+              <span>Portrait Image URL</span>
+              <button type="button" class="btn-action-icon" onclick="openMediaPickerFor('cfgPatronPortrait')">🖼️ Choose from Media Library</button>
             </label>
             <div class="cms-input-with-btn">
-              <input type="text" id="cfgPrincipalPortrait" class="cms-input" placeholder="principal-office-portrait.png or Supabase Storage URL">
+              <input type="text" id="cfgPatronPortrait" class="cms-input" placeholder="principal-office-portrait.png or Supabase URL">
+              <!-- Backwards compatibility mirror -->
+              <input type="hidden" id="cfgPrincipalPortrait">
             </div>
           </div>
         </div>
 
-        <!-- 2. Fest Convener Spotlight -->
+        <!-- 2. Co-Patrons: Prof. Shashank Shekhar & Dr. Pushpalata -->
         <div class="cms-card">
           <div class="cms-card-header">
             <div>
-              <h2 class="cms-card-title">🏆 Fest Convener Spotlight</h2>
-              <p class="cms-card-sub">Manage the official message and portrait for the Convener of TECHNORITI '26</p>
+              <span class="badge" style="background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.4); margin-bottom: 6px; display: inline-block;">CO-PATRONS</span>
+              <h2 class="cms-card-title">Co-Patrons (Notice No. 2363)</h2>
+              <p class="cms-card-sub">Academic and Engineering Leadership Guiding TECHNORITI '26</p>
             </div>
-            <button class="btn-primary" onclick="saveConvenerSection()">
-              <span>💾</span> Save Convener Section
+            <button class="btn-primary" onclick="saveOfficialLeadershipSection()">
+              <span>💾</span> Save Co-Patrons
+            </button>
+          </div>
+
+          <!-- Co-Patron 1: Prof. Shashank Shekhar -->
+          <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; padding: 16px; margin-bottom: 20px;">
+            <div style="font-weight: 700; color: #a855f7; font-size: 0.95rem; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+              <span>🔹</span> Co-Patron 1: Prof. Shashank Shekhar
+            </div>
+            <div class="cms-grid-2">
+              <div class="cms-form-group">
+                <label class="cms-label">Co-Patron 1 Name</label>
+                <input type="text" id="cfgCoPatron1Name" class="cms-input" placeholder="Prof. Shashank Shekhar">
+              </div>
+              <div class="cms-form-group">
+                <label class="cms-label">Designation / Department</label>
+                <input type="text" id="cfgCoPatron1Subtitle" class="cms-input" placeholder="HoD, Department of Applied Sciences and Humanities">
+              </div>
+            </div>
+            <div class="cms-form-group">
+              <label class="cms-label">Co-Patron 1 Address / Message</label>
+              <textarea id="cfgCoPatron1Quote" class="cms-textarea" rows="3" placeholder="Nurturing fundamental scientific inquiry, ethical leadership, and academic rigor..."></textarea>
+            </div>
+            <div class="cms-form-group">
+              <label class="cms-label">
+                <span>Co-Patron 1 Portrait URL</span>
+                <button type="button" class="btn-action-icon" onclick="openMediaPickerFor('cfgCoPatron1Portrait')">🖼️ Media Library</button>
+              </label>
+              <div class="cms-input-with-btn">
+                <input type="text" id="cfgCoPatron1Portrait" class="cms-input" placeholder="shashank-shekhar.png or Supabase URL">
+              </div>
+            </div>
+          </div>
+
+          <!-- Co-Patron 2: Dr. Pushpalata -->
+          <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; padding: 16px;">
+            <div style="font-weight: 700; color: #a855f7; font-size: 0.95rem; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+              <span>🔹</span> Co-Patron 2: Dr. Pushpalata
+            </div>
+            <div class="cms-grid-2">
+              <div class="cms-form-group">
+                <label class="cms-label">Co-Patron 2 Name</label>
+                <input type="text" id="cfgCoPatron2Name" class="cms-input" placeholder="Dr. Pushpalata">
+              </div>
+              <div class="cms-form-group">
+                <label class="cms-label">Designation / Department</label>
+                <input type="text" id="cfgCoPatron2Subtitle" class="cms-input" placeholder="HoD, Department of Electronics &amp; Communication Engineering">
+              </div>
+            </div>
+            <div class="cms-form-group">
+              <label class="cms-label">Co-Patron 2 Address / Message</label>
+              <textarea id="cfgCoPatron2Quote" class="cms-textarea" rows="3" placeholder="Driving technological breakthroughs, research endeavors, and student engineering innovations..."></textarea>
+            </div>
+            <div class="cms-form-group">
+              <label class="cms-label">
+                <span>Co-Patron 2 Portrait URL</span>
+                <button type="button" class="btn-action-icon" onclick="openMediaPickerFor('cfgCoPatron2Portrait')">🖼️ Media Library</button>
+              </label>
+              <div class="cms-input-with-btn">
+                <input type="text" id="cfgCoPatron2Portrait" class="cms-input" placeholder="dr-pushpalata.png or Supabase URL">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Fest Convenor: Dr. Abhinav Kumar -->
+        <div class="cms-card">
+          <div class="cms-card-header">
+            <div>
+              <span class="badge" style="background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.4); margin-bottom: 6px; display: inline-block;">CONVENOR</span>
+              <h2 class="cms-card-title">Dr. Abhinav Kumar (Convenor)</h2>
+              <p class="cms-card-sub">Assistant Professor, ECE &amp; Convenor of TECHNORITI '26</p>
+            </div>
+            <button class="btn-primary" onclick="saveOfficialLeadershipSection()">
+              <span>💾</span> Save Convenor Section
             </button>
           </div>
 
           <div class="cms-grid-2">
             <div class="cms-form-group">
-              <label class="cms-label">Convener Title / Name</label>
-              <input type="text" id="cfgConvenerName" class="cms-input" placeholder="Convener, TECHNORITI '26">
+              <label class="cms-label">Convenor Full Name</label>
+              <input type="text" id="cfgConvenerName" class="cms-input" placeholder="Dr. Abhinav Kumar">
             </div>
             <div class="cms-form-group">
               <label class="cms-label">Designation / Department</label>
-              <input type="text" id="cfgConvenerSubtitle" class="cms-input" placeholder="Bhagalpur College of Engineering">
+              <input type="text" id="cfgConvenerSubtitle" class="cms-input" placeholder="Assistant Professor, Electronics &amp; Communication Engineering">
             </div>
           </div>
 
           <div class="cms-form-group">
-            <label class="cms-label">Convener Welcome Address</label>
-            <textarea id="cfgConvenerQuote" class="cms-textarea" rows="3" placeholder="Welcome to TECHNORITI '26 — Eastern India's defining confluence of cutting-edge technology..."></textarea>
+            <label class="cms-label">Convenor Official Address</label>
+            <textarea id="cfgConvenerQuote" class="cms-textarea" rows="3" placeholder="Orchestrating festival operations, technical arenas, and student talent showcases as Convenor of TECHNORITI '26..."></textarea>
           </div>
 
           <div class="cms-grid-2">
             <div class="cms-form-group">
               <label class="cms-label">
-                <span>Convener Portrait Image URL</span>
+                <span>Convenor Portrait Image URL</span>
                 <button type="button" class="btn-action-icon" onclick="openMediaPickerFor('cfgConvenerPortrait')">🖼️ Media Library</button>
               </label>
               <div class="cms-input-with-btn">
-                <input type="text" id="cfgConvenerPortrait" class="cms-input" placeholder="convener-portrait.jpg or Supabase Storage URL">
+                <input type="text" id="cfgConvenerPortrait" class="cms-input" placeholder="convener-portrait.jpg or Supabase URL">
               </div>
             </div>
             <div class="cms-form-group">
-              <label class="cms-label">Faculty Convenors Roster</label>
-              <input type="text" id="cfgConvenorsText" class="cms-input" placeholder="Prof. Ranjan Kumar Mishra (HOD, Chemistry) &amp; Prof. Shashank Shekhar (HOD, Humanities)">
+              <label class="cms-label">Notice Reference / Convenors Note</label>
+              <input type="text" id="cfgConvenorsText" class="cms-input" placeholder="Official Notice No. 2363 / BCE Bhagalpur">
             </div>
           </div>
         </div>
 
-        <!-- 3. BCE Institution & Bihar Government Presentation -->
+        <!-- 4. BCE Institution & Bihar Government Presentation -->
         <div class="cms-card">
           <div class="cms-card-header">
             <div>
+              <span class="badge" style="background: rgba(251, 191, 36, 0.15); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.4); margin-bottom: 6px; display: inline-block;">INSTITUTION</span>
               <h2 class="cms-card-title">🏛️ Bhagalpur College of Engineering &amp; Bihar Govt.</h2>
               <p class="cms-card-sub">Institutional heritage, department affiliation, and campus building showcase</p>
             </div>
-            <button class="btn-primary" onclick="saveInstitutionSection()">
+            <button class="btn-primary" onclick="saveOfficialLeadershipSection()">
               <span>💾</span> Save Institution Section
             </button>
           </div>
@@ -1365,11 +1465,11 @@
           <div class="cms-grid-2">
             <div class="cms-form-group">
               <label class="cms-label">Check-in Availability Date/Time</label>
-              <input type="text" id="cfgAccomCheckIn" class="cms-input" placeholder="December 2026, 6:00 AM">
+              <input type="text" id="cfgAccomCheckIn" class="cms-input" placeholder="6 January 2027, 6:00 AM">
             </div>
             <div class="cms-form-group">
               <label class="cms-label">Check-out Deadline Date/Time</label>
-              <input type="text" id="cfgAccomCheckOut" class="cms-input" placeholder="December 2026, 10:00 PM">
+              <input type="text" id="cfgAccomCheckOut" class="cms-input" placeholder="7 January 2027, 10:00 PM">
             </div>
         </div>
 
@@ -1879,6 +1979,21 @@
 
           <div class="cms-grid-2">
             <div class="cms-form-group">
+              <label class="cms-label">Participation Format</label>
+              <select id="compFormParticipationType" class="cms-select">
+                <option value="solo_or_team">Solo or Team (Flexible)</option>
+                <option value="solo">Solo Only (1 Participant)</option>
+                <option value="team">Team Only</option>
+              </select>
+            </div>
+            <div class="cms-form-group">
+              <label class="cms-label">Fixed Team Size (Auto-locked)</label>
+              <input type="number" id="compFormFixedTeamSize" class="cms-input" placeholder="e.g. 4 for Robowar / Free Fire (blank if flexible)">
+            </div>
+          </div>
+
+          <div class="cms-grid-2">
+            <div class="cms-form-group">
               <label class="cms-label">Total Prize Pool Display</label>
               <input type="text" id="compFormPrizePool" class="cms-input" placeholder="₹15,000">
             </div>
@@ -1914,7 +2029,7 @@
           <div class="cms-grid-2">
             <div class="cms-form-group">
               <label class="cms-label">Event Date</label>
-              <input type="text" id="compFormDate" class="cms-input" placeholder="December 18, 2026">
+              <input type="text" id="compFormDate" class="cms-input" placeholder="6–7 January 2027">
             </div>
             <div class="cms-form-group">
               <label class="cms-label">Venue</label>

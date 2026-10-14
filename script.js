@@ -553,6 +553,56 @@
     }
   ];
 
+  // Official Authoritative Event Team Constraints & Rule Specs (Notice No. 2363 & Festival Rulebook)
+  const EVENT_RULES_CONFIG = {
+    'robowar': { minTeamSize: 4, maxTeamSize: 4, fixedTeamSize: 4, participationType: 'team', teamSizeLabel: 'Team of 4' },
+    'robosoccer': { minTeamSize: 4, maxTeamSize: 4, fixedTeamSize: 4, participationType: 'team', teamSizeLabel: 'Team of 4' },
+    'dhanush': { minTeamSize: 1, maxTeamSize: 4, fixedTeamSize: null, participationType: 'solo_or_team', teamSizeLabel: '1–4 Members' },
+    'matsya': { minTeamSize: 2, maxTeamSize: 4, fixedTeamSize: null, participationType: 'team', teamSizeLabel: '2–4 Members' },
+    'hackathon': { minTeamSize: 2, maxTeamSize: 3, fixedTeamSize: null, participationType: 'team', teamSizeLabel: '2–3 Members' },
+    'forensic': { minTeamSize: 2, maxTeamSize: 4, fixedTeamSize: null, participationType: 'team', teamSizeLabel: '2–4 Members' },
+    'competitive': { minTeamSize: 3, maxTeamSize: 3, fixedTeamSize: 3, participationType: 'team', teamSizeLabel: 'Team of 3' },
+    'blindcoding': { minTeamSize: 1, maxTeamSize: 1, fixedTeamSize: 1, participationType: 'solo', teamSizeLabel: 'Solo Only' },
+    'bughunting': { minTeamSize: 1, maxTeamSize: 2, fixedTeamSize: null, participationType: 'solo_or_team', teamSizeLabel: '1–2 Members' },
+    'freefire': { minTeamSize: 4, maxTeamSize: 4, fixedTeamSize: 4, participationType: 'team', teamSizeLabel: 'Squad of 4' },
+    'echess': { minTeamSize: 1, maxTeamSize: 1, fixedTeamSize: 1, participationType: 'solo', teamSizeLabel: 'Solo Only' },
+    'bridgemaking': { minTeamSize: 2, maxTeamSize: 5, fixedTeamSize: null, participationType: 'team', teamSizeLabel: '2–5 Members' },
+    'surveyking': { minTeamSize: 2, maxTeamSize: 4, fixedTeamSize: null, participationType: 'team', teamSizeLabel: '2–4 Members' },
+    'autocad': { minTeamSize: 1, maxTeamSize: 1, fixedTeamSize: 1, participationType: 'solo', teamSizeLabel: 'Solo Only' },
+    'solidworks': { minTeamSize: 1, maxTeamSize: 1, fixedTeamSize: 1, participationType: 'solo', teamSizeLabel: 'Solo Only' },
+    'boatmaking': { minTeamSize: 2, maxTeamSize: 5, fixedTeamSize: null, participationType: 'team', teamSizeLabel: '2–5 Members' },
+    'electrotechnovation': { minTeamSize: 4, maxTeamSize: 5, fixedTeamSize: null, participationType: 'team', teamSizeLabel: '4–5 Members' },
+    'arduinoeffect': { minTeamSize: 1, maxTeamSize: 4, fixedTeamSize: null, participationType: 'solo_or_team', teamSizeLabel: '1–4 Members' },
+    'zerocarbon': { minTeamSize: 4, maxTeamSize: 4, fixedTeamSize: 4, participationType: 'team', teamSizeLabel: 'Team of 4' },
+    'electromania': { minTeamSize: 4, maxTeamSize: 4, fixedTeamSize: 4, participationType: 'team', teamSizeLabel: 'Team of 4' },
+    'memecircuit': { minTeamSize: 1, maxTeamSize: 1, fixedTeamSize: 1, participationType: 'solo', teamSizeLabel: 'Solo Only' },
+    'matlab': { minTeamSize: 2, maxTeamSize: 2, fixedTeamSize: 2, participationType: 'team', teamSizeLabel: 'Team of 2' },
+    'cinematography': { minTeamSize: 2, maxTeamSize: 10, fixedTeamSize: null, participationType: 'team', teamSizeLabel: '2–10 Members' },
+    'photography': { minTeamSize: 1, maxTeamSize: 4, fixedTeamSize: null, participationType: 'solo_or_team', teamSizeLabel: '1–4 Members' },
+    'nukkad': { minTeamSize: 6, maxTeamSize: 20, fixedTeamSize: null, participationType: 'team', teamSizeLabel: '6–20 Members' },
+    'generalquiz': { minTeamSize: 2, maxTeamSize: 2, fixedTeamSize: 2, participationType: 'team', teamSizeLabel: 'Team of 2' },
+    'electronicsproject': { minTeamSize: 2, maxTeamSize: 4, fixedTeamSize: null, participationType: 'team', teamSizeLabel: '2–4 Members' },
+    'projectpresentation': { minTeamSize: 2, maxTeamSize: 4, fixedTeamSize: null, participationType: 'team', teamSizeLabel: '2–4 Members' }
+  };
+
+  // Synchronize official 6–7 January 2027 festival dates and rules across in-memory dataset
+  COMPETITIONS_DATA.forEach(c => {
+    c.date = '6–7 January 2027';
+    const cfg = EVENT_RULES_CONFIG[c.id];
+    if (cfg) {
+      c.minTeamSize = cfg.minTeamSize;
+      c.maxTeamSize = cfg.maxTeamSize;
+      c.fixedTeamSize = cfg.fixedTeamSize;
+      c.participationType = cfg.participationType;
+      c.teamSize = cfg.teamSizeLabel;
+    } else {
+      c.minTeamSize = 1;
+      c.maxTeamSize = 4;
+      c.fixedTeamSize = null;
+      c.participationType = 'solo_or_team';
+    }
+  });
+
   // =====================================================================
   // 2. CANVAS SCROLL ENGINE (170 FRAMES SMOOTH SCRUBBING)
   // =====================================================================
@@ -1016,7 +1066,7 @@
         const parsed = new Date(window.__FEST_COUNTDOWN_TARGET).getTime();
         if (!isNaN(parsed) && parsed > 0) return parsed;
       }
-      return new Date('2026-12-18T09:00:00+05:30').getTime();
+      return new Date('2027-01-06T09:00:00+05:30').getTime();
     }
     function updateTimer() {
       const targetDate = getTarget();
@@ -1325,9 +1375,18 @@
     const modalContainer = document.getElementById('modal-content-container');
     modalContainer.innerHTML = `
       <h2 class="modal-event-title">${escapeHtml(item.title)}</h2>
-      <div class="modal-badges-row">
+      <div class="modal-badges-row" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px;">
         <span class="event-category-badge">${escapeHtml(item.categoryLabel)}</span>
         <span class="event-prize-tag">${escapeHtml(item.prizes)}</span>
+        <span class="event-format-badge" style="background:rgba(0,240,255,0.14); color:#00f0ff; border:1px solid rgba(0,240,255,0.4); padding:3px 10px; border-radius:100px; font-size:0.75rem; font-family:var(--font-orbitron); font-weight:700;">
+          👥 ${escapeHtml(item.fixedTeamSize ? `LOCKED: ${item.fixedTeamSize} MEMBERS` : (item.minTeamSize === item.maxTeamSize && item.minTeamSize === 1 ? 'SOLO ONLY' : `${item.minTeamSize || 1}–${item.maxTeamSize || 4} MEMBERS`))}
+        </span>
+        <span class="event-fee-badge" style="background:rgba(168,85,247,0.18); color:#d8b4fe; border:1px solid rgba(168,85,247,0.4); padding:3px 10px; border-radius:100px; font-size:0.75rem; font-family:var(--font-orbitron); font-weight:700;">
+          💳 ${escapeHtml(item.fee || `₹${item.feeNum || 50} / ${item.feeType === 'team' ? 'team' : 'member'}`)}
+        </span>
+        <span class="event-date-badge" style="background:rgba(234,179,8,0.16); color:#fde047; border:1px solid rgba(234,179,8,0.4); padding:3px 10px; border-radius:100px; font-size:0.75rem; font-family:var(--font-orbitron); font-weight:700;">
+          📅 6–7 JAN 2027
+        </span>
       </div>
       <p style="color:var(--text-secondary); line-height:1.6; margin-bottom:16px;">${escapeHtml(item.shortDesc)}</p>
       
@@ -1527,7 +1586,7 @@
     let optionsHtml = '<option value="" disabled selected>Select Additional Competition</option>';
     COMPETITIONS_DATA.forEach(c => {
       const feeLabel = c.feeType === 'team' ? `₹${c.feeNum} / team` : `₹${c.feeNum} / member`;
-      optionsHtml += `<option value="${escapeHtml(c.title)}" data-fee="${c.feeNum}" data-type="${c.feeType}">${escapeHtml(c.title)} (${feeLabel})</option>`;
+      optionsHtml += `<option value="${escapeHtml(c.title)}" data-id="${c.id}" data-fee="${c.feeNum}" data-type="${c.feeType}" data-min="${c.minTeamSize || 1}" data-max="${c.maxTeamSize || 4}" data-fixed="${c.fixedTeamSize || ''}" data-mode="${c.participationType || 'solo_or_team'}">${escapeHtml(c.title)} (${feeLabel} • ${c.teamSize})</option>`;
     });
 
     row.innerHTML = `
@@ -1554,67 +1613,202 @@
   window.updateFeeSummary = function () {
     const primarySelect = document.getElementById('reg-event');
     const teamSizeSelect = document.getElementById('reg-team-size');
-    const lodgingCheck = document.getElementById('reg-opt-lodging');
-    const foodingCheck = document.getElementById('reg-opt-fooding');
-    const lodgingDaysSelect = document.getElementById('reg-lodging-days');
-    const foodingDaysSelect = document.getElementById('reg-fooding-days');
-    const lodgingDaysGroup = document.getElementById('reg-lodging-days-group');
-    const foodingDaysGroup = document.getElementById('reg-fooding-days-group');
-    const legacyDaysSelect = document.getElementById('reg-service-days');
-    const legacyDaysGroup = document.getElementById('reg-service-days-group');
+    const teamRuleHint = document.getElementById('reg-team-rule-hint');
+    const teamConflictAlert = document.getElementById('reg-team-conflict-alert');
+    const teamStatusPill = document.getElementById('team-size-status-pill');
+    const proceedBtn = document.getElementById('reg-proceed-pay-btn');
 
     const summaryEventFee = document.getElementById('summary-event-fee');
     const summaryEventsBreakdown = document.getElementById('summary-selected-events-breakdown');
-    const lodgingRow = document.getElementById('reg-lodging-row');
-    const summaryLodgingFee = document.getElementById('summary-lodging-fee');
-    const lodgingCalcDesc = document.getElementById('reg-lodging-calc-desc');
-    const foodingRow = document.getElementById('reg-fooding-row');
-    const summaryFoodingFee = document.getElementById('summary-fooding-fee');
-    const foodingCalcDesc = document.getElementById('reg-fooding-calc-desc');
     const summaryTotalFee = document.getElementById('summary-total-fee');
 
-    if (!teamSizeSelect) return { totalCost: 0, totalEventsCost: 0, lodgingCost: 0, foodingCost: 0, lodgingDays: 0, foodingDays: 0, selectedEventsList: [] };
-    const teamSize = parseInt(teamSizeSelect.value, 10) || 1;
+    if (!teamSizeSelect) return { totalCost: 0, totalEventsCost: 0, selectedEventsList: [] };
 
+    // 1. Collect all selected events (primary + additional)
+    const selectedEventsMeta = [];
+
+    function extractEventMeta(selectEl, isPrimary = false) {
+      if (!selectEl || !selectEl.value) return null;
+      const opt = selectEl.options[selectEl.selectedIndex];
+      const title = selectEl.value;
+      const unitFee = parseInt(opt?.dataset?.fee, 10) || 50;
+      const feeType = opt?.dataset?.type || 'member';
+      
+      // Look up rules from dataset or in-memory config
+      const evId = opt?.dataset?.id || resolveEventId(title);
+      const item = COMPETITIONS_DATA.find(c => c.id === evId) || {};
+      const cfg = EVENT_RULES_CONFIG[evId] || {};
+
+      const minTeam = parseInt(opt?.dataset?.min, 10) || item.minTeamSize || cfg.minTeamSize || 1;
+      const maxTeam = parseInt(opt?.dataset?.max, 10) || item.maxTeamSize || cfg.maxTeamSize || 4;
+      const fixedTeam = (opt?.dataset?.fixed ? parseInt(opt.dataset.fixed, 10) : (item.fixedTeamSize || cfg.fixedTeamSize || null));
+      const mode = opt?.dataset?.mode || item.participationType || cfg.participationType || 'solo_or_team';
+      const label = item.teamSize || cfg.teamSizeLabel || (fixedTeam ? `Fixed ${fixedTeam}` : `${minTeam}–${maxTeam}`);
+
+      return {
+        title,
+        id: evId,
+        unitFee,
+        feeType,
+        minTeam,
+        maxTeam,
+        fixedTeam,
+        mode,
+        label,
+        isPrimary
+      };
+    }
+
+    const primaryMeta = extractEventMeta(primarySelect, true);
+    if (primaryMeta) selectedEventsMeta.push(primaryMeta);
+
+    const extraSelects = document.querySelectorAll('.additional-event-select');
+    extraSelects.forEach(sel => {
+      const meta = extractEventMeta(sel, false);
+      if (meta) selectedEventsMeta.push(meta);
+    });
+
+    // 2. Multi-Event Team Constraints & Incompatible Conflict Detection
+    let hasConflict = false;
+    let conflictMessage = '';
+    let overallMin = 1;
+    let overallMax = 4;
+
+    if (selectedEventsMeta.length > 0) {
+      overallMin = Math.max(...selectedEventsMeta.map(e => e.minTeam));
+      overallMax = Math.min(...selectedEventsMeta.map(e => e.maxTeam));
+
+      if (overallMin > overallMax) {
+        hasConflict = true;
+        const eventLines = selectedEventsMeta.map(e => {
+          const ruleDesc = e.fixedTeam 
+            ? `requires exactly ${e.fixedTeam} members` 
+            : (e.minTeam === e.maxTeam && e.minTeam === 1 ? 'is strictly Solo only (1 person)' : `requires ${e.minTeam} to ${e.maxTeam} members`);
+          return `• <strong>${escapeHtml(e.title)}</strong>: ${ruleDesc}`;
+        }).join('<br>');
+
+        conflictMessage = `
+          <strong>⚠️ TEAM SIZE REQUIREMENT CONFLICT</strong>
+          <span>The competitions you selected have conflicting team size rules and cannot be combined into a single registration:</span>
+          <div style="margin:8px 0; font-size:0.82rem; padding:8px 10px; background:rgba(0,0,0,0.3); border-radius:6px; line-height:1.5;">${eventLines}</div>
+          <span>Please select compatible events or register for them separately so each competition receives the correct team size.</span>
+        `;
+      }
+    }
+
+    // 3. UI Reaction to Conflict vs Valid Constraints
+    if (hasConflict) {
+      if (teamConflictAlert) {
+        teamConflictAlert.innerHTML = conflictMessage;
+        teamConflictAlert.style.display = 'block';
+      }
+      if (teamRuleHint) teamRuleHint.style.display = 'none';
+      if (teamStatusPill) {
+        teamStatusPill.style.display = 'inline-block';
+        teamStatusPill.textContent = 'CONFLICT';
+        teamStatusPill.className = 'team-status-pill locked';
+        teamStatusPill.style.background = 'rgba(239, 68, 68, 0.25)';
+        teamStatusPill.style.borderColor = 'rgba(239, 68, 68, 0.6)';
+        teamStatusPill.style.color = '#fca5a5';
+      }
+      if (proceedBtn) {
+        proceedBtn.disabled = true;
+        proceedBtn.style.opacity = '0.5';
+        proceedBtn.style.cursor = 'not-allowed';
+        const span = proceedBtn.querySelector('span');
+        if (span) span.textContent = '⚠️ RESOLVE CONFLICT TO PROCEED';
+      }
+    } else {
+      if (teamConflictAlert) teamConflictAlert.style.display = 'none';
+      if (proceedBtn) {
+        proceedBtn.disabled = false;
+        proceedBtn.style.opacity = '1';
+        proceedBtn.style.cursor = 'pointer';
+        const span = proceedBtn.querySelector('span');
+        if (span) span.textContent = 'PROCEED TO PAYMENT GATEWAY';
+      }
+
+      // Handle team size dropdown options and locking
+      if (selectedEventsMeta.length === 0) {
+        teamSizeSelect.disabled = false;
+        if (teamSizeSelect.options.length !== 4) {
+          teamSizeSelect.innerHTML = `
+            <option value="1">1 (Solo)</option>
+            <option value="2">2 Members</option>
+            <option value="3">3 Members</option>
+            <option value="4" selected>4 Members</option>
+          `;
+        }
+        if (teamRuleHint) teamRuleHint.style.display = 'none';
+        if (teamStatusPill) {
+          teamStatusPill.textContent = '';
+          teamStatusPill.style.display = 'none';
+        }
+      } else if (overallMin === overallMax) {
+        // Fixed / Locked team size
+        teamSizeSelect.innerHTML = `<option value="${overallMin}" selected>${overallMin} ${overallMin === 1 ? 'Participant (Solo)' : 'Members (Fixed Team)'}</option>`;
+        teamSizeSelect.disabled = true;
+
+        if (teamRuleHint) {
+          teamRuleHint.innerHTML = `🔒 <strong>Fixed Team Size:</strong> Exactly <strong>${overallMin}</strong> ${overallMin === 1 ? 'participant (Solo)' : 'members'} required for selected arena(s).`;
+          teamRuleHint.style.display = 'block';
+        }
+        if (teamStatusPill) {
+          teamStatusPill.style.display = 'inline-block';
+          teamStatusPill.textContent = `LOCKED (${overallMin})`;
+          teamStatusPill.className = 'team-status-pill locked';
+          teamStatusPill.style.background = 'rgba(234, 179, 8, 0.2)';
+          teamStatusPill.style.borderColor = 'rgba(234, 179, 8, 0.4)';
+          teamStatusPill.style.color = '#fbbf24';
+        }
+      } else {
+        // Variable / Flexible range
+        const currentVal = parseInt(teamSizeSelect.value, 10);
+        let opts = '';
+        for (let i = overallMin; i <= overallMax; i++) {
+          const isSel = (currentVal === i) || (isNaN(currentVal) && i === overallMin);
+          opts += `<option value="${i}" ${isSel ? 'selected' : ''}>${i} ${i === 1 ? 'Participant (Solo)' : 'Members'}</option>`;
+        }
+        teamSizeSelect.innerHTML = opts;
+        teamSizeSelect.disabled = false;
+
+        if (teamRuleHint) {
+          teamRuleHint.innerHTML = `👥 <strong>Flexible Format:</strong> Choose between <strong>${overallMin}</strong> and <strong>${overallMax}</strong> members for selected arena(s).`;
+          teamRuleHint.style.display = 'block';
+        }
+        if (teamStatusPill) {
+          teamStatusPill.style.display = 'inline-block';
+          teamStatusPill.textContent = `${overallMin}–${overallMax} MEMBERS`;
+          teamStatusPill.className = 'team-status-pill variable';
+          teamStatusPill.style.background = 'rgba(0, 240, 255, 0.15)';
+          teamStatusPill.style.borderColor = 'rgba(0, 240, 255, 0.35)';
+          teamStatusPill.style.color = '#00f0ff';
+        }
+      }
+    }
+
+    // 4. Calculate Pure Event Fees
+    const teamSize = parseInt(teamSizeSelect.value, 10) || overallMin || 1;
     let totalEventsCost = 0;
     const selectedEventsList = [];
 
-    // 1. Primary Event
-    if (primarySelect && primarySelect.value) {
-      const selectedOption = primarySelect.options[primarySelect.selectedIndex];
-      const unitFee = parseInt(selectedOption?.dataset?.fee, 10) || 50;
-      const feeType = selectedOption?.dataset?.type || 'member';
-      const eventCost = feeType === 'member' ? unitFee * teamSize : unitFee;
+    selectedEventsMeta.forEach(e => {
+      const eventCost = (e.feeType === 'member') ? (e.unitFee * teamSize) : e.unitFee;
       totalEventsCost += eventCost;
       selectedEventsList.push({
-        title: primarySelect.value,
+        title: e.title,
+        id: e.id,
         fee: eventCost,
-        unitFee: unitFee,
-        feeType: feeType,
-        isPrimary: true
+        unitFee: e.unitFee,
+        feeType: e.feeType,
+        isPrimary: e.isPrimary,
+        minTeam: e.minTeam,
+        maxTeam: e.maxTeam,
+        fixedTeam: e.fixedTeam
       });
-    }
-
-    // 2. Additional Events
-    const extraSelects = document.querySelectorAll('.additional-event-select');
-    extraSelects.forEach(sel => {
-      if (sel && sel.value) {
-        const opt = sel.options[sel.selectedIndex];
-        const unitFee = parseInt(opt?.dataset?.fee, 10) || 50;
-        const feeType = opt?.dataset?.type || 'member';
-        const eventCost = feeType === 'member' ? unitFee * teamSize : unitFee;
-        totalEventsCost += eventCost;
-        selectedEventsList.push({
-          title: sel.value,
-          fee: eventCost,
-          unitFee: unitFee,
-          feeType: feeType,
-          isPrimary: false
-        });
-      }
     });
 
-    // Render badges in summary
+    // 5. Update Fee Breakdown & Summary
     if (summaryEventsBreakdown) {
       if (selectedEventsList.length > 0) {
         summaryEventsBreakdown.innerHTML = selectedEventsList.map(e => `
@@ -1628,64 +1822,23 @@
       }
     }
 
-    const isLodging = lodgingCheck ? lodgingCheck.checked : false;
-    const isFooding = foodingCheck ? foodingCheck.checked : false;
-
-    // Toggle independent duration groups and disabled states
-    if (lodgingDaysGroup) {
-      lodgingDaysGroup.style.display = isLodging ? 'block' : 'none';
-    }
-    if (lodgingDaysSelect) {
-      lodgingDaysSelect.disabled = !isLodging;
-    }
-
-    if (foodingDaysGroup) {
-      foodingDaysGroup.style.display = isFooding ? 'block' : 'none';
-    }
-    if (foodingDaysSelect) {
-      foodingDaysSelect.disabled = !isFooding;
-    }
-
-    if (legacyDaysGroup) {
-      legacyDaysGroup.style.display = 'none';
-    }
-
-    // Independent durations: 1-14 days supported, default 2 days if selected, 0 if unselected
-    const lodgingDays = isLodging ? (parseInt(lodgingDaysSelect?.value, 10) || parseInt(legacyDaysSelect?.value, 10) || 2) : 0;
-    const foodingDays = isFooding ? (parseInt(foodingDaysSelect?.value, 10) || parseInt(legacyDaysSelect?.value, 10) || 2) : 0;
-
-    // Independent calculations
-    const lodgingCost = isLodging ? (50 * lodgingDays * teamSize) : 0;
-    const foodingCost = isFooding ? (125 * foodingDays * teamSize) : 0;
-    const servicesCost = lodgingCost + foodingCost;
-    const totalCost = totalEventsCost + servicesCost;
-
-    if (lodgingRow) {
-      lodgingRow.style.display = isLodging ? 'flex' : 'none';
-      if (summaryLodgingFee) summaryLodgingFee.textContent = `₹${lodgingCost}`;
-      if (lodgingCalcDesc) lodgingCalcDesc.textContent = `₹50 × ${lodgingDays}d × ${teamSize}p`;
-    }
-
-    if (foodingRow) {
-      foodingRow.style.display = isFooding ? 'flex' : 'none';
-      if (summaryFoodingFee) summaryFoodingFee.textContent = `₹${foodingCost}`;
-      if (foodingCalcDesc) foodingCalcDesc.textContent = `₹125 × ${foodingDays}d × ${teamSize}p`;
-    }
-
     if (summaryEventFee) summaryEventFee.textContent = `₹${totalEventsCost}`;
-    if (summaryTotalFee) summaryTotalFee.textContent = `₹${totalCost}`;
+    if (summaryTotalFee) summaryTotalFee.textContent = `₹${totalEventsCost}`;
 
     return {
       totalEventsCost,
-      lodgingCost,
-      foodingCost,
-      servicesCost,
-      lodgingDays,
-      foodingDays,
-      isLodging,
-      isFooding,
-      totalCost,
-      selectedEventsList
+      lodgingCost: 0,
+      foodingCost: 0,
+      servicesCost: 0,
+      lodgingDays: 0,
+      foodingDays: 0,
+      isLodging: false,
+      isFooding: false,
+      totalCost: totalEventsCost,
+      selectedEventsList,
+      hasConflict,
+      conflictMessage,
+      teamSize
     };
   };
 
@@ -1822,15 +1975,20 @@
     const safeEmail = enteredEmail || `${cleanRoll.toLowerCase().replace(/[^a-z0-9]/g, '') || 'participant'}@student.bce`;
 
     const feeData = window.updateFeeSummary();
-    const isLodging = document.getElementById('reg-opt-lodging')?.checked || false;
-    const isFooding = document.getElementById('reg-opt-fooding')?.checked || false;
-    const lodgingDays = isLodging ? (parseInt(document.getElementById('reg-lodging-days')?.value, 10) || 2) : 0;
-    const foodingDays = isFooding ? (parseInt(document.getElementById('reg-fooding-days')?.value, 10) || 2) : 0;
-    const teamSize = parseInt(document.getElementById('reg-team-size')?.value, 10) || 1;
+    if (feeData.hasConflict) {
+      alert('Selected competitions have conflicting team size rules. Please resolve the conflict or register for the events separately.');
+      return;
+    }
 
+    if (!feeData.selectedEventsList || feeData.selectedEventsList.length === 0) {
+      alert('Please select at least one valid competition to proceed.');
+      return;
+    }
+
+    const teamSize = parseInt(document.getElementById('reg-team-size')?.value, 10) || feeData.teamSize || 1;
     const refId = `REG-BCE-${Math.random().toString(36).substring(2, 6).toUpperCase()}-${Date.now().toString().slice(-4)}`;
 
-    // Store in pendingRegistrationData
+    // Store in pendingRegistrationData (pure competition fees only)
     pendingRegistrationData = {
       fullName: name,
       rollNumber: cleanRoll,
@@ -1841,15 +1999,15 @@
       teamSize: teamSize,
       events: feeData.selectedEventsList,
       primaryEvent: feeData.selectedEventsList[0],
-      lodgingRequired: isLodging,
-      foodingRequired: isFooding,
-      lodgingDays: lodgingDays,
-      foodingDays: foodingDays,
-      lodgingCost: feeData.lodgingCost,
-      foodingCost: feeData.foodingCost,
-      serviceDays: Math.max(lodgingDays, foodingDays, 1),
+      lodgingRequired: false,
+      foodingRequired: false,
+      lodgingDays: 0,
+      foodingDays: 0,
+      lodgingCost: 0,
+      foodingCost: 0,
+      serviceDays: 0,
       eventFee: feeData.totalEventsCost,
-      accommodationFee: feeData.lodgingCost + feeData.foodingCost,
+      accommodationFee: 0,
       totalAmount: feeData.totalCost,
       refId: refId
     };
@@ -1866,11 +2024,8 @@
     const teamEl = document.getElementById('pay-summary-team');
     const eventsContainer = document.getElementById('pay-summary-events');
     const lodgingRowEl = document.getElementById('pay-summary-lodging-row');
-    const lodgingValEl = document.getElementById('pay-summary-lodging');
     const foodingRowEl = document.getElementById('pay-summary-fooding-row');
-    const foodingValEl = document.getElementById('pay-summary-fooding');
     const servicesRow = document.getElementById('pay-summary-services-row');
-    const servicesTextEl = document.getElementById('pay-summary-services');
     const totalAmountEl = document.getElementById('pay-total-amount');
     const qrImg = document.getElementById('upi-qr-image');
     const intentLink = document.getElementById('pay-upi-intent-link');
@@ -1893,36 +2048,10 @@
       `).join('');
     }
 
-    // Independent line items in payment modal
-    if (lodgingRowEl) {
-      if (isLodging) {
-        lodgingRowEl.style.display = 'block';
-        if (lodgingValEl) lodgingValEl.textContent = `₹50 × ${lodgingDays}d × ${teamSize}p = ₹${feeData.lodgingCost}`;
-      } else {
-        lodgingRowEl.style.display = 'none';
-      }
-    }
-
-    if (foodingRowEl) {
-      if (isFooding) {
-        foodingRowEl.style.display = 'block';
-        if (foodingValEl) foodingValEl.textContent = `₹125 × ${foodingDays}d × ${teamSize}p = ₹${feeData.foodingCost}`;
-      } else {
-        foodingRowEl.style.display = 'none';
-      }
-    }
-
-    if (servicesRow) {
-      if (isLodging || isFooding) {
-        servicesRow.style.display = 'block';
-        const parts = [];
-        if (isLodging) parts.push(`Lodging (₹${feeData.lodgingCost})`);
-        if (isFooding) parts.push(`Mess Food (₹${feeData.foodingCost})`);
-        if (servicesTextEl) servicesTextEl.textContent = `₹${feeData.lodgingCost + feeData.foodingCost} (${parts.join(' + ')})`;
-      } else {
-        servicesRow.style.display = 'none';
-      }
-    }
+    // Hide optional services rows for pure competition registration
+    if (lodgingRowEl) lodgingRowEl.style.display = 'none';
+    if (foodingRowEl) foodingRowEl.style.display = 'none';
+    if (servicesRow) servicesRow.style.display = 'none';
 
     const totalCost = feeData.totalCost;
     if (totalAmountEl) totalAmountEl.textContent = `₹${totalCost}`;
@@ -2855,20 +2984,75 @@
         }
       }
 
-      // 3. Hydrate Leadership, Convener & Institutional Content Sections
+      // 3. Hydrate Leadership & Institutional Content (Patron, Co-Patrons, Convenor, Institution)
+      if (settings && settings.about_leadership) {
+        const ldr = settings.about_leadership;
+        if (ldr.patron) {
+          const pName = document.getElementById('about-patron-name') || document.getElementById('about-principal-name');
+          const pTitle = document.getElementById('about-patron-title') || document.getElementById('about-principal-title');
+          const pQuote = document.getElementById('about-patron-quote') || document.getElementById('about-principal-quote');
+          const pImg = document.getElementById('about-patron-img') || document.getElementById('about-principal-img');
+          if (pName && ldr.patron.name) pName.textContent = ldr.patron.name;
+          if (pTitle && ldr.patron.designation) pTitle.textContent = ldr.patron.designation;
+          if (pQuote && ldr.patron.description) pQuote.innerHTML = `<p>"${escapeHtml(ldr.patron.description)}"</p>`;
+          if (pImg && ldr.patron.image) pImg.src = ldr.patron.image;
+        }
+        if (ldr.co_patron_1) {
+          const cp1Name = document.getElementById('about-copatron1-name');
+          const cp1Title = document.getElementById('about-copatron1-title');
+          const cp1Desc = document.getElementById('about-copatron1-desc');
+          const cp1Img = document.getElementById('about-copatron1-img');
+          if (cp1Name && ldr.co_patron_1.name) cp1Name.textContent = ldr.co_patron_1.name;
+          if (cp1Title && ldr.co_patron_1.designation) cp1Title.textContent = ldr.co_patron_1.designation;
+          if (cp1Desc && ldr.co_patron_1.description) cp1Desc.textContent = ldr.co_patron_1.description;
+          if (cp1Img && ldr.co_patron_1.image) cp1Img.src = ldr.co_patron_1.image;
+        }
+        if (ldr.co_patron_2) {
+          const cp2Name = document.getElementById('about-copatron2-name');
+          const cp2Title = document.getElementById('about-copatron2-title');
+          const cp2Desc = document.getElementById('about-copatron2-desc');
+          const cp2Img = document.getElementById('about-copatron2-img');
+          if (cp2Name && ldr.co_patron_2.name) cp2Name.textContent = ldr.co_patron_2.name;
+          if (cp2Title && ldr.co_patron_2.designation) cp2Title.textContent = ldr.co_patron_2.designation;
+          if (cp2Desc && ldr.co_patron_2.description) cp2Desc.textContent = ldr.co_patron_2.description;
+          if (cp2Img && ldr.co_patron_2.image) cp2Img.src = ldr.co_patron_2.image;
+        }
+        if (ldr.convenor) {
+          const cName = document.getElementById('about-convenor-name');
+          const cTitle = document.getElementById('about-convenor-title');
+          const cQuote = document.getElementById('about-convenor-quote');
+          const cImg = document.getElementById('about-convenor-img');
+          if (cName && ldr.convenor.name) cName.textContent = ldr.convenor.name;
+          if (cTitle && ldr.convenor.designation) cTitle.textContent = ldr.convenor.designation;
+          if (cQuote && ldr.convenor.description) cQuote.innerHTML = `<p>${escapeHtml(ldr.convenor.description)}</p>`;
+          if (cImg && ldr.convenor.image) cImg.src = ldr.convenor.image;
+        }
+        if (ldr.institution) {
+          const instName = document.getElementById('about-institution-heading');
+          const instDept = document.getElementById('about-institution-dept');
+          const instDesc = document.getElementById('about-institution-desc');
+          const instImg = document.getElementById('about-institution-img');
+          if (instName && ldr.institution.name) instName.textContent = ldr.institution.name;
+          if (instDept && ldr.institution.dept) instDept.textContent = ldr.institution.dept;
+          if (instDesc && ldr.institution.description) instDesc.textContent = ldr.institution.description;
+          if (instImg && ldr.institution.image) instImg.src = ldr.institution.image;
+        }
+      }
+
+      // Fallback: Hydrate legacy content sections if present
       const sections = await window.TechnoritiDB.getContentSections();
       if (sections && sections.length > 0) {
-        // A. Principal Spotlight
+        // A. Principal / Patron Spotlight
         const principal = sections.find(s => s.id === 'about_principal');
         if (principal) {
-          const pName = document.getElementById('about-principal-name') || document.querySelector('.principal-name, .spotlight-title');
+          const pName = document.getElementById('about-patron-name') || document.getElementById('about-principal-name');
           if (pName && principal.title) pName.textContent = principal.title;
 
-          const pTitle = document.getElementById('about-principal-title') || document.querySelector('.principal-title');
+          const pTitle = document.getElementById('about-patron-title') || document.getElementById('about-principal-title');
           if (pTitle && principal.subtitle) pTitle.textContent = principal.subtitle;
 
-          const pQuoteBox = document.getElementById('about-principal-quote') || document.querySelector('.principal-quote-box');
-          if (pQuoteBox && principal.content) {
+          const pQuoteBox = document.getElementById('about-patron-quote') || document.getElementById('about-principal-quote');
+          if (pQuoteBox && principal.content && (!settings || !settings.about_leadership?.patron?.description)) {
             const paragraphs = principal.content.split(/\n\s*\n/).map(p => p.trim()).filter(Boolean);
             if (paragraphs.length > 0) {
               pQuoteBox.innerHTML = paragraphs.map(p => `<p>"${escapeHtml(p.replace(/^["“”]/, '').replace(/["“”]$/, ''))}"</p>`).join('');
@@ -2877,8 +3061,8 @@
             }
           }
 
-          const pPort = document.getElementById('about-principal-img') || document.querySelector('.principal-img, .principal-portrait');
-          if (pPort && principal.metadata?.portrait_src) {
+          const pPort = document.getElementById('about-patron-img') || document.getElementById('about-principal-img');
+          if (pPort && principal.metadata?.portrait_src && (!settings || !settings.about_leadership?.patron?.image)) {
             pPort.src = principal.metadata.portrait_src;
           }
         }
@@ -2886,14 +3070,14 @@
         // B. Convener Spotlight
         const convenor = sections.find(s => s.id === 'about_convenor' || s.id === 'about_convenors');
         if (convenor) {
-          const cName = document.getElementById('about-convener-name') || document.querySelector('.convener-name');
+          const cName = document.getElementById('about-convenor-name');
           if (cName && convenor.title) cName.textContent = convenor.title;
 
-          const cTitle = document.getElementById('about-convener-title') || document.querySelector('.convener-title');
+          const cTitle = document.getElementById('about-convenor-title');
           if (cTitle && convenor.subtitle) cTitle.textContent = convenor.subtitle;
 
-          const cQuoteBox = document.getElementById('about-convener-quote') || document.querySelector('.convener-quote-box');
-          if (cQuoteBox && convenor.content) {
+          const cQuoteBox = document.getElementById('about-convenor-quote');
+          if (cQuoteBox && convenor.content && (!settings || !settings.about_leadership?.convenor?.description)) {
             const paragraphs = convenor.content.split(/\n\s*\n/).map(p => p.trim()).filter(Boolean);
             if (paragraphs.length > 0) {
               cQuoteBox.innerHTML = paragraphs.map(p => `<p>"${escapeHtml(p.replace(/^["“”]/, '').replace(/["“”]$/, ''))}"</p>`).join('');
@@ -2902,8 +3086,8 @@
             }
           }
 
-          const cPort = document.getElementById('about-convener-img') || document.querySelector('.convener-img');
-          if (cPort && convenor.metadata?.portrait_src) {
+          const cPort = document.getElementById('about-convenor-img');
+          if (cPort && convenor.metadata?.portrait_src && (!settings || !settings.about_leadership?.convenor?.image)) {
             cPort.src = convenor.metadata.portrait_src;
           }
 
@@ -2926,7 +3110,7 @@
           if (instDesc && legacy.content) instDesc.textContent = legacy.content;
 
           const instImg = document.getElementById('about-institution-img');
-          if (instImg && legacy.metadata?.building_img) {
+          if (instImg && legacy.metadata?.building_img && (!settings || !settings.about_leadership?.institution?.image)) {
             instImg.src = legacy.metadata.building_img;
           }
         }
