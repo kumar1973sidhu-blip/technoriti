@@ -33,6 +33,12 @@ const server = http.createServer((req, res) => {
     reqPath = '/admin/index.html';
   } else if (reqPath === '/admin/login' || reqPath === '/admin/login/') {
     reqPath = '/admin/login.html';
+  } else if (reqPath === '/login' || reqPath === '/login/') {
+    reqPath = '/login.html';
+  } else if (reqPath === '/signup' || reqPath === '/signup/') {
+    reqPath = '/signup.html';
+  } else if (reqPath === '/dashboard' || reqPath === '/dashboard/') {
+    reqPath = '/dashboard.html';
   }
 
   let filePath = path.normalize(path.join(BASE_DIR, reqPath));

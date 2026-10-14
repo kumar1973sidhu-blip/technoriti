@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Participant Dashboard | TECHNORITI '26</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css?v=2.2">
+  <style>
+    body.dashboard-page {
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(circle at 10% 10%, rgba(0, 240, 255, 0.07) 0%, transparent 40%),
+        radial-gradient(circle at 90% 90%, rgba(157, 78, 221, 0.07) 0%, transparent 40%),
+        linear-gradient(rgba(5, 7, 15, 0.94), rgba(5, 7, 15, 0.97)),
+        url('/cosmic-hero-bg.jpg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      min-height: 100vh;
+      overflow-y: auto !important;
+      overflow-x: hidden;
+      color: #fff;
+    }
+
+    .dash-header {
+      padding: 16px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(0, 240, 255, 0.15);
+      background: rgba(8, 12, 28, 0.85);
+      backdrop-filter: blur(14px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .dash-header .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .dash-nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .dash-nav-link {
+      font-family: var(--font-orbitron);
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      text-decoration: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      transition: var(--transition-smooth);
+    }
+
+    .dash-nav-link:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .dash-logout-btn {
+      font-family: var(--font-orbitron);
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #fca5a5;
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      padding: 7px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: var(--transition-smooth);
+    }
+
+    .dash-logout-btn:hover {
+      background: rgba(239, 68, 68, 0.25);
+      border-color: #ef4444;
+      box-shadow: 0 0 12px rgba(239, 68, 68, 0.4);
+    }
+
+    /* Main Container */
+    .dash-main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 32px 20px 60px;
+    }
+
+    /* Welcome Profile Hero Card */
+    .dash-profile-hero {
+      background: linear-gradient(135deg, rgba(15, 22, 50, 0.8), rgba(10, 14, 30, 0.95));
+      border: 1px solid rgba(0, 240, 255, 0.25);
+      border-radius: 18px;
+      padding: 28px 32px;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4), 0 0 25px rgba(0, 240, 255, 0.08);
+      margin-bottom: 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .dash-profile-hero::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent-cyan), var(--accent-purple), transparent);
+    }
+
+    .profile-left-cluster {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .profile-avatar-circle {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-orbitron);
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #05070f;
+      box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
+      flex-shrink: 0;
+    }
+
+    .profile-meta-title {
+      font-family: var(--font-orbitron);
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 4px;
+      letter-spacing: 0.5px;
+    }
+
+    .profile-tag-strip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+
+    .profile-pill {
+      font-size: 0.76rem;
+      padding: 3px 10px;
+      border-radius: 12px;
+      background: rgba(0, 240, 255, 0.1);
+      border: 1px solid rgba(0, 240, 255, 0.25);
+      color: var(--accent-cyan);
+      font-weight: 600;
+    }
+
+    .profile-pill.alt {
+      background: rgba(157, 78, 221, 0.12);
+      border-color: rgba(157, 78, 221, 0.35);
+      color: #c084fc;
+    }
+
+    .profile-contact-line {
+      font-size: 0.84rem;
+      color: var(--text-secondary);
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .profile-contact-line span {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .profile-status-box {
+      text-align: right;
+    }
+
+    .participant-id-badge {
+      font-family: var(--font-orbitron);
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: var(--accent-emerald);
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 6px 14px;
+      border-radius: 20px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Action Cards Section (Explore Competitions & Book Accommodation) */
+    .dash-action-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-bottom: 40px;
+    }
+
+    @media (max-width: 768px) {
+      .dash-action-cards {
+        grid-template-columns: 1fr;
+      }
+      .dash-profile-hero {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .profile-status-box {
+        text-align: left;
+        width: 100%;
+      }
+      .dash-header {
+        padding: 12px 16px;
+      }
+    }
+
+    .action-card {
+      background: rgba(12, 18, 42, 0.85);
+      border: 1px solid rgba(0, 240, 255, 0.22);
+      border-radius: 16px;
+      padding: 28px;
+      position: relative;
+      overflow: hidden;
+      transition: var(--transition-smooth);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .action-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), 0 0 25px rgba(0, 240, 255, 0.2);
+      border-color: var(--accent-cyan);
+    }
+
+    .action-card.card-accom {
+      border-color: rgba(157, 78, 221, 0.28);
+    }
+
+    .action-card.card-accom:hover {
+      border-color: var(--accent-purple);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), 0 0 25px rgba(157, 78, 221, 0.25);
+    }
+
+    .card-icon-badge {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: rgba(0, 240, 255, 0.12);
+      border: 1px solid rgba(0, 240, 255, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: 16px;
+    }
+
+    .card-accom .card-icon-badge {
+      background: rgba(157, 78, 221, 0.15);
+      border-color: rgba(157, 78, 221, 0.35);
+    }
+
+    .action-card-title {
+      font-family: var(--font-orbitron);
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+
+    .action-card-desc {
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      margin-bottom: 24px;
+    }
+
+    .card-cta-btn {
+      align-self: flex-start;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-orbitron);
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      padding: 10px 20px;
+      border-radius: 8px;
+      text-decoration: none;
+      background: linear-gradient(135deg, rgba(0, 240, 255, 0.18), rgba(0, 240, 255, 0.08));
+      border: 1px solid var(--accent-cyan);
+      color: #fff;
+      transition: var(--transition-smooth);
+    }
+
+    .card-cta-btn:hover {
+      background: var(--accent-cyan);
+      color: #05070f;
+      box-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
+    }
+
+    .card-accom .card-cta-btn {
+      background: linear-gradient(135deg, rgba(157, 78, 221, 0.22), rgba(157, 78, 221, 0.08));
+      border-color: var(--accent-purple);
+    }
+
+    .card-accom .card-cta-btn:hover {
+      background: var(--accent-purple);
+      color: #fff;
+      box-shadow: 0 0 20px rgba(157, 78, 221, 0.6);
+    }
+
+    /* Data Tables & Cards Section */
+    .dash-section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+
+    .dash-section-title {
+      font-family: var(--font-orbitron);
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .dash-section-title span.count {
+      font-size: 0.76rem;
+      background: rgba(0, 240, 255, 0.12);
+      border: 1px solid rgba(0, 240, 255, 0.3);
+      padding: 2px 8px;
+      border-radius: 10px;
+      color: var(--accent-cyan);
+    }
+
+    .dash-content-panel {
+      background: rgba(10, 14, 30, 0.85);
+      border: 1px solid rgba(0, 240, 255, 0.18);
+      border-radius: 14px;
+      overflow: hidden;
+      margin-bottom: 40px;
+      backdrop-filter: blur(12px);
+    }
+
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    .dash-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.88rem;
+    }
+
+    .dash-table th {
+      background: rgba(5, 7, 15, 0.6);
+      padding: 14px 16px;
+      font-family: var(--font-orbitron);
+      font-size: 0.75rem;
+      letter-spacing: 1px;
+      color: var(--text-secondary);
+      border-bottom: 1px solid rgba(0, 240, 255, 0.12);
+      white-space: nowrap;
+    }
+
+    .dash-table td {
+      padding: 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      vertical-align: middle;
+    }
+
+    .dash-table tr:hover td {
+      background: rgba(0, 240, 255, 0.03);
+    }
+
+    /* Status Badges */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      font-family: var(--font-orbitron);
+    }
+
+    .status-badge.verified, .status-badge.allotted, .status-badge.confirmed {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      color: #34d399;
+    }
+
+    .status-badge.pending, .status-badge.requested {
+      background: rgba(251, 191, 36, 0.15);
+      border: 1px solid rgba(251, 191, 36, 0.4);
+      color: #fbbf24;
+    }
+
+    .status-badge.rejected, .status-badge.cancelled {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #f87171;
+    }
+
+    .empty-state-card {
+      padding: 40px 20px;
+      text-align: center;
+      color: var(--text-secondary);
+    }
+
+    .empty-state-icon {
+      font-size: 2.4rem;
+      margin-bottom: 12px;
+      opacity: 0.8;
+    }
+
+    .empty-state-title {
+      font-family: var(--font-orbitron);
+      font-size: 1.05rem;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+
+    .empty-state-desc {
+      font-size: 0.86rem;
+      max-width: 440px;
+      margin: 0 auto 20px;
+      line-height: 1.5;
+    }
+
+    .btn-empty-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 18px;
+      border-radius: 8px;
+      background: rgba(0, 240, 255, 0.1);
+      border: 1px solid var(--accent-cyan);
+      color: var(--accent-cyan);
+      font-family: var(--font-orbitron);
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-decoration: none;
+      transition: var(--transition-smooth);
+    }
+
+    .btn-empty-cta:hover {
+      background: var(--accent-cyan);
+      color: #05070f;
+    }
+  </style>
+</head>
+<body class="dashboard-page">
+
+  <!-- Header -->
+  <header class="dash-header">
+    <a href="/index.html" class="brand" title="Technoriti '26 Home">
+      <div class="brand-symbol">
+        <svg viewBox="0 0 36 36" width="30" height="30" fill="none">
+          <polygon points="18,5 30,12 30,24 18,31 6,24 6,12" stroke="#00ffff" stroke-width="2" fill="rgba(0, 240, 255, 0.15)"/>
+          <path d="M12 14 L24 14 M18 14 L18 25 M14 25 L22 25" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <span class="brand-title" style="font-family: var(--font-orbitron); font-weight: 800; color:#fff; font-size: 0.95rem;">TECHNORITI '26</span>
+        <span class="brand-tag" style="display:block; font-size: 0.65rem; color: var(--accent-cyan); letter-spacing: 1.5px;">PARTICIPANT DASHBOARD</span>
+      </div>
+    </a>
+
+    <div class="dash-nav-actions">
+      <a href="/index.html" class="dash-nav-link">Main Portal</a>
+      <a href="/index.html#competitions" class="dash-nav-link">Competitions</a>
+      <a href="/index.html#accommodation" class="dash-nav-link">Accommodation</a>
+      <button type="button" class="dash-logout-btn" onclick="handleParticipantSignOut()">
+        <span>Sign Out</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="dash-main">
+
+    <!-- Profile Hero Card -->
+    <section class="dash-profile-hero" id="profileHero">
+      <div class="profile-left-cluster">
+        <div class="profile-avatar-circle" id="profileAvatar">P</div>
+        <div>
+          <h1 class="profile-meta-title" id="profileName">Loading Profile...</h1>
+          <div class="profile-tag-strip">
+            <span class="profile-pill" id="profileCollege">Bhagalpur College of Engineering</span>
+            <span class="profile-pill alt" id="profileBranch">Engineering</span>
+            <span class="profile-pill" id="profileRoll">Roll: --</span>
+          </div>
+          <div class="profile-contact-line">
+            <span id="profileEmail">✉️ participant@technoriti.in</span>
+            <span id="profilePhone">📱 +91 ----------</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="profile-status-box">
+        <div class="participant-id-badge">
+          <span class="pulse-dot"></span>
+          <span>OFFICIAL PARTICIPANT</span>
+        </div>
+        <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 6px;">
+          BCE Bhagalpur Annual Technical Festival
+        </div>
+      </div>
+    </section>
+
+    <!-- Two Prominent Action Cards -->
+    <section class="dash-action-cards">
+      <!-- Card 1: Explore Competitions -->
+      <div class="action-card card-comp">
+        <div>
+          <div class="card-icon-badge">🏆</div>
+          <h2 class="action-card-title">EXPLORE COMPETITIONS</h2>
+          <p class="action-card-desc">
+            Choose from 29+ technical, robotics, coding, hackathon, and gaming arenas. Register solo or form your multi-member team.
+          </p>
+        </div>
+        <a href="/index.html#register" class="card-cta-btn">
+          <span>Register for Competition</span>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+
+      <!-- Card 2: Book Accommodation -->
+      <div class="action-card card-accom">
+        <div>
+          <div class="card-icon-badge">🏨</div>
+          <h2 class="action-card-title">BOOK CAMPUS ACCOMMODATION</h2>
+          <p class="action-card-desc">
+            Independent campus hostel lodging (₹50/day) &amp; hygienic dining hall mess food (₹125/day) inside BCE Bhagalpur campus.
+          </p>
+        </div>
+        <a href="/index.html#accommodation" class="card-cta-btn">
+          <span>Book Campus Stay</span>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+    </section>
+
+    <!-- Section 1: Registered Competitions -->
+    <section>
+      <div class="dash-section-header">
+        <h2 class="dash-section-title">
+          <span>REGISTERED COMPETITIONS</span>
+          <span class="count" id="compCountBadge">0</span>
+        </h2>
+        <a href="/index.html#competitions" style="font-size: 0.8rem; color: var(--accent-cyan); text-decoration: none;">View All 29 Arenas →</a>
+      </div>
+
+      <div class="dash-content-panel">
+        <div class="table-container">
+          <table class="dash-table" id="compTable">
+            <thead>
+              <tr>
+                <th>Registration Ref</th>
+                <th>Competitions / Arenas</th>
+                <th>Team / Solo</th>
+                <th>Services</th>
+                <th>Amount</th>
+                <th>Payment / UTR</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="compTableBody">
+              <tr>
+                <td colspan="7" class="empty-state-card">
+                  <div class="empty-state-icon">⏳</div>
+                  <div class="empty-state-title">Loading your registrations...</div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 2: Accommodation Bookings -->
+    <section>
+      <div class="dash-section-header">
+        <h2 class="dash-section-title">
+          <span>CAMPUS ACCOMMODATION &amp; MESS PASSES</span>
+          <span class="count" id="accomCountBadge">0</span>
+        </h2>
+        <a href="/index.html#accommodation" style="font-size: 0.8rem; color: var(--accent-purple); text-decoration: none;">Hostel Info &amp; FAQs →</a>
+      </div>
+
+      <div class="dash-content-panel">
+        <div class="table-container">
+          <table class="dash-table" id="accomTable">
+            <thead>
+              <tr>
+                <th>Booking Ref</th>
+                <th>Services Booked</th>
+                <th>Stay Duration</th>
+                <th>Members</th>
+                <th>Hostel Block / Room</th>
+                <th>Total Fee</th>
+                <th>Booking Status</th>
+              </tr>
+            </thead>
+            <tbody id="accomTableBody">
+              <tr>
+                <td colspan="7" class="empty-state-card">
+                  <div class="empty-state-icon">⏳</div>
+                  <div class="empty-state-title">Loading your accommodation records...</div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Supabase SDK, Runtime Config & Frontend Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/env-config.js"></script>
+  <script src="/supabase-client.js?v=2.2"></script>
+
+  <script>
+    let currentUser = null;
+    let userProfile = null;
+
+    async function initDashboard() {
+      if (!window.TechnoritiDB) {
+        console.warn('TechnoritiDB not yet loaded, retrying...');
+        setTimeout(initDashboard, 200);
+        return;
+      }
+
+      try {
+        currentUser = await window.TechnoritiDB.getCurrentUser();
+        if (!currentUser) {
+          window.location.replace('/login.html?redirect=dashboard');
+          return;
+        }
+
+        // Load Profile
+        userProfile = await window.TechnoritiDB.getParticipantProfile(currentUser.id);
+        renderProfileHeader(currentUser, userProfile);
+
+        // Load Registrations & Accommodations concurrently
+        await Promise.all([
+          loadParticipantRegistrations(currentUser.id, currentUser.email),
+          loadParticipantAccommodations(currentUser.id, currentUser.email)
+        ]);
+      } catch (err) {
+        console.error('Failed to initialize dashboard:', err);
+      }
+    }
+
+    function renderProfileHeader(user, profile) {
+      const name = (profile && profile.full_name) || (user.user_metadata && user.user_metadata.full_name) || user.email.split('@')[0];
+      const college = (profile && profile.college) || (user.user_metadata && user.user_metadata.college) || 'Bhagalpur College of Engineering';
+      const branch = (profile && profile.branch) || (user.user_metadata && user.user_metadata.branch) || 'Engineering Department';
+      const roll = (profile && profile.roll_number) || (user.user_metadata && user.user_metadata.roll_number) || 'N/A';
+      const phone = (profile && profile.phone) || (user.user_metadata && user.user_metadata.phone) || '';
+
+      document.getElementById('profileName').textContent = name;
+      document.getElementById('profileAvatar').textContent = name.charAt(0).toUpperCase();
+      document.getElementById('profileCollege').textContent = college;
+      document.getElementById('profileBranch').textContent = branch;
+      document.getElementById('profileRoll').textContent = `Roll: ${roll}`;
+      document.getElementById('profileEmail').textContent = `✉️ ${user.email}`;
+      document.getElementById('profilePhone').textContent = phone ? `📱 +91 ${phone}` : '📱 Contact on file';
+    }
+
+    async function loadParticipantRegistrations(userId, email) {
+      const tbody = document.getElementById('compTableBody');
+      const badge = document.getElementById('compCountBadge');
+
+      try {
+        const registrations = await window.TechnoritiDB.getParticipantRegistrations(userId, email);
+        if (badge) badge.textContent = registrations.length;
+
+        if (!registrations || registrations.length === 0) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="7" class="empty-state-card">
+                <div class="empty-state-icon">🏆</div>
+                <div class="empty-state-title">No Competitions Registered Yet</div>
+                <p class="empty-state-desc">You haven't signed up for any arenas yet. Choose from our 29 competitions spanning robotics, coding, hackathons, and design.</p>
+                <a href="/index.html#register" class="btn-empty-cta">
+                  <span>Register for Competitions</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </a>
+              </td>
+            </tr>
+          `;
+          return;
+        }
+
+        tbody.innerHTML = registrations.map(r => {
+          const ref = r.id ? r.id.slice(0, 8).toUpperCase() : 'BCE';
+          const status = (r.payment_status || 'pending').toLowerCase();
+          const teamLabel = (r.team_size && r.team_size > 1) ? `Team (${r.team_size} members)` : 'Solo Entry';
+          const servicesLabel = r.needs_accommodation ? 'Campus Lodging/Food Included' : 'Entry Only';
+
+          // Format competitions
+          let eventsDisplay = r.event_title || 'Competition';
+          if (Array.isArray(r.selected_events) && r.selected_events.length > 0) {
+            eventsDisplay = r.selected_events.map(e => e.title || e.id).join(', ');
+          }
+
+          return `
+            <tr>
+              <td>
+                <strong style="color: var(--accent-cyan); font-family: var(--font-orbitron); font-size: 0.8rem;">REG-${ref}</strong>
+                <div style="font-size: 0.72rem; color: var(--text-muted);">${new Date(r.created_at).toLocaleDateString()}</div>
+              </td>
+              <td>
+                <strong style="color: #fff;">${escapeHtml(eventsDisplay)}</strong>
+              </td>
+              <td>
+                <span style="font-size: 0.82rem; color: var(--text-secondary);">${teamLabel}</span>
+              </td>
+              <td>
+                <span style="font-size: 0.82rem; color: var(--text-secondary);">${servicesLabel}</span>
+              </td>
+              <td>
+                <strong style="color: #fff;">₹${r.total_amount || 0}</strong>
+              </td>
+              <td>
+                <span style="font-family: monospace; font-size: 0.8rem; color: var(--text-secondary);">${escapeHtml(r.payment_reference || 'UPI Direct')}</span>
+              </td>
+              <td>
+                <span class="status-badge ${status}">
+                  <span class="pulse-dot"></span>
+                  ${status === 'verified' ? 'Verified' : (status === 'rejected' ? 'Rejected' : 'Pending Review')}
+                </span>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      } catch (err) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7" class="empty-state-card" style="color: #fca5a5;">
+              Failed to load registrations: ${escapeHtml(err.message)}
+            </td>
+          </tr>
+        `;
+      }
+    }
+
+    async function loadParticipantAccommodations(userId, email) {
+      const tbody = document.getElementById('accomTableBody');
+      const badge = document.getElementById('accomCountBadge');
+
+      try {
+        const bookings = await window.TechnoritiDB.getParticipantAccommodations(userId, email);
+        if (badge) badge.textContent = bookings.length;
+
+        if (!bookings || bookings.length === 0) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="7" class="empty-state-card">
+                <div class="empty-state-icon">🏨</div>
+                <div class="empty-state-title">No Accommodation Booked Yet</div>
+                <p class="empty-state-desc">Outstation participants can reserve campus hostel beds (₹50/day) and campus mess dining passes (₹125/day) anytime.</p>
+                <a href="/index.html#accommodation" class="btn-empty-cta">
+                  <span>Reserve Campus Accommodation</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </a>
+              </td>
+            </tr>
+          `;
+          return;
+        }
+
+        tbody.innerHTML = bookings.map(b => {
+          const ref = b.id ? b.id.slice(0, 8).toUpperCase() : 'BCE';
+          const status = (b.status || 'requested').toLowerCase();
+          const hasLodging = b.has_lodging !== false;
+          const hasFood = !!b.has_food;
+          let serviceText = 'Hostel & Mess';
+          if (hasLodging && hasFood) serviceText = `Lodging (${b.lodging_days || b.days_count}d) + Mess (${b.food_days || b.days_count}d)`;
+          else if (hasLodging) serviceText = `Hostel Lodging (${b.lodging_days || b.days_count} days)`;
+          else if (hasFood) serviceText = `Campus Mess Dining Pass (${b.food_days || b.days_count} days)`;
+
+          const roomText = b.room_number ? `Room ${b.room_number}` : 'Room Allotment Pending';
+
+          return `
+            <tr>
+              <td>
+                <strong style="color: var(--accent-purple); font-family: var(--font-orbitron); font-size: 0.8rem;">ACCOM-${ref}</strong>
+                <div style="font-size: 0.72rem; color: var(--text-muted);">${new Date(b.created_at).toLocaleDateString()}</div>
+              </td>
+              <td>
+                <strong style="color: #fff;">${escapeHtml(serviceText)}</strong>
+              </td>
+              <td>
+                <span>${b.days_count || 2} Days</span>
+              </td>
+              <td>
+                <span>${b.members_count || 1} Person(s)</span>
+              </td>
+              <td>
+                <div>${escapeHtml(b.hostel_block || 'Campus Hostel')}</div>
+                <div style="font-size: 0.76rem; color: var(--accent-cyan);">${escapeHtml(roomText)}</div>
+              </td>
+              <td>
+                <strong style="color: #fff;">₹${b.total_fee || 0}</strong>
+              </td>
+              <td>
+                <span class="status-badge ${status}">
+                  <span class="pulse-dot"></span>
+                  ${status}
+                </span>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      } catch (err) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7" class="empty-state-card" style="color: #fca5a5;">
+              Failed to load accommodation: ${escapeHtml(err.message)}
+            </td>
+          </tr>
+        `;
+      }
+    }
+
+    async function handleParticipantSignOut() {
+      try {
+        if (window.TechnoritiDB) {
+          await window.TechnoritiDB.signOut();
+        }
+      } catch (err) {
+        console.warn('Sign out error:', err);
+      }
+      window.location.replace('/index.html');
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    document.addEventListener('DOMContentLoaded', initDashboard);
+  </script>
+</body>
+</html>

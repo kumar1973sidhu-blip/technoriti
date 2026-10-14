@@ -162,8 +162,19 @@
           </svg>
         </button>
 
+        <!-- Auth State Container: Dynamic Login or Dashboard Pill -->
+        <div id="header-auth-container" class="header-desktop-only" style="display:inline-flex; align-items:center;">
+          <a href="/login.html" class="cyber-btn-login" id="nav-btn-login" title="Participant Login / Sign Up">
+            <span class="btn-text">LOGIN</span>
+          </a>
+          <a href="/dashboard.html" class="dashboard-user-pill" id="nav-btn-dashboard" title="Go to Participant Dashboard" style="display: none;">
+            <span class="pill-avatar" id="nav-user-avatar">P</span>
+            <span class="pill-name" id="nav-user-name">Dashboard</span>
+          </a>
+        </div>
+
         <!-- Register Button -->
-        <button class="cyber-btn-register header-desktop-only" onclick="window.openPanel('register')">
+        <button class="cyber-btn-register header-desktop-only" onclick="window.handleRegisterClickProtected()">
           <span class="btn-text">REGISTER</span>
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
             <path d="M5 12h14M12 5l7 7-7 7"/>
@@ -224,7 +235,18 @@
           <span class="mni-icon">💻</span>
           <span class="mni-text">Web Developers</span>
         </button>
-        <button class="mobile-nav-item highlight-item" data-action="register" onclick="window.navMobileTo('register')">
+        <!-- Dynamic Participant Auth Items (Mobile) -->
+        <div id="mobile-auth-pod">
+          <button class="mobile-nav-item" id="mobile-nav-login" onclick="window.location.href='/login.html'">
+            <span class="mni-icon">🔑</span>
+            <span class="mni-text">Participant Login</span>
+          </button>
+          <button class="mobile-nav-item" id="mobile-nav-dashboard" style="display:none;" onclick="window.location.href='/dashboard.html'">
+            <span class="mni-icon">👤</span>
+            <span class="mni-text" id="mobile-dashboard-label">My Dashboard</span>
+          </button>
+        </div>
+        <button class="mobile-nav-item highlight-item" data-action="register" onclick="window.handleRegisterClickProtected()">
           <span class="mni-icon">⚡</span>
           <span class="mni-text">Event Registration</span>
         </button>
@@ -269,7 +291,11 @@
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
       <span class="dock-label">Developers</span>
     </button>
-    <button class="dock-link" onclick="window.openPanel('register')" title="Register">
+    <button class="dock-link" onclick="window.handleDashboardDockClick()" title="Participant Dashboard">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+      <span class="dock-label">Dashboard</span>
+    </button>
+    <button class="dock-link" onclick="window.handleRegisterClickProtected()" title="Register for Competitions">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
       <span class="dock-label">Register</span>
     </button>
@@ -955,6 +981,17 @@
           </div>
 
           <div class="form-row">
+            <div class="form-group">
+              <label for="reg-branch">Branch / Department *</label>
+              <input type="text" id="reg-branch" required placeholder="e.g. Computer Science / Electrical / Civil">
+            </div>
+            <div class="form-group">
+              <label for="reg-email">Account Email Address *</label>
+              <input type="email" id="reg-email" required placeholder="e.g. participant@gmail.com">
+            </div>
+          </div>
+
+          <div class="form-row">
             <div class="form-group" style="flex: 2;">
               <label for="reg-event">Primary Competition / Arena *</label>
               <select id="reg-event" required onchange="window.updateFeeSummary()">
@@ -1385,6 +1422,29 @@
     </div>
   </div>
 
+  <!-- Auth Required Prompt Modal (Mandatory Authentication for Competition Registration) -->
+  <div id="auth-required-modal" class="modal-backdrop" onclick="window.closeAuthRequiredModal(event)">
+    <div class="modal-dialog glassmorphism-card" style="max-width: 480px; text-align: center; padding: 32px 24px;" onclick="event.stopPropagation()">
+      <button class="modal-close-btn" onclick="window.closeAuthRequiredModal()">✕</button>
+      <div style="width: 56px; height: 56px; border-radius: 50%; background: rgba(0, 240, 255, 0.15); border: 1px solid var(--accent-cyan); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; margin: 0 auto 16px;">
+        🔐
+      </div>
+      <span class="panel-badge" style="margin-bottom: 8px;">PARTICIPANT AUTHENTICATION</span>
+      <h3 style="font-family: var(--font-orbitron); font-size: 1.3rem; color: #fff; margin-bottom: 10px;">SIGN IN REQUIRED</h3>
+      <p style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 24px;">
+        To register for competitions, please sign in or create your participant account. Once authenticated, your profile information will be automatically prefilled in the registration form.
+      </p>
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <a href="/login.html?redirect=register" class="cyber-btn-register" style="justify-content: center; padding: 12px 20px; font-size: 0.85rem; text-decoration: none;">
+          <span>SIGN IN / CREATE ACCOUNT →</span>
+        </a>
+        <button type="button" class="btn-secondary" onclick="window.closeAuthRequiredModal()" style="background: transparent; border: 1px solid rgba(255, 255, 255, 0.15); color: var(--text-secondary); padding: 10px; border-radius: 8px; font-family: var(--font-orbitron); font-size: 0.78rem; cursor: pointer;">
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Dedicated Accommodation Service Selection Modal (Choose Your Services) -->
   <div id="accom-service-selection-modal" class="modal-backdrop" onclick="window.closeAccomServiceSelector(event)">
     <div class="modal-dialog glassmorphism-card service-selector-dialog" onclick="event.stopPropagation()">
@@ -1681,9 +1741,15 @@
         <span>Boys: Prof. Kumar Jyotiraditya (7004618331) • Girls: Prof. Sarika Kushwaha (7321018753)</span>
       </div>
 
-      <button class="primary-glow-btn" onclick="document.getElementById('accom-success-modal').classList.remove('open')">
-        DONE & CLOSE
-      </button>
+      <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:16px;">
+        <a href="/dashboard.html" class="primary-glow-btn" style="text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
+          <span>View in Dashboard</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+        <button class="primary-glow-btn" style="background:rgba(255,255,255,0.1); border-color:rgba(255,255,255,0.3); color:#fff;" onclick="document.getElementById('accom-success-modal').classList.remove('open')">
+          DONE &amp; CLOSE
+        </button>
+      </div>
     </div>
   </div>
 
@@ -1708,9 +1774,15 @@
         </ul>
       </div>
 
-      <button class="primary-glow-btn" onclick="document.getElementById('success-modal').classList.remove('open')">
-        DONE &amp; CLOSE
-      </button>
+      <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:16px;">
+        <a href="/dashboard.html" class="primary-glow-btn" style="text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
+          <span>View in Dashboard</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+        <button class="primary-glow-btn" style="background:rgba(255,255,255,0.1); border-color:rgba(255,255,255,0.3); color:#fff;" onclick="document.getElementById('success-modal').classList.remove('open')">
+          DONE &amp; CLOSE
+        </button>
+      </div>
     </div>
   </div>
 

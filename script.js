@@ -1356,7 +1356,150 @@
     document.getElementById('comp-modal').classList.remove('open');
   };
 
-  window.quickRegisterForEvent = function (eventTitle) {
+  // =====================================================================
+  // 4B. PARTICIPANT AUTHENTICATION GUARDS & FORM PREFILLING
+  // =====================================================================
+  window.openAuthRequiredModal = function (target = 'register') {
+    const modal = document.getElementById('auth-required-modal');
+    if (modal) {
+      modal.classList.add('open');
+    } else {
+      window.location.href = `/login.html?redirect=${encodeURIComponent(target)}`;
+    }
+  };
+
+  window.closeAuthRequiredModal = function (e) {
+    if (e && e.target && e.target.classList.contains('modal-dialog')) return;
+    const modal = document.getElementById('auth-required-modal');
+    if (modal) modal.classList.remove('open');
+  };
+
+  window.checkParticipantAuthPrompt = async function (target = 'register') {
+    if (!window.TechnoritiDB) return true;
+    try {
+      const user = await window.TechnoritiDB.getCurrentUser();
+      if (!user) {
+        window.openAuthRequiredModal(target);
+        return false;
+      }
+      await window.prefillParticipantForms(user);
+      return true;
+    } catch (err) {
+      console.warn('Auth check error:', err);
+      return true;
+    }
+  };
+
+  window.handleRegisterClickProtected = async function () {
+    const isAuth = await window.checkParticipantAuthPrompt('register');
+    if (!isAuth) return;
+    window.openPanel('register');
+  };
+
+  window.prefillParticipantForms = async function (user) {
+    if (!user || !window.TechnoritiDB) return;
+    try {
+      const profile = await window.TechnoritiDB.getParticipantProfile(user.id);
+      const fullName = (profile && profile.full_name) || (user.user_metadata && user.user_metadata.full_name) || '';
+      const rollNumber = (profile && profile.roll_number) || (user.user_metadata && user.user_metadata.roll_number) || '';
+      const college = (profile && profile.college) || (user.user_metadata && user.user_metadata.college) || '';
+      const branch = (profile && profile.branch) || (user.user_metadata && user.user_metadata.branch) || '';
+      const phone = (profile && profile.phone) || (user.user_metadata && user.user_metadata.phone) || '';
+      const email = user.email || (profile && profile.email) || '';
+
+      // Prefill event registration form
+      const regName = document.getElementById('reg-fullname');
+      const regRoll = document.getElementById('reg-roll');
+      const regCollege = document.getElementById('reg-college');
+      const regBranch = document.getElementById('reg-branch');
+      const regPhone = document.getElementById('reg-phone');
+      const regEmail = document.getElementById('reg-email');
+
+      if (regName && (!regName.value || regName.value.length < 2) && fullName) regName.value = fullName;
+      if (regRoll && (!regRoll.value || regRoll.value.length < 2) && rollNumber) regRoll.value = rollNumber;
+      if (regCollege && (!regCollege.value || regCollege.value.length < 2) && college) regCollege.value = college;
+      if (regBranch && (!regBranch.value || regBranch.value.length < 2) && branch) regBranch.value = branch;
+      if (regPhone && (!regPhone.value || regPhone.value.length < 5) && phone) regPhone.value = phone;
+      if (regEmail && (!regEmail.value || !regEmail.value.includes('@')) && email) regEmail.value = email;
+
+      // Prefill accommodation booking form
+      const accomName = document.getElementById('accom-name');
+      const accomRoll = document.getElementById('accom-roll');
+      const accomCollege = document.getElementById('accom-college');
+      const accomBranch = document.getElementById('accom-branch');
+      const accomPhone = document.getElementById('accom-phone');
+      const accomEmail = document.getElementById('accom-email');
+
+      if (accomName && !accomName.value && fullName) accomName.value = fullName;
+      if (accomRoll && !accomRoll.value && rollNumber) accomRoll.value = rollNumber;
+      if (accomCollege && !accomCollege.value && college) accomCollege.value = college;
+      if (accomBranch && !accomBranch.value && branch) accomBranch.value = branch;
+      if (accomPhone && !accomPhone.value && phone) accomPhone.value = phone;
+      if (accomEmail && !accomEmail.value && email) accomEmail.value = email;
+    } catch (err) {
+      console.warn('Form prefill error:', err);
+    }
+  };
+
+  window.updateNavbarAuthState = async function () {
+    if (!window.TechnoritiDB) return;
+    try {
+      const user = await window.TechnoritiDB.getCurrentUser();
+      const loginBtn = document.getElementById('nav-btn-login');
+      const dashBtn = document.getElementById('nav-btn-dashboard');
+      const userAvatar = document.getElementById('nav-user-avatar');
+      const userName = document.getElementById('nav-user-name');
+      const mobileLogin = document.getElementById('mobile-nav-login');
+      const mobileDash = document.getElementById('mobile-nav-dashboard');
+      const mobileDashLabel = document.getElementById('mobile-dashboard-label');
+
+      if (user) {
+        const profile = await window.TechnoritiDB.getParticipantProfile(user.id);
+        const name = (profile && profile.full_name) || (user.user_metadata && user.user_metadata.full_name) || user.email.split('@')[0];
+        const initial = (name || 'P').charAt(0).toUpperCase();
+
+        if (loginBtn) loginBtn.style.display = 'none';
+        if (dashBtn) {
+          dashBtn.style.display = 'inline-flex';
+          if (userAvatar) userAvatar.textContent = initial;
+          if (userName) userName.textContent = name.split(' ')[0] || 'Dashboard';
+        }
+
+        if (mobileLogin) mobileLogin.style.display = 'none';
+        if (mobileDash) {
+          mobileDash.style.display = 'flex';
+          if (mobileDashLabel) mobileDashLabel.textContent = `Dashboard (${name.split(' ')[0]})`;
+        }
+
+        window.prefillParticipantForms(user);
+      } else {
+        if (loginBtn) loginBtn.style.display = 'inline-flex';
+        if (dashBtn) dashBtn.style.display = 'none';
+        if (mobileLogin) mobileLogin.style.display = 'flex';
+        if (mobileDash) mobileDash.style.display = 'none';
+      }
+    } catch (err) {
+      console.warn('updateNavbarAuthState error:', err);
+    }
+  };
+
+  window.handleDashboardDockClick = async function () {
+    if (!window.TechnoritiDB) {
+      window.location.href = '/dashboard.html';
+      return;
+    }
+    const user = await window.TechnoritiDB.getCurrentUser();
+    if (user) {
+      window.location.href = '/dashboard.html';
+    } else {
+      window.location.href = '/login.html?redirect=dashboard';
+    }
+  };
+
+  window.quickRegisterForEvent = async function (eventTitle) {
+    const isAuth = await window.checkParticipantAuthPrompt('register');
+    if (!isAuth) return;
+
     window.openPanel('register');
     const select = document.getElementById('reg-event');
     if (!select) return;
@@ -1670,9 +1813,13 @@
       return;
     }
 
-    // Clean roll number and generate safe backward-compatible email for database
+    // Clean roll number and generate safe email for database
     const cleanRoll = rollNumber.replace(/\s+/g, ' ');
-    const safeEmail = `${cleanRoll.toLowerCase().replace(/[^a-z0-9]/g, '') || 'participant'}@student.bce`;
+    const branchInput = document.getElementById('reg-branch');
+    const branch = branchInput ? branchInput.value.trim() : 'General Engineering';
+    const emailInput = document.getElementById('reg-email');
+    const enteredEmail = emailInput ? emailInput.value.trim().toLowerCase() : '';
+    const safeEmail = enteredEmail || `${cleanRoll.toLowerCase().replace(/[^a-z0-9]/g, '') || 'participant'}@student.bce`;
 
     const feeData = window.updateFeeSummary();
     const isLodging = document.getElementById('reg-opt-lodging')?.checked || false;
@@ -1687,6 +1834,7 @@
     pendingRegistrationData = {
       fullName: name,
       rollNumber: cleanRoll,
+      branch: branch,
       email: safeEmail,
       phone: cleanPhone,
       college: college,
@@ -1857,11 +2005,13 @@
       const regResponse = await window.TechnoritiDB.submitRegistration({
         fullName: data.fullName,
         rollNumber: data.rollNumber,
+        branch: data.branch,
         email: data.email,
         phone: data.phone,
         college: data.college,
         eventId: eventId,
         eventTitle: allEventsTitles,
+        events: data.events,
         teamSize: data.teamSize,
         lodgingRequired: data.lodgingRequired,
         foodingRequired: data.foodingRequired,
@@ -1994,6 +2144,12 @@
     bookingModal.classList.add('open');
     window.updateAccomServiceVisibility();
     window.updateAccomFeeSummary();
+
+    if (window.TechnoritiDB) {
+      window.TechnoritiDB.getCurrentUser().then(user => {
+        if (user) window.prefillParticipantForms(user);
+      }).catch(() => {});
+    }
   };
 
   window.returnToAccomServiceSelector = function () {
@@ -3104,6 +3260,23 @@
     requestAnimationFrame(updateParallax);
   }
 
+  function handleInitialHash() {
+    const hash = (window.location.hash || '').replace('#', '').toLowerCase();
+    if (hash === 'register') {
+      window.handleRegisterClickProtected();
+    } else if (hash === 'competitions') {
+      window.openPanel('competitions');
+    } else if (hash === 'accommodation') {
+      window.openPanel('accommodation');
+    } else if (hash === 'about') {
+      window.openPanel('about');
+    } else if (hash === 'sponsors') {
+      window.openPanel('sponsors');
+    } else if (hash === 'developers') {
+      window.openPanel('developers');
+    }
+  }
+
   function init() {
     applyMobileHeroVisibility();
     resizeCanvas();
@@ -3117,6 +3290,9 @@
     setup3DMouseParallax();
     window.rotateRoomTo(0);
     hydrateDynamicCmsContent();
+    window.updateNavbarAuthState();
+    handleInitialHash();
+    window.addEventListener('hashchange', handleInitialHash);
     requestAnimationFrame(renderLoop);
   }
 

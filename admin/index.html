@@ -82,6 +82,9 @@
 
         <!-- 6. REGISTRATIONS & PAYMENTS -->
         <div class="nav-section-label">Registrations</div>
+        <button class="nav-tab-btn" data-tab="participants">
+          <span>🎓</span> Participant Accounts
+        </button>
         <button class="nav-tab-btn" data-tab="registrations">
           <span>📝</span> Registrations Desk
         </button>
@@ -1416,6 +1419,9 @@
                 <option value="checked_out">Checked Out</option>
                 <option value="cancelled">Cancelled</option>
               </select>
+              <button class="btn-secondary" id="btnExportAccommodations" onclick="exportAccommodationsCSV()" style="padding: 7px 14px; font-size: 0.8rem; white-space:nowrap;">
+                <span>📥</span> Export Bookings CSV
+              </button>
               <button class="btn-primary" id="btnRefreshAccommodations" onclick="loadAccommodationsTable(true)" style="padding: 7px 14px; font-size: 0.8rem; white-space:nowrap;">
                 <span>🔄</span> Refresh Bookings
               </button>
@@ -1442,6 +1448,56 @@
                   <td colspan="9" class="table-empty-state">
                     <div class="table-empty-icon">🏨</div>
                     <div>No accommodation bookings found yet.</div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB: PARTICIPANT ACCOUNTS DESK -->
+      <section id="pane-participants" class="admin-tab-pane">
+        <div class="table-panel">
+          <div class="table-toolbar">
+            <div class="table-search">
+              <span class="table-search-icon">🔍</span>
+              <input type="text" id="partSearchInput" placeholder="Search by student name, roll number, college, email, branch..." oninput="renderParticipantsTable()">
+            </div>
+
+            <div class="table-filters">
+              <select id="partCollegeFilter" class="filter-select" onchange="renderParticipantsTable()">
+                <option value="">All Colleges</option>
+              </select>
+
+              <button class="btn-secondary" id="btnExportParticipants" onclick="exportParticipantsCSV()" style="padding: 7px 14px; font-size: 0.8rem; white-space:nowrap;">
+                <span>📥</span> Export Accounts CSV
+              </button>
+
+              <button class="btn-primary" id="btnRefreshParticipants" onclick="loadParticipantsTable(true)" style="padding: 7px 14px; font-size: 0.8rem; white-space:nowrap;">
+                <span>🔄</span> Refresh Accounts
+              </button>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Roll #</th>
+                  <th>Student Name</th>
+                  <th>College / Institution</th>
+                  <th>Branch &amp; Year</th>
+                  <th>Contact Info</th>
+                  <th>Registered At</th>
+                  <th style="text-align: right;">Action</th>
+                </tr>
+              </thead>
+              <tbody id="participantsTableBody">
+                <tr>
+                  <td colspan="7" class="table-empty-state">
+                    <div class="table-empty-icon">⏳</div>
+                    <div>Loading registered participant accounts from Supabase...</div>
                   </td>
                 </tr>
               </tbody>
@@ -1478,6 +1534,9 @@
                 <option value="rejected">Payment Rejected</option>
               </select>
 
+              <button class="btn-secondary" id="btnExportRegistrationsDesk" onclick="exportRegistrationsCSV()" style="padding: 7px 14px; font-size: 0.8rem; white-space:nowrap;">
+                <span>📥</span> Export Registrations CSV
+              </button>
               <button class="btn-primary" id="btnRefreshRegistrations" onclick="loadRegistrationsTable(true)" style="padding: 7px 14px; font-size: 0.8rem; white-space:nowrap;">
                 <span>🔄</span> Refresh Desk
               </button>
@@ -2222,6 +2281,32 @@
       </div>
       <div style="flex: 1; padding: 0; background: #000; overflow: hidden;">
         <iframe id="previewIframe" src="/" style="width: 100%; height: 100%; border: none;"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <!-- 9. PARTICIPANT ACCOUNT DETAILS MODAL -->
+  <div id="participantDetailModal" class="modal-overlay">
+    <div class="modal-box" style="max-width: 680px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modalPartTitle">Participant Student Account</h3>
+        <button class="modal-close" onclick="closeModal('participantDetailModal')">✕</button>
+      </div>
+      <div class="modal-body" id="modalPartBody">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 10. ACCOMMODATION BOOKING DETAILS MODAL -->
+  <div id="accomDetailModal" class="modal-overlay">
+    <div class="modal-box" style="max-width: 680px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modalAccomTitle">Hostel Accommodation Details</h3>
+        <button class="modal-close" onclick="closeModal('accomDetailModal')">✕</button>
+      </div>
+      <div class="modal-body" id="modalAccomBody">
+        <!-- Rendered by JS -->
       </div>
     </div>
   </div>

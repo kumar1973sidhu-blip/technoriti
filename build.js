@@ -56,6 +56,9 @@ console.log('✅ [Build] env-config.js generated with public Supabase configurat
 // 3. Static files to copy from root to dist
 const rootFilesToCopy = [
   'index.html',
+  'login.html',
+  'signup.html',
+  'dashboard.html',
   'styles.css',
   'script.js',
   'supabase-client.js',
@@ -120,6 +123,9 @@ console.log('✅ [Build] Successfully copied complete admin portal to dist/admin
 // 6. Comprehensive Verification Audit
 const verificationChecks = [
   'index.html',
+  'login.html',
+  'signup.html',
+  'dashboard.html',
   'styles.css',
   'script.js',
   'supabase-client.js',

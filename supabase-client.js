@@ -168,6 +168,22 @@
         const rollNumber = (regData.rollNumber || '').trim();
         const safeEmail = (regData.email || '').trim().toLowerCase() || (rollNumber ? `${rollNumber.toLowerCase().replace(/[^a-z0-9]/g, '')}@student.bce` : 'participant@student.bce');
 
+        // Check authenticated user ID
+        let userId = regData.userId || null;
+        if (!userId) {
+          try {
+            const { data: { session } } = await sb.auth.getSession();
+            if (session && session.user) {
+              userId = session.user.id;
+            }
+          } catch (_) {}
+        }
+
+        const selectedEvents = Array.isArray(regData.events) ? regData.events : (regData.selectedEvents || []);
+        const eventsTitles = selectedEvents.length > 0 
+          ? selectedEvents.map(e => e.title || e.id).join(', ') 
+          : (regData.eventTitle || 'Competition');
+
         // 1. If accommodation or fooding is requested, create an accommodation booking record
         if (needsServices) {
           bookingId = generateUUID();
@@ -175,6 +191,7 @@
 
           const accomPayload = {
             id: bookingId,
+            user_id: userId,
             full_name: (regData.fullName || '').trim(),
             email: safeEmail,
             phone: (regData.phone || '').trim(),
@@ -186,7 +203,17 @@
             daily_rate: dailyRate,
             total_fee: calculatedServicesTotal,
             status: 'requested',
-            admin_notes: `Roll: ${rollNumber || 'N/A'} | Linked Event: ${regData.eventTitle} | ${servicesTag}`
+            has_lodging: isLodging,
+            lodging_days: lodgingDays,
+            lodging_subtotal: lodgingSubtotal,
+            has_food: isFooding,
+            food_days: foodingDays,
+            food_subtotal: foodingSubtotal,
+            payment_reference: regData.paymentReference || '',
+            roll_number: rollNumber,
+            branch: (regData.branch || '').trim(),
+            academic_year: (regData.academicYear || '').trim(),
+            admin_notes: `Roll: ${rollNumber || 'N/A'} | Linked Event: ${eventsTitles} | ${servicesTag}`
           };
 
           const { error: accomErr } = await sb
@@ -194,7 +221,23 @@
             .insert(accomPayload);
 
           if (accomErr) {
-            console.warn('[Technoriti Supabase] Accommodation booking note:', accomErr.message);
+            console.warn('[Technoriti Supabase] Detailed accom insert error, retrying base payload:', accomErr.message);
+            const baseAccomPayload = {
+              id: bookingId,
+              full_name: accomPayload.full_name,
+              email: accomPayload.email,
+              phone: accomPayload.phone,
+              college: accomPayload.college,
+              gender: accomPayload.gender,
+              hostel_block: accomPayload.hostel_block,
+              days_count: accomPayload.days_count,
+              members_count: accomPayload.members_count,
+              daily_rate: accomPayload.daily_rate,
+              total_fee: accomPayload.total_fee,
+              status: accomPayload.status,
+              admin_notes: accomPayload.admin_notes
+            };
+            await sb.from('accommodation_bookings').insert(baseAccomPayload);
           }
         }
 
@@ -204,7 +247,7 @@
           const teamPayload = {
             id: teamId,
             team_name: `${(regData.fullName || 'Participant').trim()}'s Team`,
-            event_id: regData.eventId,
+            event_id: regData.eventId || (selectedEvents[0] && selectedEvents[0].id) || 'general',
             college: (regData.college || '').trim(),
             leader_name: (regData.fullName || '').trim(),
             leader_email: safeEmail,
@@ -221,12 +264,17 @@
         // 3. Insert into central registrations table (pure insert without .select('*') to bypass RLS SELECT restriction)
         const regPayload = {
           id: regId,
+          user_id: userId,
           full_name: (regData.fullName || '').trim(),
           email: safeEmail,
           phone: (regData.phone || '').trim(),
           college: (regData.college || '').trim(),
-          event_id: regData.eventId,
-          event_title: regData.eventTitle,
+          roll_number: rollNumber,
+          branch: (regData.branch || '').trim(),
+          academic_year: (regData.academicYear || '').trim(),
+          event_id: regData.eventId || (selectedEvents[0] && selectedEvents[0].id) || 'general',
+          event_title: eventsTitles,
+          selected_events: selectedEvents,
           team_id: teamId,
           team_size: teamSize,
           needs_accommodation: needsServices,
@@ -236,7 +284,7 @@
           total_amount: verifiedTotal,
           payment_status: 'pending',
           payment_reference: regData.paymentReference || '',
-          admin_notes: `Roll: ${rollNumber || 'N/A'} | Competitions: ${regData.eventTitle} | Portal Submission | Ref: ${regData.refId || regId.slice(0, 8).toUpperCase()} | ${servicesTag}`
+          admin_notes: `Roll: ${rollNumber || 'N/A'} | Competitions: ${eventsTitles} | Portal Submission | Ref: ${regData.refId || regId.slice(0, 8).toUpperCase()} | ${servicesTag}`
         };
 
         const { error: regErr } = await sb
@@ -244,8 +292,31 @@
           .insert(regPayload);
 
         if (regErr) {
-          console.error('[Technoriti Supabase] Registration insert failed:', regErr);
-          throw new Error(regErr.message || 'Failed to record registration in database.');
+          console.warn('[Technoriti Supabase] Detailed registration insert note, falling back to base schema:', regErr.message);
+          const fallbackPayload = {
+            id: regId,
+            full_name: regPayload.full_name,
+            email: regPayload.email,
+            phone: regPayload.phone,
+            college: regPayload.college,
+            event_id: regPayload.event_id,
+            event_title: regPayload.event_title,
+            team_id: regPayload.team_id,
+            team_size: regPayload.team_size,
+            needs_accommodation: regPayload.needs_accommodation,
+            accommodation_booking_id: regPayload.accommodation_booking_id,
+            event_fee: regPayload.event_fee,
+            accommodation_fee: regPayload.accommodation_fee,
+            total_amount: regPayload.total_amount,
+            payment_status: regPayload.payment_status,
+            payment_reference: regPayload.payment_reference,
+            admin_notes: regPayload.admin_notes
+          };
+          const { error: fbErr } = await sb.from('registrations').insert(fallbackPayload);
+          if (fbErr) {
+            console.error('[Technoriti Supabase] Registration fallback insert failed:', fbErr);
+            throw new Error(fbErr.message || 'Failed to record registration in database.');
+          }
         }
 
         // 4. Log transaction in payments audit table
@@ -640,58 +711,125 @@
       const normalizedGender = validGenders.includes(gender) ? gender : 'male';
       const hostelBlock = normalizedGender === 'female' ? 'Girls Hostel Block' : 'Boys Hostel Block';
 
-      const membersCount = parseInt(booking.occupants, 10) || 1;
-      const daysCount = parseInt(booking.daysCount, 10) || 2;
-      const isLodging = booking.lodgingRequired !== false;
-      const isFooding = booking.foodRequired === true;
+      const membersCount = parseInt(booking.occupants || booking.membersCount, 10) || 1;
+      const isLodging = booking.lodgingRequired !== false && booking.isLodging !== false;
+      const isFooding = booking.foodRequired === true || booking.isFooding === true;
 
       if (!isLodging && !isFooding) {
         throw new Error('Please select at least one service: Lodging / Hostel or Fooding / Campus Mess.');
       }
 
-      const lodgingSubtotal = isLodging ? (50 * daysCount * membersCount) : 0;
-      const foodingSubtotal = isFooding ? (125 * daysCount * membersCount) : 0;
+      // Independent duration selectors for lodging and mess food
+      const lodgingDays = isLodging ? (parseInt(booking.lodgingDays, 10) || parseInt(booking.daysCount, 10) || 2) : 0;
+      const foodDays = isFooding ? (parseInt(booking.foodDays, 10) || parseInt(booking.daysCount, 10) || 2) : 0;
+      const serviceDaysMax = Math.max(lodgingDays, foodDays, 1);
+
+      const lodgingSubtotal = isLodging ? (50 * lodgingDays * membersCount) : 0;
+      const foodingSubtotal = isFooding ? (125 * foodDays * membersCount) : 0;
       let discount = (isLodging && membersCount >= 12) ? 250 : ((isLodging && membersCount >= 4) ? 150 : 0);
       const calculatedTotal = Math.max(0, lodgingSubtotal + foodingSubtotal - discount);
       const totalFee = parseInt(booking.totalFee, 10) || calculatedTotal;
       const dailyRate = (isLodging ? 50 : 0) + (isFooding ? 125 : 0);
 
+      // Check user_id
+      let userId = booking.userId || null;
+      if (!userId) {
+        try {
+          const { data: { session } } = await sb.auth.getSession();
+          if (session && session.user) {
+            userId = session.user.id;
+          }
+        } catch (_) {}
+      }
+
+      const bookingId = (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+        const r = Math.random() * 16 | 0; return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+      });
+
       const notesArr = [
-        `Services: [Lodging: ${isLodging ? 'YES' : 'NO'} (₹${lodgingSubtotal}) | Fooding: ${isFooding ? 'YES' : 'NO'} (₹${foodingSubtotal})]`,
+        `Services: [Lodging: ${isLodging ? 'YES (' + lodgingDays + 'd, ₹' + lodgingSubtotal + ')' : 'NO'} | Fooding: ${isFooding ? 'YES (' + foodDays + 'd, ₹' + foodingSubtotal + ')' : 'NO'}]`,
         `Branch: ${booking.branch || 'Not specified'}`,
         `Roll: ${booking.rollNumber || 'N/A'}`,
         `Type: ${booking.bookingType || 'Solo'}`,
+        booking.paymentReference ? `Payment Ref: ${booking.paymentReference}` : '',
         `Arrival: ${booking.arrival || 'Dec 2026'}`,
         booking.preferences ? `Notes: ${booking.preferences}` : ''
       ].filter(Boolean);
 
       const payload = {
+        id: bookingId,
+        user_id: userId,
         full_name: booking.fullName.trim(),
         email: booking.email.trim().toLowerCase(),
         phone: booking.phone.trim(),
         college: booking.college.trim(),
         gender: normalizedGender,
-        hostel_block: hostelBlock,
-        days_count: daysCount,
+        hostel_block: isLodging ? hostelBlock : 'Not Applicable (Campus Mess Dining Pass)',
+        room_number: booking.roomNumber || null,
+        days_count: serviceDaysMax,
         members_count: membersCount,
         daily_rate: dailyRate,
         total_fee: totalFee,
         status: 'requested',
+        has_lodging: isLodging,
+        lodging_days: lodgingDays,
+        lodging_subtotal: lodgingSubtotal,
+        has_food: isFooding,
+        food_days: foodDays,
+        food_subtotal: foodingSubtotal,
+        payment_reference: booking.paymentReference || '',
+        roll_number: booking.rollNumber || '',
+        branch: booking.branch || '',
+        academic_year: booking.academicYear || '',
         admin_notes: notesArr.join(' | ')
       };
 
-      const { data, error } = await sb
-        .from('accommodation_bookings')
-        .insert(payload)
-        .select('*')
-        .single();
+      try {
+        const { data, error } = await sb
+          .from('accommodation_bookings')
+          .insert(payload)
+          .select('*')
+          .single();
 
-      if (error) {
-        console.error('[TechnoritiDB] Booking failed:', error);
-        throw new Error(error.message || 'Failed to submit accommodation booking.');
+        if (error) {
+          console.warn('[TechnoritiDB] Full accom insert note, retrying base schema:', error.message);
+          const basePayload = {
+            id: bookingId,
+            full_name: payload.full_name,
+            email: payload.email,
+            phone: payload.phone,
+            college: payload.college,
+            gender: payload.gender,
+            hostel_block: payload.hostel_block,
+            days_count: payload.days_count,
+            members_count: payload.members_count,
+            daily_rate: payload.daily_rate,
+            total_fee: payload.total_fee,
+            status: payload.status,
+            admin_notes: payload.admin_notes
+          };
+          const { data: baseData, error: baseErr } = await sb
+            .from('accommodation_bookings')
+            .insert(basePayload)
+            .select('*')
+            .single();
+
+          if (baseErr) throw baseErr;
+          return { success: true, booking: baseData || basePayload };
+        }
+
+        return { success: true, booking: data || payload };
+      } catch (err) {
+        console.error('[TechnoritiDB] Booking failed:', err);
+        throw new Error(err.message || 'Failed to submit accommodation booking.');
       }
+    },
 
-      return { success: true, booking: data };
+    /**
+     * Alias for decoupled accommodation booking submission
+     */
+    async submitIndependentAccommodation(booking) {
+      return this.submitAccommodationBooking(booking);
     },
 
     // Accommodation FAQs CMS
@@ -1010,6 +1148,317 @@
         return matched ? matched.role : null;
       } catch (err) {
         return null;
+      }
+    },
+
+    // =====================================================================
+    // PARTICIPANT AUTHENTICATION & PROFILE METHODS
+    // =====================================================================
+
+    /**
+     * Participant Sign-Up
+     * Registers a new participant via Supabase Auth and populates public.profiles
+     */
+    async signUpParticipant(userData) {
+      const sb = getSupabase();
+      if (!sb) {
+        return { success: false, error: 'Database service is currently unreachable. Please check your internet.' };
+      }
+
+      const email = (userData.email || '').trim().toLowerCase();
+      const password = userData.password || '';
+      const fullName = (userData.fullName || '').trim();
+      const college = (userData.college || '').trim();
+      const branch = (userData.branch || '').trim();
+      const academicYear = (userData.academicYear || '').trim();
+      const rollNumber = (userData.rollNumber || '').trim();
+      const phone = (userData.phone || '').trim().replace(/\D/g, '').slice(-10);
+
+      if (!email || !password) {
+        return { success: false, error: 'Email and password are required.' };
+      }
+      if (password.length < 6) {
+        return { success: false, error: 'Password must be at least 6 characters long.' };
+      }
+      if (!fullName) {
+        return { success: false, error: 'Full Name is required.' };
+      }
+      if (!rollNumber) {
+        return { success: false, error: 'Roll Number is required.' };
+      }
+      if (!college) {
+        return { success: false, error: 'College / University name is required.' };
+      }
+
+      try {
+        const { data, error } = await sb.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              full_name: fullName,
+              college: college,
+              branch: branch,
+              academic_year: academicYear,
+              roll_number: rollNumber,
+              phone: phone
+            }
+          }
+        });
+
+        if (error) {
+          if (error.message && error.message.toLowerCase().includes('already registered')) {
+            return { success: false, error: 'An account with this email address already exists. Please sign in instead.' };
+          }
+          return { success: false, error: error.message || 'Registration failed. Please check your details.' };
+        }
+
+        if (!data || !data.user) {
+          return { success: false, error: 'Sign-up failed: No user record was created.' };
+        }
+
+        const user = data.user;
+
+        // Upsert into public.profiles
+        try {
+          await sb.from('profiles').upsert({
+            id: user.id,
+            email: email,
+            full_name: fullName,
+            college: college,
+            branch: branch,
+            academic_year: academicYear,
+            roll_number: rollNumber,
+            phone: phone,
+            updated_at: new Date().toISOString()
+          }, { onConflict: 'id' });
+        } catch (profErr) {
+          console.warn('[TechnoritiDB] Profile upsert note:', profErr.message);
+        }
+
+        return {
+          success: true,
+          user: user,
+          session: data.session,
+          requiresEmailConfirmation: !data.session
+        };
+      } catch (err) {
+        console.error('[TechnoritiDB] signUpParticipant exception:', err);
+        return { success: false, error: err.message || 'An unexpected error occurred during sign up.' };
+      }
+    },
+
+    /**
+     * Participant Sign-In
+     */
+    async signInParticipant(email, password) {
+      const sb = getSupabase();
+      if (!sb) {
+        return { success: false, error: 'Database service is currently unreachable. Check your connection.' };
+      }
+
+      try {
+        const { data, error } = await sb.auth.signInWithPassword({
+          email: (email || '').trim().toLowerCase(),
+          password: password || ''
+        });
+
+        if (error) {
+          return { success: false, error: error.message || 'Invalid email or password.' };
+        }
+
+        if (!data || !data.user) {
+          return { success: false, error: 'Sign in failed: No user found.' };
+        }
+
+        return {
+          success: true,
+          user: data.user,
+          session: data.session
+        };
+      } catch (err) {
+        console.error('[TechnoritiDB] signInParticipant exception:', err);
+        return { success: false, error: err.message || 'An unexpected error occurred during sign in.' };
+      }
+    },
+
+    /**
+     * Send Password Reset Email
+     */
+    async resetPassword(email) {
+      const sb = getSupabase();
+      if (!sb) return { success: false, error: 'Database service is currently unreachable.' };
+
+      try {
+        const redirectUrl = (typeof window !== 'undefined' && window.location) 
+          ? `${window.location.origin}/login.html` 
+          : 'https://technoriti-nine.vercel.app/login.html';
+
+        const { error } = await sb.auth.resetPasswordForEmail((email || '').trim().toLowerCase(), {
+          redirectTo: redirectUrl
+        });
+
+        if (error) {
+          return { success: false, error: error.message };
+        }
+
+        return { success: true };
+      } catch (err) {
+        return { success: false, error: err.message || 'Could not send reset email.' };
+      }
+    },
+
+    /**
+     * Fetch profile for current participant
+     */
+    async getParticipantProfile(userId) {
+      const sb = getSupabase();
+      if (!sb || !userId) return null;
+
+      try {
+        const { data, error } = await sb
+          .from('profiles')
+          .select('*')
+          .eq('id', userId)
+          .single();
+
+        if (error) {
+          // If error, attempt from auth metadata
+          const user = await this.getCurrentUser();
+          if (user && user.id === userId && user.user_metadata) {
+            return {
+              id: user.id,
+              email: user.email,
+              full_name: user.user_metadata.full_name || '',
+              college: user.user_metadata.college || '',
+              branch: user.user_metadata.branch || '',
+              academic_year: user.user_metadata.academic_year || '',
+              roll_number: user.user_metadata.roll_number || '',
+              phone: user.user_metadata.phone || ''
+            };
+          }
+          return null;
+        }
+
+        return data;
+      } catch (err) {
+        console.warn('[TechnoritiDB] getParticipantProfile exception:', err);
+        return null;
+      }
+    },
+
+    /**
+     * Update participant profile details
+     */
+    async updateParticipantProfile(userId, updates) {
+      const sb = getSupabase();
+      if (!sb || !userId) throw new Error('Supabase client unavailable');
+
+      const payload = {
+        ...updates,
+        updated_at: new Date().toISOString()
+      };
+
+      const { data, error } = await sb
+        .from('profiles')
+        .update(payload)
+        .eq('id', userId)
+        .select('*')
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+
+    /**
+     * Fetch registered competitions strictly for the specified participant
+     */
+    async getParticipantRegistrations(userId, email) {
+      const sb = getSupabase();
+      if (!sb) return [];
+
+      try {
+        let query = sb.from('registrations').select('*');
+
+        if (userId && email) {
+          query = query.or(`user_id.eq.${userId},email.eq.${email.toLowerCase()}`);
+        } else if (userId) {
+          query = query.eq('user_id', userId);
+        } else if (email) {
+          query = query.eq('email', email.toLowerCase());
+        } else {
+          return [];
+        }
+
+        const { data, error } = await query.order('created_at', { ascending: false });
+        if (error) {
+          console.warn('[TechnoritiDB] getParticipantRegistrations note:', error.message);
+          return [];
+        }
+        return data || [];
+      } catch (err) {
+        console.warn('[TechnoritiDB] getParticipantRegistrations exception:', err);
+        return [];
+      }
+    },
+
+    /**
+     * Fetch accommodation bookings strictly for the specified participant
+     */
+    async getParticipantAccommodations(userId, email) {
+      const sb = getSupabase();
+      if (!sb) return [];
+
+      try {
+        let query = sb.from('accommodation_bookings').select('*');
+
+        if (userId && email) {
+          query = query.or(`user_id.eq.${userId},email.eq.${email.toLowerCase()}`);
+        } else if (userId) {
+          query = query.eq('user_id', userId);
+        } else if (email) {
+          query = query.eq('email', email.toLowerCase());
+        } else {
+          return [];
+        }
+
+        const { data, error } = await query.order('created_at', { ascending: false });
+        if (error) {
+          console.warn('[TechnoritiDB] getParticipantAccommodations note:', error.message);
+          return [];
+        }
+        return data || [];
+      } catch (err) {
+        console.warn('[TechnoritiDB] getParticipantAccommodations exception:', err);
+        return [];
+      }
+    },
+
+    /**
+     * Fetch all participant accounts for Admin Desk
+     */
+    async getParticipantAccountsAdmin() {
+      const sb = getSupabase();
+      if (!sb) return { data: [] };
+
+      try {
+        const { data, error } = await sb
+          .from('profiles')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          console.warn('[TechnoritiDB] getParticipantAccountsAdmin note:', error.message);
+          return { data: [] };
+        }
+        const list = data || [];
+        list.data = list;
+        return list;
+      } catch (err) {
+        console.warn('[TechnoritiDB] getParticipantAccountsAdmin exception:', err);
+        const list = [];
+        list.data = list;
+        return list;
       }
     }
   };

@@ -31,6 +31,7 @@
     sponsors: [],
     accommodationOptions: [],
     accommodations: [],
+    participants: [],
     registrations: [],
     payments: [],
     media: [],
@@ -115,6 +116,7 @@
         'sponsors': ['Sponsors & Partners Desk', 'Manage title sponsors, tech partners, emblems, and click-through links'],
         'accommodation-tariffs': ['Accommodation Tariffs & Logistics', 'Configure lodging and food fees, bed inventory, and coordinators'],
         'accommodations': ['Hostel Bookings Desk', 'Review outstation student stay applications and allot campus rooms'],
+        'participants': ['Participant Student Accounts', 'Directory of registered festival participants, colleges, branches, and rolls'],
         'registrations': ['Participant Registrations Desk', 'Search, filter, inspect, and verify all festival participant submissions'],
         'payments': ['Financial Ledger & Receipts', 'Verify UPI transactions, inspect receipts, and manage refunds'],
         'media': ['Media Library & Asset Manager', 'Upload and manage logos, banners, event graphics, and documents'],
@@ -132,7 +134,9 @@
     if (sidebar) sidebar.classList.remove('open');
 
     // Trigger tab-specific refresh
-    if (tabName === 'registrations') {
+    if (tabName === 'participants') {
+      window.loadParticipantsTable();
+    } else if (tabName === 'registrations') {
       window.loadRegistrationsTable();
     } else if (tabName === 'accommodations') {
       window.loadAccommodationsTable();
@@ -250,6 +254,7 @@
         sponsors,
         accommodationOptions,
         accommodations,
+        participants,
         registrations,
         payments,
         media,
@@ -262,6 +267,7 @@
         safeFetch(() => TechnoritiDB.getAllSponsorsAdmin()),
         safeFetch(() => TechnoritiDB.getAccommodationOptions()),
         safeFetch(() => TechnoritiDB.getAccommodationBookingsAdmin ? TechnoritiDB.getAccommodationBookingsAdmin() : client.from('accommodation_bookings').select('*').order('created_at', { ascending: false })),
+        safeFetch(() => TechnoritiDB.getParticipantAccountsAdmin ? TechnoritiDB.getParticipantAccountsAdmin() : client.from('profiles').select('*').order('created_at', { ascending: false })),
         safeFetch(() => TechnoritiDB.getRegistrationsAdmin()),
         safeFetch(() => TechnoritiDB.getPaymentsAdmin ? TechnoritiDB.getPaymentsAdmin() : client.from('payments').select('*, registrations:registration_id(full_name, email, event_title)').order('created_at', { ascending: false })),
         safeFetch(() => TechnoritiDB.getMediaAssets()),
@@ -275,6 +281,7 @@
       state.sponsors = sponsors;
       state.accommodationOptions = accommodationOptions;
       state.accommodations = accommodations;
+      state.participants = participants;
       state.registrations = registrations;
       state.payments = payments;
       state.media = media;
@@ -307,6 +314,8 @@
       ['renderFaqEditorList', renderFaqEditorList],
       ['renderPaymentGatewayConfig', renderPaymentGatewayConfig],
       ['renderAccommodationsTable', renderAccommodationsTable],
+      ['populateParticipantCollegesFilter', populateParticipantCollegesFilter],
+      ['renderParticipantsTable', renderParticipantsTable],
       ['renderRegistrationsTable', renderRegistrationsTable],
       ['renderPaymentsTable', renderPaymentsTable],
       ['renderMediaGrid', renderMediaGrid],
@@ -2693,53 +2702,57 @@
     }
 
     tbody.innerHTML = filtered.map((acc, index) => {
-      const bookId = `ACC-${100 + index}`;
+      const bookId = acc.booking_reference || ('ACC-' + (100 + index));
       const name = acc.full_name || acc.guest_name || 'Guest Participant';
       const college = acc.college || 'Outstation College';
       const gender = acc.gender || 'male';
       const block = acc.hostel_block || (gender === 'female' ? 'Girls Hostel' : 'Boys Hostel');
-      const dates = `${acc.days_count || 2} Days (${acc.members_count || 1} Person)`;
       const room = acc.room_number || 'Unallotted';
       const statusClass = acc.status === 'checked_in' || acc.status === 'allotted' ? 'badge-verified' : acc.status === 'cancelled' ? 'badge-rejected' : 'badge-pending';
 
-      let serviceLabel = 'Lodging + Food';
-      let serviceStyle = 'color:#c084fc; border:1px solid rgba(192,132,252,0.35); background:rgba(192,132,252,0.1);';
       const notes = acc.admin_notes || '';
+      let roll = acc.roll_number || '';
+      if (!roll && notes) {
+        const rMatch = notes.match(/Roll(?: Number)?:?\s*([A-Za-z0-9\/\-_.]+)/i);
+        if (rMatch && rMatch[1]) roll = rMatch[1];
+      }
+
       const lMatch = notes.match(/Lodging:\s*(YES|NO)(?:\s*\(([0-9]+)d,\s*₹?([0-9]+)\))?/i);
       const fMatch = notes.match(/Fooding:\s*(YES|NO)(?:\s*\(([0-9]+)d,\s*₹?([0-9]+)\))?/i);
-      const isL = lMatch ? lMatch[1].toUpperCase() === 'YES' : notes.includes('Lodging: YES');
-      const isF = fMatch ? fMatch[1].toUpperCase() === 'YES' : notes.includes('Fooding: YES');
-      const lDays = lMatch && lMatch[2] ? lMatch[2] : (acc.days_count || 2);
-      const fDays = fMatch && fMatch[2] ? fMatch[2] : (acc.days_count || 2);
-
-      if (isL && isF) {
-        serviceLabel = `Hostel (${lDays}d) + Mess (${fDays}d)`;
-        serviceStyle = 'color:#c084fc; border:1px solid rgba(192,132,252,0.35); background:rgba(192,132,252,0.1);';
-      } else if (isL) {
-        serviceLabel = `Hostel (${lDays}d)`;
-        serviceStyle = 'color:#38bdf8; border:1px solid rgba(56,189,248,0.35); background:rgba(56,189,248,0.1);';
-      } else if (isF) {
-        serviceLabel = `Mess Food (${fDays}d)`;
-        serviceStyle = 'color:#fbbf24; border:1px solid rgba(251,191,36,0.35); background:rgba(251,191,36,0.1);';
-      }
+      const isL = acc.has_lodging !== undefined && acc.has_lodging !== null ? !!acc.has_lodging : (lMatch ? lMatch[1].toUpperCase() === 'YES' : (notes.includes('Lodging: YES') || !!acc.lodging_required));
+      const isF = acc.has_food !== undefined && acc.has_food !== null ? !!acc.has_food : (fMatch ? fMatch[1].toUpperCase() === 'YES' : (notes.includes('Fooding: YES') || !!acc.fooding_required));
+      const lDays = acc.lodging_days !== undefined && acc.lodging_days !== null ? acc.lodging_days : (lMatch && lMatch[2] ? parseInt(lMatch[2], 10) : (isL ? (acc.days_count || 2) : 0));
+      const fDays = acc.food_days !== undefined && acc.food_days !== null ? acc.food_days : (fMatch && fMatch[2] ? parseInt(fMatch[2], 10) : (isF ? (acc.days_count || 2) : 0));
+      const lFee = acc.lodging_subtotal !== undefined && acc.lodging_subtotal !== null ? acc.lodging_subtotal : (lMatch && lMatch[3] ? parseInt(lMatch[3], 10) : (isL ? lDays * 50 : 0));
+      const fFee = acc.food_subtotal !== undefined && acc.food_subtotal !== null ? acc.food_subtotal : (fMatch && fMatch[3] ? parseInt(fMatch[3], 10) : (isF ? fDays * 125 : 0));
+      const totalAmount = acc.total_fee || acc.total_amount || (lFee + fFee);
 
       return `
         <tr>
-          <td style="font-family:var(--font-orbitron); font-size:0.78rem; color:var(--accent-cyan);">${bookId}</td>
-          <td style="font-weight:700; color:#fff;">${escapeHtml(name)}</td>
+          <td style="font-family:var(--font-orbitron); font-size:0.78rem; color:var(--accent-cyan); font-weight:700;">${escapeHtml(bookId)}</td>
+          <td>
+            <div style="font-weight:700; color:#fff;">${escapeHtml(name)}</div>
+            ${roll ? `<div style="font-size:0.75rem; color:var(--accent-yellow); font-family:var(--font-orbitron); font-weight:700; margin-top:1px;">Roll: ${escapeHtml(roll)}</div>` : ''}
+            ${acc.email ? `<div style="font-size:0.72rem; color:var(--text-dim); margin-top:1px;">${escapeHtml(acc.email)}</div>` : ''}
+          </td>
           <td>${escapeHtml(college)}</td>
           <td><span style="font-size:0.78rem; color:var(--text-dim);">${escapeHtml(block)}</span></td>
           <td style="font-size:0.8rem; color:var(--text-muted);">
-            <div>${dates}</div>
-            <span style="display:inline-block; margin-top:3px; font-size:0.68rem; padding:1px 6px; border-radius:4px; font-weight:700; ${serviceStyle}">${serviceLabel}</span>
+            <div style="font-weight:700; color:var(--accent-yellow);">₹${totalAmount}</div>
+            <div style="display:flex; flex-direction:column; gap:2px; margin-top:3px;">
+              ${isL ? `<span style="font-size:0.7rem; color:#38bdf8; font-weight:600;">🛏️ Hostel: ${lDays}d (₹${lFee})</span>` : ''}
+              ${isF ? `<span style="font-size:0.7rem; color:#fbbf24; font-weight:600;">🍱 Mess: ${fDays}d (₹${fFee})</span>` : ''}
+              ${!isL && !isF ? `<span style="font-size:0.7rem; color:var(--text-dim);">No services selected</span>` : ''}
+            </div>
           </td>
           <td>${escapeHtml(acc.phone || '—')}</td>
           <td><strong style="color:var(--accent-yellow);">${escapeHtml(room)}</strong></td>
           <td><span class="badge-status ${statusClass}">${escapeHtml(acc.status || 'requested')}</span></td>
           <td style="text-align:right;">
             <div style="display:inline-flex; gap:6px;">
-              <button class="btn-action-icon verify" onclick="openAllotRoomModal('${acc.id}', '${escapeHtml(name)}')">Allot</button>
-              <button class="btn-action-icon" onclick="updateBookingStatus('${acc.id}', 'checked_in')">Check In</button>
+              <button class="btn-action-icon" onclick="viewAccommodationDetail('${acc.id}')" title="Inspect Booking Details">👁️</button>
+              <button class="btn-action-icon verify" onclick="openAllotRoomModal('${acc.id}', '${escapeHtml(name)}')" title="Allot Room">Allot</button>
+              <button class="btn-action-icon" onclick="updateBookingStatus('${acc.id}', 'checked_in')" title="Mark Checked In">Check In</button>
             </div>
           </td>
         </tr>
@@ -2795,6 +2808,131 @@
     } catch (err) {
       showToast('Update failed: ' + err.message, 'error');
     }
+  };
+
+  window.viewAccommodationDetail = function (id) {
+    const acc = state.accommodations.find(a => a.id === id);
+    if (!acc) return;
+
+    const modalBody = document.getElementById('modalAccomBody');
+    const modalTitle = document.getElementById('modalAccomTitle');
+    const bookId = acc.booking_reference || ('ACC-' + acc.id.slice(0, 8).toUpperCase());
+    if (modalTitle) modalTitle.textContent = `Hostel Booking Pass: ${bookId}`;
+
+    const notes = acc.admin_notes || '';
+    let roll = acc.roll_number || '';
+    if (!roll && notes) {
+      const rMatch = notes.match(/Roll(?: Number)?:?\s*([A-Za-z0-9\/\-_.]+)/i);
+      if (rMatch && rMatch[1]) roll = rMatch[1];
+    }
+
+    const lMatch = notes.match(/Lodging:\s*(YES|NO)(?:\s*\(([0-9]+)d,\s*₹?([0-9]+)\))?/i);
+    const fMatch = notes.match(/Fooding:\s*(YES|NO)(?:\s*\(([0-9]+)d,\s*₹?([0-9]+)\))?/i);
+    const isL = acc.has_lodging !== undefined && acc.has_lodging !== null ? !!acc.has_lodging : (lMatch ? lMatch[1].toUpperCase() === 'YES' : (notes.includes('Lodging: YES') || !!acc.lodging_required));
+    const isF = acc.has_food !== undefined && acc.has_food !== null ? !!acc.has_food : (fMatch ? fMatch[1].toUpperCase() === 'YES' : (notes.includes('Fooding: YES') || !!acc.fooding_required));
+    const lDays = acc.lodging_days !== undefined && acc.lodging_days !== null ? acc.lodging_days : (lMatch && lMatch[2] ? parseInt(lMatch[2], 10) : (isL ? (acc.days_count || 2) : 0));
+    const fDays = acc.food_days !== undefined && acc.food_days !== null ? acc.food_days : (fMatch && fMatch[2] ? parseInt(fMatch[2], 10) : (isF ? (acc.days_count || 2) : 0));
+    const lFee = acc.lodging_subtotal !== undefined && acc.lodging_subtotal !== null ? acc.lodging_subtotal : (lMatch && lMatch[3] ? parseInt(lMatch[3], 10) : (isL ? lDays * 50 : 0));
+    const fFee = acc.food_subtotal !== undefined && acc.food_subtotal !== null ? acc.food_subtotal : (fMatch && fMatch[3] ? parseInt(fMatch[3], 10) : (isF ? fDays * 125 : 0));
+    const totalAmount = acc.total_fee || acc.total_amount || (lFee + fFee);
+
+    if (modalBody) {
+      modalBody.innerHTML = `
+        <div id="printableAccomSlip">
+          <div style="border-bottom:2px solid var(--admin-border); padding-bottom:12px; margin-bottom:16px;">
+            <h2 style="font-family:var(--font-orbitron); color:var(--accent-yellow); font-size:1.3rem;">BCE HOSTEL ACCOMMODATION PASS</h2>
+            <div style="font-size:0.75rem; color:var(--text-dim);">TECHNORITI '26 • Bhagalpur College of Engineering Campus Hospitality Desk</div>
+          </div>
+
+          <div class="detail-grid">
+            <div class="detail-item">
+              <span class="detail-label">Booking Reference</span>
+              <span class="detail-val" style="font-family:var(--font-orbitron); color:var(--accent-cyan); font-weight:700;">${escapeHtml(bookId)}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">College Roll Number</span>
+              <span class="detail-val" style="font-family:var(--font-orbitron); color:var(--accent-yellow); font-weight:700;">${escapeHtml(roll || '—')}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Applicant Name</span>
+              <span class="detail-val" style="font-weight:700; color:#fff;">${escapeHtml(acc.full_name || acc.guest_name || 'Guest Participant')}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Institution / College</span>
+              <span class="detail-val">${escapeHtml(acc.college || 'N/A')}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Hostel Block &amp; Gender</span>
+              <span class="detail-val">${escapeHtml(acc.hostel_block || (acc.gender === 'female' ? 'Girls Hostel Block' : 'Boys Hostel Block'))} (${escapeHtml((acc.gender || 'male').toUpperCase())})</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Room Allotted</span>
+              <span class="detail-val" style="color:var(--accent-yellow); font-weight:700; font-size:1rem;">${escapeHtml(acc.room_number || 'Unallotted')}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Mobile Number</span>
+              <span class="detail-val">${escapeHtml(acc.phone || 'N/A')}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Email Address</span>
+              <span class="detail-val">${escapeHtml(acc.email || 'N/A')}</span>
+            </div>
+            <div class="detail-item full-width">
+              <span class="detail-label">Independent Services &amp; Tariff Calculation</span>
+              <div style="background: rgba(15,23,42,0.65); padding: 12px 14px; border-radius: 8px; border: 1px solid var(--admin-border); margin-top: 4px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; font-size:0.85rem;">
+                  <span><strong>🛏️ Campus Hostel Lodging:</strong> ${isL ? `YES (${lDays} Days @ ₹50/day)` : 'NO (Not Booked)'}</span>
+                  <span style="color:var(--accent-cyan); font-weight:700;">₹${lFee}</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; font-size:0.85rem;">
+                  <span><strong>🍱 Campus Mess Food:</strong> ${isF ? `YES (${fDays} Days @ ₹125/day)` : 'NO (Not Booked)'}</span>
+                  <span style="color:var(--accent-yellow); font-weight:700;">₹${fFee}</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid rgba(255,255,255,0.1); padding-top:8px; font-size:0.9rem; font-weight:700;">
+                  <span>Total Hospitality Fee:</span>
+                  <span style="color:var(--accent-green); font-size:1.05rem;">₹${totalAmount}</span>
+                </div>
+              </div>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Payment UTR / Reference</span>
+              <span class="detail-val" style="font-family:monospace; color:var(--accent-cyan);">${escapeHtml(acc.payment_reference || 'N/A')}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Booking Status</span>
+              <span class="detail-val"><span class="badge-status ${acc.status === 'checked_in' || acc.status === 'allotted' ? 'badge-verified' : acc.status === 'cancelled' ? 'badge-rejected' : 'badge-pending'}">${escapeHtml((acc.status || 'requested').toUpperCase())}</span></span>
+            </div>
+            ${acc.emergency_contact ? `
+              <div class="detail-item">
+                <span class="detail-label">Emergency Contact</span>
+                <span class="detail-val">${escapeHtml(acc.emergency_contact)}</span>
+              </div>
+            ` : ''}
+            ${acc.id_proof_number ? `
+              <div class="detail-item">
+                <span class="detail-label">Govt/College ID Proof</span>
+                <span class="detail-val">${escapeHtml(acc.id_proof_number)}</span>
+              </div>
+            ` : ''}
+            <div class="detail-item full-width">
+              <span class="detail-label">Admin Notes</span>
+              <div style="font-size:0.82rem; color:var(--text-dim); background:rgba(0,0,0,0.3); padding:8px 12px; border-radius:6px;">${escapeHtml(notes || 'None')}</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px; border-top:1px solid var(--admin-border); padding-top:16px;">
+          <button class="btn-secondary" onclick="window.print()">🖨️ Print Pass</button>
+          <div style="display:flex; gap:10px;">
+            <button class="btn-secondary" onclick="closeModal('accomDetailModal'); openAllotRoomModal('${acc.id}', '${escapeHtml(acc.full_name || acc.guest_name || 'Guest')}')">Allot Room</button>
+            <button class="btn-primary" onclick="updateBookingStatus('${acc.id}', 'checked_in'); closeModal('accomDetailModal');">✓ Check In</button>
+            <button class="btn-secondary" style="border-color:#ef4444; color:#ef4444;" onclick="updateBookingStatus('${acc.id}', 'cancelled'); closeModal('accomDetailModal');">✕ Cancel Booking</button>
+          </div>
+        </div>
+      `;
+    }
+
+    openModal('accomDetailModal');
   };
 
   // =========================================================================
@@ -3335,6 +3473,404 @@
   }
 
   // =========================================================================
+  // 14B. PARTICIPANT ACCOUNTS & CSV EXPORTS
+  // =========================================================================
+
+  window.exportAccommodationsCSV = function () {
+    if (!state.accommodations || state.accommodations.length === 0) {
+      showToast('No accommodation bookings to export yet', 'error');
+      return;
+    }
+
+    const headers = [
+      'Booking_Reference',
+      'Guest_Name',
+      'Roll_Number',
+      'College',
+      'Phone',
+      'Email',
+      'Hostel_Block',
+      'Gender',
+      'Lodging_Booked',
+      'Lodging_Days',
+      'Lodging_Subtotal_INR',
+      'Food_Booked',
+      'Food_Days',
+      'Food_Subtotal_INR',
+      'Total_Fee_INR',
+      'Room_Allotted',
+      'Payment_Reference_UTR',
+      'Booking_Status',
+      'Created_Date'
+    ];
+
+    const rows = state.accommodations.map((a, i) => {
+      const ref = a.booking_reference || ('ACC-' + (1000 + i));
+      const name = a.full_name || a.guest_name || '';
+      const notes = a.admin_notes || '';
+      const lMatch = notes.match(/Lodging:\s*(YES|NO)(?:\s*\(([0-9]+)d,\s*₹?([0-9]+)\))?/i);
+      const fMatch = notes.match(/Fooding:\s*(YES|NO)(?:\s*\(([0-9]+)d,\s*₹?([0-9]+)\))?/i);
+      const isL = a.has_lodging !== undefined && a.has_lodging !== null ? !!a.has_lodging : (lMatch ? lMatch[1].toUpperCase() === 'YES' : notes.includes('Lodging: YES'));
+      const isF = a.has_food !== undefined && a.has_food !== null ? !!a.has_food : (fMatch ? fMatch[1].toUpperCase() === 'YES' : notes.includes('Fooding: YES'));
+      const lDays = a.lodging_days !== undefined && a.lodging_days !== null ? a.lodging_days : (lMatch && lMatch[2] ? parseInt(lMatch[2], 10) : (isL ? (a.days_count || 2) : 0));
+      const fDays = a.food_days !== undefined && a.food_days !== null ? a.food_days : (fMatch && fMatch[2] ? parseInt(fMatch[2], 10) : (isF ? (a.days_count || 2) : 0));
+      const lSub = a.lodging_subtotal !== undefined && a.lodging_subtotal !== null ? a.lodging_subtotal : (lMatch && lMatch[3] ? parseInt(lMatch[3], 10) : (isL ? lDays * 50 : 0));
+      const fSub = a.food_subtotal !== undefined && a.food_subtotal !== null ? a.food_subtotal : (fMatch && fMatch[3] ? parseInt(fMatch[3], 10) : (isF ? fDays * 125 : 0));
+      const totalFee = a.total_fee || a.total_amount || (lSub + fSub);
+
+      let roll = a.roll_number || '';
+      if (!roll && notes) {
+        const rMatch = notes.match(/Roll(?: Number)?:?\s*([A-Za-z0-9\/\-_.]+)/i);
+        if (rMatch && rMatch[1]) roll = rMatch[1];
+      }
+
+      return [
+        csvEscape(ref),
+        csvEscape(name),
+        csvEscape(roll),
+        csvEscape(a.college || ''),
+        csvEscape(a.phone || ''),
+        csvEscape(a.email || ''),
+        csvEscape(a.hostel_block || ''),
+        csvEscape(a.gender || ''),
+        isL ? 'YES' : 'NO',
+        lDays,
+        lSub,
+        isF ? 'YES' : 'NO',
+        fDays,
+        fSub,
+        totalFee,
+        csvEscape(a.room_number || 'Unallotted'),
+        csvEscape(a.payment_reference || ''),
+        csvEscape(a.status || 'requested'),
+        csvEscape(a.created_at || '')
+      ];
+    });
+
+    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    const dateStamp = new Date().toISOString().slice(0, 10);
+    link.setAttribute('download', `technoriti_accommodations_${dateStamp}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    showToast('Exported accommodation bookings to CSV', 'success');
+  };
+
+  window.exportParticipantsCSV = function () {
+    if (!state.participants || state.participants.length === 0) {
+      showToast('No participant accounts to export yet', 'error');
+      return;
+    }
+
+    const headers = [
+      'User_ID',
+      'Roll_Number',
+      'Full_Name',
+      'College_University',
+      'Branch_Department',
+      'Academic_Year',
+      'Email',
+      'Phone',
+      'Registered_Date'
+    ];
+
+    const rows = state.participants.map(p => {
+      return [
+        csvEscape(p.id || ''),
+        csvEscape(p.roll_number || ''),
+        csvEscape(p.full_name || ''),
+        csvEscape(p.college || ''),
+        csvEscape(p.branch || ''),
+        csvEscape(p.academic_year || ''),
+        csvEscape(p.email || ''),
+        csvEscape(p.phone || ''),
+        csvEscape(p.created_at || '')
+      ];
+    });
+
+    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    const dateStamp = new Date().toISOString().slice(0, 10);
+    link.setAttribute('download', `technoriti_participant_accounts_${dateStamp}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    showToast('Exported participant accounts to CSV', 'success');
+  };
+
+  window.loadParticipantsTable = async function (forceRefresh = false) {
+    const btn = document.getElementById('btnRefreshParticipants');
+    const originalText = btn ? btn.innerHTML : '';
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = '<span>⏳</span> Refreshing...';
+    }
+
+    const tbody = document.getElementById('participantsTableBody');
+    if (tbody && (!state.participants || state.participants.length === 0)) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="7" class="table-empty-state">
+            <div class="table-empty-icon">⏳</div>
+            <div>Loading registered participant accounts from Supabase...</div>
+          </td>
+        </tr>
+      `;
+    }
+
+    try {
+      let accounts = [];
+      if (TechnoritiDB.getParticipantAccountsAdmin) {
+        accounts = await TechnoritiDB.getParticipantAccountsAdmin();
+      } else {
+        const client = TechnoritiDB.getClient();
+        const { data, error } = await client.from('profiles').select('*').order('created_at', { ascending: false });
+        if (error) throw error;
+        accounts = data || [];
+      }
+      state.participants = toArray(accounts);
+      populateParticipantCollegesFilter();
+      renderParticipantsTable();
+      if (forceRefresh) {
+        showToast(`Participant accounts synchronized! (${state.participants.length} accounts)`, 'success');
+      }
+    } catch (err) {
+      console.error('Error refreshing participant accounts:', err);
+      if (tbody) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7" class="table-empty-state">
+              <div class="table-empty-icon">⚠️</div>
+              <div style="color:var(--accent-red); margin-bottom:8px;">Failed to load participant accounts: ${escapeHtml(err.message)}</div>
+              <button class="btn-action-icon" onclick="loadParticipantsTable(true)"><span>🔄</span> Retry</button>
+            </td>
+          </tr>
+        `;
+      }
+      if (forceRefresh) {
+        showToast('Failed to refresh participant accounts: ' + err.message, 'error');
+      }
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = originalText || '<span>🔄</span> Refresh Accounts';
+      }
+    }
+  };
+
+  function populateParticipantCollegesFilter() {
+    const sel = document.getElementById('partCollegeFilter');
+    if (!sel) return;
+    const currentVal = sel.value;
+    const colleges = Array.from(new Set((state.participants || []).map(p => (p.college || '').trim()).filter(Boolean))).sort();
+    let html = '<option value="">All Colleges (' + (state.participants || []).length + ')</option>';
+    colleges.forEach(c => {
+      html += `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`;
+    });
+    sel.innerHTML = html;
+    if (currentVal && colleges.includes(currentVal)) {
+      sel.value = currentVal;
+    }
+  }
+
+  function renderParticipantsTable() {
+    const tbody = document.getElementById('participantsTableBody');
+    if (!tbody) return;
+
+    const list = toArray(state.participants);
+    if (list.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="7" class="table-empty-state">
+            <div class="table-empty-icon">🎓</div>
+            <div style="font-weight:600; font-size:1rem; margin-bottom:4px;">No Participant Accounts Found</div>
+            <div style="color:var(--text-muted); font-size:0.85rem; margin-bottom:12px;">No student accounts have signed up yet.</div>
+            <button class="btn-primary" onclick="loadParticipantsTable(true)" style="padding:6px 14px; font-size:0.8rem;"><span>🔄</span> Refresh Accounts</button>
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    const searchVal = (document.getElementById('partSearchInput')?.value || '').toLowerCase().trim();
+    const collegeFilter = (document.getElementById('partCollegeFilter')?.value || '').toLowerCase().trim();
+
+    const filtered = list.filter(p => {
+      const name = (p.full_name || '').toLowerCase();
+      const roll = (p.roll_number || '').toLowerCase();
+      const college = (p.college || '').toLowerCase();
+      const email = (p.email || '').toLowerCase();
+      const phone = (p.phone || '').toLowerCase();
+      const branch = (p.branch || '').toLowerCase();
+
+      if (searchVal) {
+        const matches = name.includes(searchVal) ||
+                        roll.includes(searchVal) ||
+                        college.includes(searchVal) ||
+                        email.includes(searchVal) ||
+                        phone.includes(searchVal) ||
+                        branch.includes(searchVal);
+        if (!matches) return false;
+      }
+
+      if (collegeFilter && !college.includes(collegeFilter)) return false;
+      return true;
+    });
+
+    if (filtered.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="7" class="table-empty-state">
+            <div class="table-empty-icon">🔍</div>
+            <div style="font-weight:600; font-size:1rem; margin-bottom:4px;">No Matching Accounts</div>
+            <div style="color:var(--text-muted); font-size:0.85rem;">No student accounts match the current search filters. (${list.length} total)</div>
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    tbody.innerHTML = filtered.map(p => {
+      const roll = p.roll_number || '—';
+      const name = p.full_name || 'Participant';
+      const college = p.college || '—';
+      const branch = p.branch || '—';
+      const year = p.academic_year || '—';
+      const email = p.email || '—';
+      const phone = p.phone || '—';
+      const dateStr = p.created_at ? new Date(p.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
+
+      return `
+        <tr>
+          <td style="font-family:var(--font-orbitron); font-size:0.82rem; color:var(--accent-yellow); font-weight:700;">${escapeHtml(roll)}</td>
+          <td>
+            <div style="font-weight:700; color:#fff;">${escapeHtml(name)}</div>
+            <div style="font-size:0.75rem; color:var(--accent-cyan); font-family:var(--font-orbitron);">${escapeHtml(email)}</div>
+          </td>
+          <td style="max-width:220px;">
+            <div style="font-size:0.85rem; color:var(--text-main); font-weight:600;">${escapeHtml(college)}</div>
+          </td>
+          <td>
+            <div style="font-size:0.82rem; color:var(--accent-cyan); font-weight:600;">${escapeHtml(branch)}</div>
+            <div style="font-size:0.73rem; color:var(--text-dim);">Year: ${escapeHtml(year)}</div>
+          </td>
+          <td>
+            <div style="font-size:0.82rem; color:var(--text-main); font-family:monospace;">${escapeHtml(phone)}</div>
+          </td>
+          <td style="font-size:0.78rem; color:var(--text-muted);">${escapeHtml(dateStr)}</td>
+          <td style="text-align:right;">
+            <button class="btn-action-icon" onclick="viewParticipantDetail('${p.id}')" title="Inspect Student Profile & Activity">👁️</button>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  window.renderParticipantsTable = renderParticipantsTable;
+
+  window.viewParticipantDetail = function (id) {
+    const p = (state.participants || []).find(acc => acc.id === id);
+    if (!p) return;
+
+    const modalBody = document.getElementById('modalPartBody');
+    const modalTitle = document.getElementById('modalPartTitle');
+    if (modalTitle) modalTitle.textContent = `Student Profile: ${p.full_name || 'Participant'}`;
+
+    // Find student's registrations and accommodations
+    const studentRegs = (state.registrations || []).filter(r => 
+      (r.user_id && r.user_id === p.id) ||
+      (p.email && r.email && r.email.toLowerCase() === p.email.toLowerCase()) ||
+      (p.roll_number && (r.roll_number === p.roll_number || (r.admin_notes && r.admin_notes.includes(p.roll_number))))
+    );
+
+    const studentAccoms = (state.accommodations || []).filter(a =>
+      (a.user_id && a.user_id === p.id) ||
+      (p.email && a.email && a.email.toLowerCase() === p.email.toLowerCase()) ||
+      (p.phone && a.phone && a.phone === p.phone)
+    );
+
+    const regsHtml = studentRegs.length > 0
+      ? studentRegs.map(r => {
+          const ref = r.ref_id || ('REG-' + r.id.slice(0, 8).toUpperCase());
+          const evts = parseRegistrationCompetitions(r).join(', ');
+          return `
+            <div style="background:rgba(15,23,42,0.6); border:1px solid var(--admin-border); border-radius:6px; padding:10px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                <span style="font-family:var(--font-orbitron); color:var(--accent-cyan); font-weight:700; font-size:0.8rem;">${escapeHtml(ref)}</span>
+                <div style="font-size:0.82rem; font-weight:600; color:#fff; margin-top:2px;">${escapeHtml(evts)}</div>
+                <div style="font-size:0.75rem; color:var(--text-dim); margin-top:1px;">Fee: ₹${r.total_amount || 0} • Status: ${(r.payment_status || 'pending').toUpperCase()}</div>
+              </div>
+              <button class="btn-action-icon" onclick="closeModal('participantDetailModal'); switchTab('registrations'); viewRegistrationDetail('${r.id}')" title="View Registration">👁️</button>
+            </div>
+          `;
+        }).join('')
+      : '<div style="font-size:0.82rem; color:var(--text-dim); padding:8px 0;">No competition registrations recorded for this student yet.</div>';
+
+    const accomsHtml = studentAccoms.length > 0
+      ? studentAccoms.map(a => {
+          const ref = a.booking_reference || ('ACC-' + a.id.slice(0, 8).toUpperCase());
+          const days = a.days_count || a.lodging_days || 2;
+          return `
+            <div style="background:rgba(15,23,42,0.6); border:1px solid var(--admin-border); border-radius:6px; padding:10px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                <span style="font-family:var(--font-orbitron); color:var(--accent-yellow); font-weight:700; font-size:0.8rem;">${escapeHtml(ref)}</span>
+                <div style="font-size:0.82rem; font-weight:600; color:#fff; margin-top:2px;">${escapeHtml(a.hostel_block || 'Campus Accommodation')} • ${days} Days</div>
+                <div style="font-size:0.75rem; color:var(--text-dim); margin-top:1px;">Status: ${(a.status || 'requested').toUpperCase()} • Room: ${escapeHtml(a.room_number || 'Unallotted')}</div>
+              </div>
+              <button class="btn-action-icon" onclick="closeModal('participantDetailModal'); switchTab('accommodations'); viewAccommodationDetail('${a.id}')" title="View Accommodation Pass">👁️</button>
+            </div>
+          `;
+        }).join('')
+      : '<div style="font-size:0.82rem; color:var(--text-dim); padding:8px 0;">No campus hostel bookings recorded for this student yet.</div>';
+
+    if (modalBody) {
+      modalBody.innerHTML = `
+        <div class="detail-grid">
+          <div class="detail-item">
+            <span class="detail-label">Full Name</span>
+            <span class="detail-val" style="font-weight:700; color:#fff;">${escapeHtml(p.full_name || 'N/A')}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">College Roll Number</span>
+            <span class="detail-val" style="font-family:var(--font-orbitron); color:var(--accent-yellow); font-weight:700;">${escapeHtml(p.roll_number || 'N/A')}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">College / University</span>
+            <span class="detail-val">${escapeHtml(p.college || 'N/A')}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Branch &amp; Year</span>
+            <span class="detail-val" style="color:var(--accent-cyan); font-weight:600;">${escapeHtml(p.branch || 'N/A')} (${escapeHtml(p.academic_year || 'N/A')})</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Email Address</span>
+            <span class="detail-val">${escapeHtml(p.email || 'N/A')}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Phone Number</span>
+            <span class="detail-val">${escapeHtml(p.phone || 'N/A')}</span>
+          </div>
+          <div class="detail-item full-width">
+            <span class="detail-label">Registered Competitions (${studentRegs.length})</span>
+            <div style="margin-top:6px;">${regsHtml}</div>
+          </div>
+          <div class="detail-item full-width">
+            <span class="detail-label">Campus Accommodation Bookings (${studentAccoms.length})</span>
+            <div style="margin-top:6px;">${accomsHtml}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    openModal('participantDetailModal');
+  };
+
+  // =========================================================================
   // 15. MEDIA LIBRARY & SUPABASE STORAGE
   // =========================================================================
   function renderMediaGrid() {
@@ -3644,8 +4180,19 @@
       await fetchAllData();
     });
 
-    // Export CSV button
-    document.getElementById('btnExportCSV')?.addEventListener('click', exportRegistrationsCSV);
+    // Export CSV buttons
+    document.getElementById('btnExportCSV')?.addEventListener('click', () => {
+      if (state.currentTab === 'participants') {
+        window.exportParticipantsCSV();
+      } else if (state.currentTab === 'accommodations') {
+        window.exportAccommodationsCSV();
+      } else {
+        window.exportRegistrationsCSV();
+      }
+    });
+    document.getElementById('btnExportParticipants')?.addEventListener('click', exportParticipantsCSV);
+    document.getElementById('btnExportAccommodations')?.addEventListener('click', exportAccommodationsCSV);
+    document.getElementById('btnExportRegistrationsDesk')?.addEventListener('click', exportRegistrationsCSV);
 
     // Global Search trigger
     document.getElementById('btnGlobalSearch')?.addEventListener('click', () => {
@@ -3675,6 +4222,9 @@
     // Filter Listeners
     document.getElementById('compSearchInput')?.addEventListener('input', renderCompetitionsTable);
     document.getElementById('compCategoryFilter')?.addEventListener('change', renderCompetitionsTable);
+
+    document.getElementById('partSearchInput')?.addEventListener('input', renderParticipantsTable);
+    document.getElementById('partCollegeFilter')?.addEventListener('change', renderParticipantsTable);
 
     document.getElementById('regSearchInput')?.addEventListener('input', renderRegistrationsTable);
     document.getElementById('regEventFilter')?.addEventListener('change', renderRegistrationsTable);

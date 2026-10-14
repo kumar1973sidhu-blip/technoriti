@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Participant Login & Sign Up | TECHNORITI '26</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css?v=2.2">
+  <style>
+    body.auth-page {
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(circle at 15% 20%, rgba(0, 240, 255, 0.08) 0%, transparent 45%),
+        radial-gradient(circle at 85% 80%, rgba(157, 78, 221, 0.08) 0%, transparent 45%),
+        linear-gradient(rgba(5, 7, 15, 0.88), rgba(5, 7, 15, 0.94)),
+        url('/cosmic-hero-bg.jpg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      min-height: 100vh;
+      overflow-y: auto !important;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .auth-header {
+      padding: 18px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(0, 240, 255, 0.12);
+      backdrop-filter: blur(12px);
+      background: rgba(5, 7, 15, 0.7);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .auth-header .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .back-home-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--accent-cyan);
+      text-decoration: none;
+      font-family: var(--font-orbitron);
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      padding: 8px 16px;
+      border: 1px solid rgba(0, 240, 255, 0.3);
+      border-radius: 8px;
+      background: rgba(0, 240, 255, 0.05);
+      transition: var(--transition-smooth);
+    }
+
+    .back-home-link:hover {
+      background: rgba(0, 240, 255, 0.15);
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
+      transform: translateX(-3px);
+    }
+
+    .auth-main-container {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 40px 16px;
+    }
+
+    .auth-card {
+      width: 100%;
+      max-width: 580px;
+      background: rgba(10, 14, 30, 0.92);
+      border: 1px solid rgba(0, 240, 255, 0.25);
+      border-radius: 18px;
+      padding: 36px 32px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(0, 240, 255, 0.1);
+      backdrop-filter: blur(20px);
+      position: relative;
+    }
+
+    .auth-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 20%;
+      right: 20%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent-cyan), var(--accent-purple), transparent);
+    }
+
+    .auth-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-orbitron);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: var(--accent-cyan);
+      background: rgba(0, 240, 255, 0.08);
+      border: 1px solid rgba(0, 240, 255, 0.25);
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-bottom: 12px;
+    }
+
+    .auth-title {
+      font-family: var(--font-orbitron);
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 6px;
+      letter-spacing: 1px;
+    }
+
+    .auth-subtitle {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+
+    /* Tab Switcher */
+    .auth-tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 6px;
+      background: rgba(5, 7, 15, 0.7);
+      padding: 5px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      margin-bottom: 24px;
+    }
+
+    .auth-tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      font-family: var(--font-orbitron);
+      font-size: 0.76rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      padding: 10px 4px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: var(--transition-smooth);
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .auth-tab-btn.active {
+      background: linear-gradient(135deg, rgba(0, 240, 255, 0.2), rgba(157, 78, 221, 0.25));
+      color: #fff;
+      border: 1px solid rgba(0, 240, 255, 0.4);
+      box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
+    }
+
+    /* Form Styles */
+    .auth-form-pane {
+      display: none;
+    }
+
+    .auth-form-pane.active {
+      display: block;
+      animation: fadeInAuth 0.3s ease-out forwards;
+    }
+
+    @keyframes fadeInAuth {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .auth-input-group {
+      margin-bottom: 16px;
+    }
+
+    .auth-label {
+      display: block;
+      font-family: var(--font-orbitron);
+      font-size: 0.76rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+
+    .auth-label span.req {
+      color: var(--accent-cyan);
+    }
+
+    .auth-input, .auth-select {
+      width: 100%;
+      padding: 12px 14px;
+      background: rgba(5, 7, 15, 0.75);
+      border: 1px solid rgba(0, 240, 255, 0.2);
+      border-radius: 8px;
+      color: #fff;
+      font-family: var(--font-body);
+      font-size: 0.92rem;
+      outline: none;
+      transition: var(--transition-smooth);
+    }
+
+    .auth-input:focus, .auth-select:focus {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 14px rgba(0, 240, 255, 0.3);
+      background: rgba(5, 7, 15, 0.95);
+    }
+
+    .auth-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    @media (max-width: 600px) {
+      .auth-row {
+        grid-template-columns: 1fr;
+        gap: 0;
+      }
+      .auth-card {
+        padding: 24px 18px;
+      }
+      .auth-tabs {
+        font-size: 0.7rem;
+      }
+    }
+
+    .quick-chip-btn {
+      display: inline-block;
+      font-size: 0.7rem;
+      padding: 3px 8px;
+      background: rgba(0, 240, 255, 0.1);
+      border: 1px solid rgba(0, 240, 255, 0.3);
+      border-radius: 4px;
+      color: var(--accent-cyan);
+      cursor: pointer;
+      margin-top: 4px;
+      transition: var(--transition-smooth);
+    }
+
+    .quick-chip-btn:hover {
+      background: rgba(0, 240, 255, 0.25);
+    }
+
+    .auth-submit-btn {
+      width: 100%;
+      padding: 14px;
+      margin-top: 10px;
+      background: linear-gradient(135deg, rgba(0, 240, 255, 0.2), rgba(157, 78, 221, 0.3));
+      border: 1px solid var(--accent-cyan);
+      border-radius: 8px;
+      color: #fff;
+      font-family: var(--font-orbitron);
+      font-size: 0.88rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      cursor: pointer;
+      transition: var(--transition-smooth);
+      box-shadow: 0 0 20px rgba(0, 240, 255, 0.25);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .auth-submit-btn:hover:not(:disabled) {
+      background: var(--accent-cyan);
+      color: #05070f;
+      box-shadow: 0 0 30px rgba(0, 240, 255, 0.6);
+      transform: translateY(-2px);
+    }
+
+    .auth-submit-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .auth-alert-banner {
+      padding: 12px 14px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      line-height: 1.4;
+      margin-bottom: 18px;
+      display: none;
+    }
+
+    .auth-alert-banner.error {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.5);
+      color: #fca5a5;
+    }
+
+    .auth-alert-banner.success {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.5);
+      color: #6ee7b7;
+    }
+
+    .auth-footer-text {
+      text-align: center;
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+      margin-top: 20px;
+    }
+
+    .auth-footer-text a {
+      color: var(--accent-cyan);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .auth-footer-text a:hover {
+      text-decoration: underline;
+    }
+
+    .input-hint {
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body class="auth-page">
+
+  <!-- Header -->
+  <header class="auth-header">
+    <a href="/index.html" class="brand" title="Technoriti '26 Home">
+      <div class="brand-symbol">
+        <svg viewBox="0 0 36 36" width="30" height="30" fill="none">
+          <polygon points="18,5 30,12 30,24 18,31 6,24 6,12" stroke="#00ffff" stroke-width="2" fill="rgba(0, 240, 255, 0.15)"/>
+          <path d="M12 14 L24 14 M18 14 L18 25 M14 25 L22 25" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <span class="brand-title" style="font-family: var(--font-orbitron); font-weight: 800; color:#fff; font-size: 0.95rem;">TECHNORITI '26</span>
+        <span class="brand-tag" style="display:block; font-size: 0.65rem; color: var(--accent-cyan); letter-spacing: 1.5px;">BCE BHAGALPUR</span>
+      </div>
+    </a>
+
+    <a href="/index.html" class="back-home-link">
+      <span>← Return to Festival</span>
+    </a>
+  </header>
+
+  <!-- Main Container -->
+  <main class="auth-main-container">
+    <div class="auth-card">
+      <div class="auth-badge">
+        <span class="pulse-dot"></span>
+        <span>STUDENT &amp; PARTICIPANT PORTAL</span>
+      </div>
+      <h1 class="auth-title" id="authCardHeading">PARTICIPANT GATEWAY</h1>
+      <p class="auth-subtitle" id="authCardSub">Sign in or register to participate in 29+ competitions and book campus accommodation.</p>
+
+      <!-- Alert Banners -->
+      <div id="authAlert" class="auth-alert-banner"></div>
+
+      <!-- Tab Switcher -->
+      <div class="auth-tabs" role="tablist">
+        <button type="button" class="auth-tab-btn active" id="tabBtnLogin" onclick="switchAuthTab('login')">SIGN IN</button>
+        <button type="button" class="auth-tab-btn" id="tabBtnSignup" onclick="switchAuthTab('signup')">CREATE ACCOUNT</button>
+        <button type="button" class="auth-tab-btn" id="tabBtnReset" onclick="switchAuthTab('reset')">RESET PASSWORD</button>
+      </div>
+
+      <!-- 1. SIGN IN PANE -->
+      <div id="paneLogin" class="auth-form-pane active">
+        <form id="loginForm" onsubmit="event.preventDefault(); handleParticipantSignIn();">
+          <div class="auth-input-group">
+            <label class="auth-label" for="loginEmail">Email Address <span class="req">*</span></label>
+            <input type="email" id="loginEmail" class="auth-input" placeholder="e.g. rahul.sharma@gmail.com" required autocomplete="email">
+          </div>
+
+          <div class="auth-input-group">
+            <div style="display: flex; justify-content: space-between; align-items: baseline;">
+              <label class="auth-label" for="loginPassword">Password <span class="req">*</span></label>
+              <a href="javascript:void(0)" onclick="switchAuthTab('reset')" style="font-size: 0.74rem; color: var(--accent-cyan); text-decoration: none;">Forgot password?</a>
+            </div>
+            <input type="password" id="loginPassword" class="auth-input" placeholder="••••••••" required autocomplete="current-password">
+          </div>
+
+          <button type="submit" id="btnSubmitLogin" class="auth-submit-btn">
+            <span>SIGN IN TO PORTAL</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+        </form>
+
+        <p class="auth-footer-text">
+          New to Technoriti '26? <a href="javascript:void(0)" onclick="switchAuthTab('signup')">Create a participant account here</a>
+        </p>
+      </div>
+
+      <!-- 2. CREATE ACCOUNT PANE -->
+      <div id="paneSignup" class="auth-form-pane">
+        <form id="signupForm" onsubmit="event.preventDefault(); handleParticipantSignUp();">
+          <div class="auth-row">
+            <div class="auth-input-group">
+              <label class="auth-label" for="regFullName">Full Name <span class="req">*</span></label>
+              <input type="text" id="regFullName" class="auth-input" placeholder="e.g. Rahul Sharma" required autocomplete="name">
+            </div>
+
+            <div class="auth-input-group">
+              <label class="auth-label" for="regRollNumber">College Roll / Reg # <span class="req">*</span></label>
+              <input type="text" id="regRollNumber" class="auth-input" placeholder="e.g. 22105123 or BCE/22/EE/14" required autocomplete="off">
+            </div>
+          </div>
+
+          <div class="auth-row">
+            <div class="auth-input-group">
+              <label class="auth-label" for="regCollege">College / University <span class="req">*</span></label>
+              <input type="text" id="regCollege" class="auth-input" placeholder="e.g. BCE Bhagalpur / NIT / IIT" required>
+              <button type="button" class="quick-chip-btn" onclick="document.getElementById('regCollege').value = 'Bhagalpur College of Engineering (BCE)';">Autofill BCE Bhagalpur</button>
+            </div>
+
+            <div class="auth-input-group">
+              <label class="auth-label" for="regBranch">Branch / Department <span class="req">*</span></label>
+              <select id="regBranch" class="auth-select" required>
+                <option value="" disabled selected>Select Branch</option>
+                <option value="Computer Science & Engineering">Computer Science &amp; Engineering</option>
+                <option value="Electronics & Communication Engineering">Electronics &amp; Communication (ECE)</option>
+                <option value="Electrical Engineering">Electrical Engineering (EE)</option>
+                <option value="Mechanical Engineering">Mechanical Engineering (ME)</option>
+                <option value="Civil Engineering">Civil Engineering (CE)</option>
+                <option value="Information Technology">Information Technology (IT)</option>
+                <option value="Applied Science / Humanities">Applied Science &amp; Humanities</option>
+                <option value="Other Engineering / Polytechnic">Other Polytechnic / Engg</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="auth-row">
+            <div class="auth-input-group">
+              <label class="auth-label" for="regAcademicYear">Academic Year / Semester <span class="req">*</span></label>
+              <select id="regAcademicYear" class="auth-select" required>
+                <option value="1st Year (1st - 2nd Sem)">1st Year (1st - 2nd Sem)</option>
+                <option value="2nd Year (3rd - 4th Sem)">2nd Year (3rd - 4th Sem)</option>
+                <option value="3rd Year (5th - 6th Sem)" selected>3rd Year (5th - 6th Sem)</option>
+                <option value="4th Year (7th - 8th Sem)">4th Year (7th - 8th Sem)</option>
+                <option value="Postgraduate / M.Tech / PhD">Postgraduate / M.Tech / PhD</option>
+              </select>
+            </div>
+
+            <div class="auth-input-group">
+              <label class="auth-label" for="regPhone">WhatsApp / Mobile Number <span class="req">*</span></label>
+              <input type="tel" id="regPhone" class="auth-input" placeholder="10-digit mobile" required autocomplete="tel" maxlength="10">
+              <div class="input-hint">10 digits starting with 6, 7, 8, or 9</div>
+            </div>
+          </div>
+
+          <div class="auth-input-group">
+            <label class="auth-label" for="regEmail">Email Address <span class="req">*</span></label>
+            <input type="email" id="regEmail" class="auth-input" placeholder="e.g. rahul.sharma@gmail.com" required autocomplete="email">
+            <div class="input-hint">Your login identity and festival pass will be sent here</div>
+          </div>
+
+          <div class="auth-row">
+            <div class="auth-input-group">
+              <label class="auth-label" for="regPassword">Create Password <span class="req">*</span></label>
+              <input type="password" id="regPassword" class="auth-input" placeholder="Min. 6 characters" required minlength="6" autocomplete="new-password">
+            </div>
+
+            <div class="auth-input-group">
+              <label class="auth-label" for="regConfirmPassword">Confirm Password <span class="req">*</span></label>
+              <input type="password" id="regConfirmPassword" class="auth-input" placeholder="Repeat password" required minlength="6" autocomplete="new-password">
+            </div>
+          </div>
+
+          <button type="submit" id="btnSubmitSignup" class="auth-submit-btn">
+            <span>CREATE PARTICIPANT ACCOUNT</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+        </form>
+
+        <p class="auth-footer-text">
+          Already registered? <a href="javascript:void(0)" onclick="switchAuthTab('login')">Sign in to your account</a>
+        </p>
+      </div>
+
+      <!-- 3. RESET PASSWORD PANE -->
+      <div id="paneReset" class="auth-form-pane">
+        <form id="resetForm" onsubmit="event.preventDefault(); handleParticipantResetPassword();">
+          <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 16px; line-height: 1.5;">
+            Enter your registered email address below. We'll send you a secure password reset link to recover access to your Technoriti account.
+          </p>
+
+          <div class="auth-input-group">
+            <label class="auth-label" for="resetEmail">Registered Email Address <span class="req">*</span></label>
+            <input type="email" id="resetEmail" class="auth-input" placeholder="e.g. rahul.sharma@gmail.com" required autocomplete="email">
+          </div>
+
+          <button type="submit" id="btnSubmitReset" class="auth-submit-btn">
+            <span>SEND PASSWORD RESET LINK</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+        </form>
+
+        <p class="auth-footer-text">
+          Remembered your password? <a href="javascript:void(0)" onclick="switchAuthTab('login')">Return to Sign In</a>
+        </p>
+      </div>
+    </div>
+  </main>
+
+  <!-- Supabase SDK, Runtime Config & Frontend Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/env-config.js"></script>
+  <script src="/supabase-client.js?v=2.2"></script>
+
+  <script>
+    // Tab Switching Logic & URL Routing
+    const urlParams = new URLSearchParams(window.location.search);
+    const redirectTarget = urlParams.get('redirect') || '';
+    const initialMode = urlParams.get('mode') || (window.location.pathname.includes('signup') ? 'signup' : 'login');
+
+    function showAlert(msg, isError = true) {
+      const el = document.getElementById('authAlert');
+      if (!el) return;
+      el.className = `auth-alert-banner ${isError ? 'error' : 'success'}`;
+      el.textContent = msg;
+      el.style.display = 'block';
+      el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function clearAlert() {
+      const el = document.getElementById('authAlert');
+      if (!el) return;
+      el.style.display = 'none';
+      el.textContent = '';
+    }
+
+    function switchAuthTab(tab) {
+      clearAlert();
+      const panes = ['login', 'signup', 'reset'];
+      panes.forEach(p => {
+        const paneEl = document.getElementById(`pane${p.charAt(0).toUpperCase() + p.slice(1)}`);
+        const btnEl = document.getElementById(`tabBtn${p.charAt(0).toUpperCase() + p.slice(1)}`);
+        if (paneEl) paneEl.classList.toggle('active', p === tab);
+        if (btnEl) btnEl.classList.toggle('active', p === tab);
+      });
+
+      const heading = document.getElementById('authCardHeading');
+      const sub = document.getElementById('authCardSub');
+      if (tab === 'signup') {
+        if (heading) heading.textContent = 'CREATE PARTICIPANT ACCOUNT';
+        if (sub) sub.textContent = 'Register once to unlock 29+ technical events and hostel accommodation.';
+      } else if (tab === 'reset') {
+        if (heading) heading.textContent = 'RESET YOUR PASSWORD';
+        if (sub) sub.textContent = 'Recover account credentials with a secure recovery link.';
+      } else {
+        if (heading) heading.textContent = 'PARTICIPANT GATEWAY';
+        if (sub) sub.textContent = 'Sign in to access your registered competitions, accommodation pass, and festival badges.';
+      }
+    }
+
+    // Determine destination after login
+    function getPostAuthRedirect() {
+      if (redirectTarget === 'register') {
+        return '/index.html#register';
+      } else if (redirectTarget === 'accommodation') {
+        return '/index.html#accommodation';
+      } else if (redirectTarget === 'dashboard') {
+        return '/dashboard.html';
+      }
+      return '/dashboard.html';
+    }
+
+    // Check if user is already logged in
+    async function checkExistingAuth() {
+      try {
+        if (!window.TechnoritiDB) return;
+        const user = await window.TechnoritiDB.getCurrentUser();
+        if (user) {
+          const dest = getPostAuthRedirect();
+          window.location.replace(dest);
+        }
+      } catch (err) {
+        console.warn('Session check note:', err);
+      }
+    }
+
+    // Sign In Handler
+    async function handleParticipantSignIn() {
+      clearAlert();
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      const btn = document.getElementById('btnSubmitLogin');
+      const originalText = btn.innerHTML;
+
+      if (!email || !password) {
+        showAlert('Please enter both email and password.');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<span>AUTHENTICATING...</span>';
+
+      try {
+        const res = await window.TechnoritiDB.signInParticipant(email, password);
+        if (!res.success) {
+          showAlert(res.error || 'Invalid email or password. Please try again.');
+          btn.disabled = false;
+          btn.innerHTML = originalText;
+          return;
+        }
+
+        showAlert('Login successful! Redirecting to your destination...', false);
+        setTimeout(() => {
+          window.location.replace(getPostAuthRedirect());
+        }, 600);
+      } catch (err) {
+        showAlert(err.message || 'An unexpected error occurred during sign in.');
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+      }
+    }
+
+    // Sign Up Handler
+    async function handleParticipantSignUp() {
+      clearAlert();
+      const fullName = document.getElementById('regFullName').value.trim();
+      const rollNumber = document.getElementById('regRollNumber').value.trim();
+      const college = document.getElementById('regCollege').value.trim();
+      const branch = document.getElementById('regBranch').value;
+      const academicYear = document.getElementById('regAcademicYear').value;
+      const phone = document.getElementById('regPhone').value.trim().replace(/\D/g, '').slice(-10);
+      const email = document.getElementById('regEmail').value.trim();
+      const password = document.getElementById('regPassword').value;
+      const confirmPassword = document.getElementById('regConfirmPassword').value;
+
+      const btn = document.getElementById('btnSubmitSignup');
+      const originalText = btn.innerHTML;
+
+      if (!fullName) return showAlert('Full Name is required.');
+      if (!rollNumber) return showAlert('College Roll Number / Registration Number is required.');
+      if (!college) return showAlert('College / University name is required.');
+      if (!branch) return showAlert('Please select your Branch / Department.');
+      if (!/^[6-9]\d{9}$/.test(phone)) {
+        return showAlert('Please enter a valid 10-digit Indian WhatsApp / mobile number.');
+      }
+      if (!email || !email.includes('@')) {
+        return showAlert('Please enter a valid email address.');
+      }
+      if (password.length < 6) {
+        return showAlert('Password must be at least 6 characters long.');
+      }
+      if (password !== confirmPassword) {
+        return showAlert('Passwords do not match. Please re-enter.');
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<span>CREATING ACCOUNT...</span>';
+
+      try {
+        const res = await window.TechnoritiDB.signUpParticipant({
+          fullName,
+          rollNumber,
+          college,
+          branch,
+          academicYear,
+          phone,
+          email,
+          password
+        });
+
+        if (!res.success) {
+          showAlert(res.error || 'Failed to create account. Please try again.');
+          btn.disabled = false;
+          btn.innerHTML = originalText;
+          return;
+        }
+
+        if (res.requiresEmailConfirmation) {
+          showAlert('Account created! A confirmation email has been sent to your inbox. Please verify your email to log in.', false);
+          btn.disabled = false;
+          btn.innerHTML = originalText;
+        } else {
+          showAlert('Account created successfully! Preparing your participant portal...', false);
+          setTimeout(() => {
+            window.location.replace(getPostAuthRedirect());
+          }, 800);
+        }
+      } catch (err) {
+        showAlert(err.message || 'An unexpected error occurred during sign up.');
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+      }
+    }
+
+    // Password Reset Handler
+    async function handleParticipantResetPassword() {
+      clearAlert();
+      const email = document.getElementById('resetEmail').value.trim();
+      const btn = document.getElementById('btnSubmitReset');
+      const originalText = btn.innerHTML;
+
+      if (!email || !email.includes('@')) {
+        showAlert('Please enter a valid registered email address.');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<span>SENDING RESET LINK...</span>';
+
+      try {
+        const res = await window.TechnoritiDB.resetPassword(email);
+        if (!res.success) {
+          showAlert(res.error || 'Could not send reset email. Please try again.');
+          btn.disabled = false;
+          btn.innerHTML = originalText;
+          return;
+        }
+
+        showAlert(`Password reset link sent to ${email}! Please check your email inbox to reset your password.`, false);
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+      } catch (err) {
+        showAlert(err.message || 'An unexpected error occurred.');
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+      }
+    }
+
+    // Initialize View
+    document.addEventListener('DOMContentLoaded', () => {
+      switchAuthTab(initialMode === 'signup' ? 'signup' : (initialMode === 'reset' ? 'reset' : 'login'));
+      checkExistingAuth();
+    });
+  </script>
+</body>
+</html>
